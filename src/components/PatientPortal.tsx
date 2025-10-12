@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import {
   Clock,
   Phone,
@@ -22,11 +22,15 @@ interface PatientPortalProps {
 
 export function FPatientPortal({ onGoToAdmin }: PatientPortalProps) {
   const { services } = useDashboardData();
+  useEffect(() => {
+  console.log(services)
+  }, [])
+  
   let servicesLoading = false;
   if (services.length) {
     servicesLoading = false;
   } else {
-    servicesLoading = false;
+    servicesLoading = true;
   }
 
   const [showBookingForm, setShowBookingForm] = useState(false);

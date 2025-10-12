@@ -79,12 +79,18 @@ export function DashboardOverview() {
 
   return (
     <div className="space-y-3 md:space-y-4">
-      <div>
-        <h1 className="text-2xl flex justify-between font-bold text-gray-900"><span>Dashboard Overview</span> <p className="text-xl font-bold">{totalAmount}</p></h1>
-        <p className="text-gray-600 hidden md:flex">
-          Welcome back! Here's what's happening at your clinic today.
-        </p>
-      </div>
+<div>
+  <h1 className="text-2xl flex justify-between font-bold text-gray-900">
+    <span>Dashboard Overview</span>
+    <p className="text-[16px] md:text-xl mr-3 font-bold text-green-600 bg-green-100 px-4 rounded-lg">
+      {totalAmount}
+    </p>
+  </h1>
+  <p className="text-gray-600 hidden md:flex">
+    Welcome back! Here's what's happening at your clinic today.
+  </p>
+</div>
+
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 md:gap-4 gap-2">
