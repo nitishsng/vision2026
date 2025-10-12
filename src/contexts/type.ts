@@ -114,7 +114,7 @@ export type PatientFullType = {
   deliveryDate: string;
 
   // Medicine
-  medicineName: string;
+  medicines: {medicinename:string,price:number}[];
   medicinePrice: number;
 
 
@@ -233,7 +233,7 @@ export const initialPatient:PatientFullTypeWithObjectId={
   deliveryDate: "",
 
   //madicine
-  medicineName: "",
+  medicines: [{ medicinename: "", price: 0 }],
   medicinePrice: 0,
 
 

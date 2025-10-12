@@ -6,6 +6,7 @@ import { useDashboardData } from "@/src/contexts/dataCollection";
 import { PatientFullTypeWithObjectId } from "@/src/contexts/type";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { Delete } from "lucide-react";
 const EditPage = () => {
   const navigate = useRouter();
   const { patients, fetchData } = useDashboardData();
@@ -190,6 +191,63 @@ const EditPage = () => {
         </button>
       </div>
     );
+  };
+
+  const handleMedicineChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    index: number
+  ) => {
+    const { name, value } = e.target;
+    console.log(value);
+    const updatedMedicines = [...formData.medicines];
+    updatedMedicines[index] = {
+      ...updatedMedicines[index],
+      [name]: name === "price" ? Number(value) : value,
+    };
+
+    const totalPrice = updatedMedicines.reduce(
+      (sum, med) => sum + (Number(med.price) || 0),
+      0
+    );
+
+    setFormData((prev) => {
+      if (!prev) return prev; // handle null safely
+
+      return {
+        ...prev, // keep all other properties (id, name, etc.)
+        medicines: updatedMedicines,
+        medicinePrice: totalPrice,
+      };
+    });
+  };
+
+  const addMedicineField = () => {
+    setFormData((prev) => {
+      if (!prev) return prev; // or return null safely
+
+      return {
+        ...prev,
+        medicines: [...prev.medicines, { medicinename: "", price: 0 }],
+      };
+    });
+  };
+
+  const removeMedicineField = (index: number) => {
+    setFormData((prev) => {
+      if (!prev) return prev; // safely handle null state
+
+      const updatedMedicines = prev.medicines.filter((_, i) => i !== index);
+      const totalPrice = updatedMedicines.reduce(
+        (sum, med) => sum + (Number(med.price) || 0),
+        0
+      );
+
+      return {
+        ...prev,
+        medicines: updatedMedicines,
+        medicinePrice: totalPrice,
+      };
+    });
   };
 
   return (
@@ -1220,61 +1278,105 @@ const EditPage = () => {
       )}
 
       {/* Payment Details */}
-      <div className="space-y-2 md:space-x-4">
-        {/* 🧾 Visit Payment */}
+      <div className="space-y-8">
+        {/* 🧾 Visit & Medicines Section */}
+        <div className="bg-white shadow-md rounded-2xl p-2 md:p-2 border border-gray-100">
+          <h3 className="text-xl font-semibold text-gray-700 mb-4">
+            Visit & Medicines
+          </h3>
 
-        {/* <h3 className="text-lg font-semibold text-gray-700 my-2">
-          <hr />
-          Payment
-        </h3> */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          <div className="flex flex-col col-span-2 md:col-span-1">
-            <label className="font-medium mb-1">Visit Price</label>
-            <input
-              type="number"
-              name="visitPrice"
-              value={formData.visitPrice}
-              onChange={handleChange}
-              className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
-            />
+          {/* Visit Price */}
+          <div className="grid grid-cols-1 md:flex gap-2 md:gap-3">
+            <div className="flex flex-col max-w-[200px]">
+              <label className="font-medium text-gray-700 mb-1">
+                Visit Price
+              </label>
+              <input
+                type="number"
+                name="visitPrice"
+                value={formData.visitPrice}
+                onChange={handleChange}
+                className="border p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
+              />
+            </div>
+            {/* Medicines */}
+            <div className="flex bg-gray-50 flex-col w-full">
+              <div className="grid grid-cols-2 w-full">
+                <label className="font-medium px-3 text-gray-700">
+                  Medicine Name
+                </label>
+                <label className="font-medium px-3 text-gray-700">Price</label>
+              </div>
+              {formData.medicines.map((med, index) => (
+                <div
+                  key={index}
+                  className="grid grid-cols-2 gap-2 items-end bg-gray-50 p-1 md:p-2 "
+                >
+                  <div className="flex flex-col">
+                    <input
+                      type="text"
+                      name="medicinename"
+                      value={med.medicinename}
+                      onChange={(e) => handleMedicineChange(e, index)}
+                      placeholder="Enter Medicine Name"
+                      className="border p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
+                    />
+                  </div>
+
+                  <div className="flex flex-col">
+                    <div className="flex">
+                      <input
+                        type="number"
+                        name="price"
+                        value={med.price}
+                        onChange={(e) => handleMedicineChange(e, index)}
+                        placeholder="Enter Price"
+                        className="border p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
+                      />
+                      <div className="flex justify-end items-center ml-2 md:justify-start">
+                        <button
+                          type="button"
+                          onClick={() => removeMedicineField(index)}
+                          className="bg-red-500 text-white rounded-lg px-4 py-2 hover:bg-red-600 transition"
+                        >
+                          <Delete className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              <div className="grid grid-cols-2 justify-between px-3 mt-2 w-full">
+                <button
+                  type="button"
+                  onClick={addMedicineField}
+                  className="bg-blue-500 text-white rounded-lg px-2 md:px-3 py-2 w-fit hover:bg-blue-600 transition"
+                >
+                  + Add Medicine
+                </button>
+                <div className="flex justify-end">
+                  <input
+                    type="number"
+                    value={formData.medicinePrice}
+                    readOnly
+                    className="border py-2  rounded-lg bg-gray-100 text-gray-700 text-center"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
-          {/* </div> */}
-          {/* 💊 Medicine Payment */}
-
-          {/* <div className="grid grid-cols-2 md:grid-cols-4 gap-4"> */}
-          <div className="flex flex-col">
-            <label className="font-medium mb-1">Medicine Name</label>
-            <input
-              type="text"
-              name="medicineName"
-              value={formData.medicineName || ""}
-              onChange={handleChange}
-              placeholder="Enter Medicine Name"
-              className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label className="font-medium mb-1">Medicine Price</label>
-            <input
-              type="number"
-              name="medicinePrice"
-              value={formData.medicinePrice}
-              onChange={handleChange}
-              className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
-            />
-          </div>
-
         </div>
 
-        {/* 💰 Grand Totals */}
-        <div>
-          <h3 className="text-lg font-semibold text-gray-700 mb-2">
+        {/* 💰 Grand Totals Section */}
+        <div className="bg-white shadow-md rounded-2xl p-3 md:p-4 border border-gray-100">
+          <h3 className="text-xl font-semibold text-gray-700 mb-4">
             Grand Totals
           </h3>
-          <div className="grid grid-cols-3  gap-4">
+
+          <div className="grid grid-cols-3 gap-2 md:gap-6">
             <div className="flex flex-col">
-              <label className="font-medium mb-1">T-Amount</label>
+              <label className="font-medium text-gray-700 mb-1">T-Amount</label>
               <input
                 type="number"
                 readOnly
@@ -1284,12 +1386,14 @@ const EditPage = () => {
                   (formData.lensePrice || 0) +
                   (formData.medicinePrice || 0)
                 }
-                className="border p-3 rounded w-full bg-gray-100 cursor-not-allowed"
+                className="border p-3 rounded-lg bg-gray-100 cursor-not-allowed"
               />
             </div>
 
             <div className="flex flex-col">
-              <label className="font-medium mb-1">T-Advance</label>
+              <label className="font-medium text-gray-700 mb-1">
+                T-Advance
+              </label>
               <input
                 type="number"
                 readOnly
@@ -1298,21 +1402,23 @@ const EditPage = () => {
                   (formData.medicinePrice || 0) +
                   (formData.visitPrice || 0)
                 }
-                className="border p-3 rounded w-full bg-gray-100 cursor-not-allowed"
+                className="border p-3 rounded-lg bg-gray-100 cursor-not-allowed"
               />
             </div>
 
-            <div className="flex  flex-col">
-              <label className="font-medium mb-1">Total Due</label>
+            <div className="flex flex-col">
+              <label className="font-medium text-gray-700 mb-1">
+                Total Due
+              </label>
               <input
                 type="number"
                 readOnly
                 value={
                   (formData.framePrice || 0) +
                   (formData.lensePrice || 0) -
-                  (formData.opticalAdvance || 0) 
-                 }
-                className="border p-3 rounded w-full bg-gray-100 cursor-not-allowed"
+                  (formData.opticalAdvance || 0)
+                }
+                className="border p-3 rounded-lg bg-gray-100 cursor-not-allowed"
               />
             </div>
           </div>

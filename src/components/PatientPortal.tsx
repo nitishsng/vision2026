@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState,useEffect } from "react";
+import React, { useState } from "react";
 import {
   Clock,
   Phone,
@@ -13,7 +13,6 @@ import {
   Award,
 } from "lucide-react";
 import PatientForms from "./AppointmentForm";
-import { useDashboardData } from "../contexts/dataCollection";
 import Link from "next/link";
 
 interface PatientPortalProps {
@@ -21,17 +20,72 @@ interface PatientPortalProps {
 }
 
 export function FPatientPortal({ onGoToAdmin }: PatientPortalProps) {
-  const { services } = useDashboardData();
-  useEffect(() => {
-  console.log(services)
-  }, [])
-  
-  let servicesLoading = false;
-  if (services.length) {
-    servicesLoading = false;
-  } else {
-    servicesLoading = true;
-  }
+const services = [
+  {
+    name: "Comprehensive Eye Examination",
+    price: 800,
+    description: "A complete vision and eye health check-up including refraction, slit-lamp exam, and intraocular pressure measurement.",
+    duration: "30 mins",
+    category: "examination",
+    isActive: true,
+  },
+  {
+    name: "Cataract Consultation",
+    price: 1000,
+    description: "Specialized consultation and evaluation for cataract detection, surgery options, and postoperative care planning.",
+    duration: "40 mins",
+    category: "consultation",
+    isActive: true,
+  },
+  {
+    name: "LASIK Screening",
+    price: 1200,
+    description: "Pre-LASIK assessment including corneal mapping, refraction, and suitability evaluation for laser vision correction.",
+    duration: "45 mins",
+    category: "laser",
+    isActive: true,
+  },
+  {
+    name: "Contact Lens Fitting",
+    price: 600,
+    description: "Personalized fitting for soft, toric, or rigid gas-permeable lenses with usage guidance and care instructions.",
+    duration: "25 mins",
+    category: "optometry",
+    isActive: true,
+  },
+  {
+    name: "Glaucoma Screening",
+    price: 900,
+    description: "Screening for glaucoma using tonometry, optic nerve imaging, and visual field testing.",
+    duration: "35 mins",
+    category: "screening",
+    isActive: true,
+  },
+  {
+    name: "Retina Examination",
+    price: 1100,
+    description: "Comprehensive retinal check using fundoscopy and OCT to detect diabetic retinopathy or macular degeneration.",
+    duration: "40 mins",
+    category: "diagnostic",
+    isActive: true,
+  },
+  {
+    name: "Pediatric Eye Check-Up",
+    price: 700,
+    description: "Vision testing and eye alignment evaluation for children to detect lazy eye, squint, or refractive errors.",
+    duration: "30 mins",
+    category: "pediatric",
+    isActive: true,
+  },
+  {
+    name: "Post-Operative Follow-Up",
+    price: 500,
+    description: "Routine check-up after cataract or LASIK surgery to ensure proper healing and visual recovery.",
+    duration: "20 mins",
+    category: "follow-up",
+    isActive: true,
+  },
+];
 
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
@@ -137,13 +191,7 @@ export function FPatientPortal({ onGoToAdmin }: PatientPortalProps) {
             </p>
           </div>
 
-          {servicesLoading ? (
-            <div className="flex justify-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500">
-                Loading...
-              </div>
-            </div>
-          ) : (
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {services
                 .filter((service) => service.isActive)
@@ -173,7 +221,7 @@ export function FPatientPortal({ onGoToAdmin }: PatientPortalProps) {
                   </div>
                 ))}
             </div>
-          )}
+
         </div>
 
         {/* Contact Information */}
