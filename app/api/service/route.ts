@@ -104,3 +104,23 @@ export async function DELETE(req: Request) {
     );
   }
 }
+
+
+
+export async function GET() {
+  try {
+    // Get collection reference and fetch all documents
+    const collection = await getCollection<Service>("services");
+
+    // Assuming getCollection returns an array of documents
+    const services = await collection.find({}).toArray(); // MongoDB style
+    return NextResponse.json({ success: true, data: services }, { status: 200 });
+  } catch (error: unknown) {
+    console.error("Error fetching collections:", error);
+    return NextResponse.json(
+      { success: false, error: "Server error" },
+      { status: 500 }
+    );
+  }
+}
+
