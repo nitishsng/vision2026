@@ -73,7 +73,6 @@ const EditPage = () => {
     );
   };
 
-
   // Generic nested change handler
   const handleNestedChange = (path: string, value: any) => {
     setFormData((prev) => {
@@ -103,8 +102,6 @@ const EditPage = () => {
       const updatedFormData = {
         ...formData,
         updatedAt: new Date().toISOString(),
-        medicineDue:
-          (formData.medicinePrice ?? 0) - (formData.medicineAdvance ?? 0),
 
         totalAmount:
           (formData.visitPrice ?? 0) +
@@ -114,16 +111,19 @@ const EditPage = () => {
 
         totalAdvance:
           (formData.visitPrice ?? 0) +
-          (formData.medicineAdvance ?? 0) +
+          (formData.medicinePrice ?? 0) +
           (formData.opticalAdvance ?? 0),
 
         totalDue:
           (formData.framePrice ?? 0) +
           (formData.lensePrice ?? 0) -
-          (formData.opticalAdvance ?? 0) +
-          (formData.medicineDue ?? 0),
+          (formData.opticalAdvance ?? 0),
 
-        opticalaPrice: (formData.visitPrice ?? 0) + (formData.lensePrice ?? 0),
+        opticalaPrice: (formData.framePrice ?? 0) + (formData.lensePrice ?? 0),
+        opticalDue:
+          (formData?.framePrice ?? 0) +
+          (formData?.lensePrice ?? 0) -
+          (formData?.opticalAdvance ?? 0),
       };
 
       if (!id) throw new Error("Missing patient ID");
@@ -1135,25 +1135,24 @@ const EditPage = () => {
                 />
               </div>
 
-         <div className="flex flex-col">
-  <label className="font-medium mb-1">Lens Type</label>
-  <select
-    name="lenseType" // ✅ must match formData key
-    value={formData.lenseType || ""}
-    onChange={handleChange}
-    className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
-  >
-    <option value="" disabled>
-      Select Lens Type
-    </option>
-    <option value="progressive">Progressive</option>
-    <option value="single-vision">Single Vision</option>
-    <option value="bifocal">Bifocal</option>
-    <option value="trifocal">Trifocal</option>
-    <option value="reading">Reading</option>
-  </select>
-</div>
-
+              <div className="flex flex-col">
+                <label className="font-medium mb-1">Lens Type</label>
+                <select
+                  name="lenseType" // ✅ must match formData key
+                  value={formData.lenseType || ""}
+                  onChange={handleChange}
+                  className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
+                >
+                  <option value="" disabled>
+                    Select Lens Type
+                  </option>
+                  <option value="progressive">Progressive</option>
+                  <option value="single-vision">Single Vision</option>
+                  <option value="bifocal">Bifocal</option>
+                  <option value="trifocal">Trifocal</option>
+                  <option value="reading">Reading</option>
+                </select>
+              </div>
 
               <div className="flex flex-col">
                 <label className="font-medium mb-1">Lens Price</label>
@@ -1223,79 +1222,49 @@ const EditPage = () => {
       {/* Payment Details */}
       <div className="space-y-2 md:space-x-4">
         {/* 🧾 Visit Payment */}
-        <div>
-          <h3 className="text-lg font-semibold text-gray-700 my-2">
-            <hr />
-            Visit Payment
-          </h3>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <div className="flex flex-col col-span-2 md:col-span-1">
-              <label className="font-medium mb-1">Visit Price</label>
-              <input
-                type="number"
-                name="visitPrice"
-                value={formData.visitPrice}
-                onChange={handleChange}
-                className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
-              />
-            </div>
+
+        {/* <h3 className="text-lg font-semibold text-gray-700 my-2">
+          <hr />
+          Payment
+        </h3> */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="flex flex-col col-span-2 md:col-span-1">
+            <label className="font-medium mb-1">Visit Price</label>
+            <input
+              type="number"
+              name="visitPrice"
+              value={formData.visitPrice}
+              onChange={handleChange}
+              className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
+            />
           </div>
-        </div>
+          {/* </div> */}
+          {/* 💊 Medicine Payment */}
 
-        {/* 💊 Medicine Payment */}
-        <div>
-          <h3 className="text-lg font-semibold text-gray-700 mb-2">
-            Medicine Payment
-          </h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="flex flex-col">
-              <label className="font-medium mb-1">Medicine Name</label>
-              <input
-                type="text"
-                name="medicineName"
-                value={formData.medicineName || ""}
-                onChange={handleChange}
-                placeholder="Enter Medicine Name"
-                className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
-              />
-            </div>
-
-            <div className="flex flex-col">
-              <label className="font-medium mb-1">Medicine Price</label>
-              <input
-                type="number"
-                name="medicinePrice"
-                value={formData.medicinePrice}
-                onChange={handleChange}
-                className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
-              />
-            </div>
-
-            <div className="flex flex-col">
-              <label className="font-medium mb-1">Medicine Advance</label>
-              <input
-                type="number"
-                name="medicineAdvance"
-                value={formData.medicineAdvance}
-                onChange={handleChange}
-                className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
-              />
-            </div>
-
-            <div className="flex flex-col">
-              <label className="font-medium mb-1">Medicine Due</label>
-              <input
-                type="number"
-                readOnly
-                value={Math.max(
-                  0,
-                  (formData.medicinePrice || 0) -
-                    (formData.medicineAdvance || 0)
-                )}
-                className="border p-3 rounded w-full bg-gray-100 cursor-not-allowed"
-              />
-            </div>
+          {/* <div className="grid grid-cols-2 md:grid-cols-4 gap-4"> */}
+          <div className="flex flex-col">
+            <label className="font-medium mb-1">Medicine Name</label>
+            <input
+              type="text"
+              name="medicineName"
+              value={formData.medicineName || ""}
+              onChange={handleChange}
+              placeholder="Enter Medicine Name"
+              className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
+            />
           </div>
+
+          <div className="flex flex-col">
+            <label className="font-medium mb-1">Medicine Price</label>
+            <input
+              type="number"
+              name="medicinePrice"
+              value={formData.medicinePrice}
+              onChange={handleChange}
+              className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
+            />
+          </div>
+
         </div>
 
         {/* 💰 Grand Totals */}
@@ -1326,7 +1295,7 @@ const EditPage = () => {
                 readOnly
                 value={
                   (formData.opticalAdvance || 0) +
-                  (formData.medicineAdvance || 0) +
+                  (formData.medicinePrice || 0) +
                   (formData.visitPrice || 0)
                 }
                 className="border p-3 rounded w-full bg-gray-100 cursor-not-allowed"
@@ -1338,14 +1307,11 @@ const EditPage = () => {
               <input
                 type="number"
                 readOnly
-                value={Math.max(
-                  0,
+                value={
                   (formData.framePrice || 0) +
-                    (formData.lensePrice || 0) +
-                    (formData.medicinePrice || 0) -
-                    ((formData.opticalAdvance || 0) +
-                      (formData.medicineAdvance || 0))
-                )}
+                  (formData.lensePrice || 0) -
+                  (formData.opticalAdvance || 0) 
+                 }
                 className="border p-3 rounded w-full bg-gray-100 cursor-not-allowed"
               />
             </div>

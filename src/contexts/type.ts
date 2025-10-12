@@ -101,7 +101,7 @@ export type PatientFullType = {
   // Order
   
   opticalAdvance: number;
-  opticalaDue: number;
+  opticalDue: number;
   opticalaPrice: number;
 
   orderDate: string;
@@ -115,9 +115,8 @@ export type PatientFullType = {
 
   // Medicine
   medicineName: string;
-  medicineAdvance: number;
   medicinePrice: number;
-  medicineDue: number;
+
 
   // Totals
   totalAmount: number;
@@ -221,7 +220,7 @@ export const initialPatient:PatientFullTypeWithObjectId={
   visitAdvance:0,
   //order
   opticalAdvance: 0,
-  opticalaDue: 0,
+  opticalDue: 0,
   opticalaPrice:0,
   // frame
   orderDate: "",
@@ -235,9 +234,8 @@ export const initialPatient:PatientFullTypeWithObjectId={
 
   //madicine
   medicineName: "",
-  medicineAdvance: 0,
   medicinePrice: 0,
-  medicineDue: 0,
+
 
   totalAmount: 0,
   totalAdvance: 0,

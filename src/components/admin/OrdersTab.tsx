@@ -81,10 +81,12 @@ export function OrdersTab() {
         ...formData,
         orderOnly: formData?.orderOnly || true,
         updatedAt: new Date().toISOString(),
-
-        // Medicine Due
-        medicineDue:
-          (formData?.medicinePrice ?? 0) - (formData?.medicineAdvance ?? 0),
+        
+       // Optical Price
+        opticalaPrice:
+          (formData?.framePrice ?? 0) + (formData?.lensePrice ?? 0),
+        opticalDue:
+          (formData?.framePrice ?? 0) + (formData?.lensePrice ?? 0) - (formData?.opticalAdvance ?? 0) ,
 
         // Total Amount
         totalAmount:
@@ -96,19 +98,15 @@ export function OrdersTab() {
         // Total Advance
         totalAdvance:
           (formData?.visitPrice ?? 0) +
-          (formData?.medicineAdvance ?? 0) +
+          (formData?.medicinePrice ?? 0) +
           (formData?.opticalAdvance ?? 0),
 
         // Total Due
         totalDue:
           (formData?.framePrice ?? 0) +
           (formData?.lensePrice ?? 0) -
-          (formData?.opticalAdvance ?? 0) +
-          ((formData?.medicinePrice ?? 0) - (formData?.medicineAdvance ?? 0)),
+          (formData?.opticalAdvance ?? 0),
 
-        // Optical Price
-        opticalaPrice:
-          (formData?.visitPrice ?? 0) + (formData?.lensePrice ?? 0),
         };
        
       if (!id) throw new Error("Missing patient ID");

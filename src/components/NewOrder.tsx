@@ -35,12 +35,13 @@ const NewOrder: React.FC<PatientFormProps> = ({
     const totalAmount = opticalaPrice;
     const totalAdvance = Number(formData.opticalAdvance);
     const totalDue = totalAmount - totalAdvance;
-
+    const opticalDue=opticalaPrice-Number(formData.opticalAdvance);
     setFormData((prev) => ({
       ...prev,
       opticalaPrice,
       totalAmount,
       totalAdvance,
+      opticalDue,
       totalDue,
     }));
   }, [formData.framePrice, formData.lensePrice, formData.opticalAdvance]);
@@ -63,7 +64,6 @@ const NewOrder: React.FC<PatientFormProps> = ({
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-
     try {
       const res = await fetch("/api/appointment", {
         method: "POST",
