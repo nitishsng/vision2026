@@ -6,7 +6,7 @@ import { useDashboardData } from "@/src/contexts/dataCollection";
 import { PatientFullTypeWithObjectId } from "@/src/contexts/type";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import { Delete } from "lucide-react";
+import { Delete, DeleteIcon } from "lucide-react";
 const EditPage = () => {
   const navigate = useRouter();
   const { patients, fetchData } = useDashboardData();
@@ -249,6 +249,22 @@ const EditPage = () => {
       };
     });
   };
+
+  
+  const removeDiagnosis = (index: number) => {
+    setFormData((prev) => {
+      if (!prev) return prev; // safely handle null state
+
+      const updatedDiagnosis = prev.diagnosis.filter((_, i) => i !== index);
+
+      return {
+        ...prev,
+        diagnosis: updatedDiagnosis,
+      };
+    });
+  };
+
+
 
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-8 bg-white shadow rounded-lg">
@@ -1043,7 +1059,7 @@ const EditPage = () => {
         <div className="space-y-4">
           <h3 className="text-xl font-semibold text-gray-700">Diagnosis</h3>
           {(formData.diagnosis || []).map((diagnosisItem, index) => (
-            <div key={index} className="flex flex-col gap-2">
+            <div key={index} className="flex gap-2">
               <input
                 type="text"
                 value={diagnosisItem || ""}
@@ -1055,6 +1071,15 @@ const EditPage = () => {
                 placeholder={`Diagnosis ${index + 1}`}
                 className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
               />
+                               {/* <div className="flex justify-end items-center ml-2 md:justify-start"> */}
+                        <button
+                          type="button"
+                          onClick={() => removeDiagnosis(index)}
+                          className="bg-red-500 text-white rounded-lg px-4 hover:bg-red-600 transition"
+                        >
+                          <Delete className="w-4 h-4" />
+                        </button>
+                      {/* </div> */}
             </div>
           ))}
           <button
