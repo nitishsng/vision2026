@@ -6,7 +6,7 @@ import { useDashboardData } from "@/src/contexts/dataCollection";
 import { PatientFullTypeWithObjectId } from "@/src/contexts/type";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import { Delete, DeleteIcon } from "lucide-react";
+import { Delete } from "lucide-react";
 const EditPage = () => {
   const navigate = useRouter();
   const { patients, fetchData } = useDashboardData();
@@ -250,7 +250,7 @@ const EditPage = () => {
     });
   };
 
-  
+
   const removeDiagnosis = (index: number) => {
     setFormData((prev) => {
       if (!prev) return prev; // safely handle null state
@@ -365,7 +365,7 @@ const EditPage = () => {
             >
               <option value="pending">Pending</option>
               <option value="confirmed">Confirmed</option>
-              <option value="compleated">Completed</option>
+              <option value="completed">Completed</option>
               <option value="canciled">Canciled</option>
             </select>
           </div>

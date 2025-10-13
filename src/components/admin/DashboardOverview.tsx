@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React,{useState} from "react";
 import {
   Users,
   ShieldCheck,
@@ -20,7 +20,24 @@ import {
 import { useDashboardData } from "@/src/contexts/dataCollection";
 export function DashboardOverview() {
   const { staffs, patients } = useDashboardData();
-  const totalPatients = patients.filter(
+
+  // --- Date range filter states ---
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
+  // --- Filter patients by createdAt date range ---
+  const filteredPatients = patients.filter((p) => {
+    const created = new Date(p.createdAt);
+    const start = startDate ? new Date(startDate) : null;
+    const end = endDate ? new Date(endDate) : null;
+
+    if (start && created < start) return false;
+    if (end && created > end) return false;
+    return true;
+  });
+
+  // --- Totals ---
+  const totalPatients = filteredPatients.filter(
     (a) => a.status === "confirmed" || a.status === "completed"
   ).length;
 
@@ -33,8 +50,7 @@ export function DashboardOverview() {
     opticalDue,
     totalVisitAmount,
     medicinAmount,
-    // medicineAdvance,
-  } = patients.reduce(
+  } = filteredPatients.reduce(
     (acc, patient) => {
       acc.totalAdvance += patient.totalAdvance ?? 0;
       acc.totalAmount += patient.totalAmount ?? 0;
@@ -44,7 +60,6 @@ export function DashboardOverview() {
       acc.opticalDue += patient.opticalDue ?? 0;
       acc.totalVisitAmount += patient.visitPrice ?? 0;
       acc.medicinAmount += patient.medicinePrice ?? 0;
-      // acc.medicineAdvance+= patient.medicineAdvance ?? 0;
       return acc;
     },
     {
@@ -55,41 +70,70 @@ export function DashboardOverview() {
       opticalAdvance: 0,
       opticalDue: 0,
       totalVisitAmount: 0,
-      medicinAmount:0,
+      medicinAmount: 0,
     }
   );
 
+  // --- Stats ---
   const stats = {
     totalOperators: staffs.length,
-    todayAppointments: patients.filter(
+    todayAppointments: filteredPatients.filter(
       (apt) =>
-        new Date(apt.preferredDate).toDateString() === new Date().toDateString()
+        new Date(apt.preferredDate).toDateString() ===
+        new Date().toDateString()
     ).length,
-    pendingAppointments: patients.filter((apt) => apt.status === "pending" && !apt.orderOnly )
-      .length,
-    confirmedAppointments: patients.filter((apt) => apt.status === "confirmed")
-      .length,
-    completedAppointments: patients.filter((apt) => apt.status === "completed")
-      .length,
-    cancelledAppointments: patients.filter((apt) => apt.status === "cancelled")
-      .length,
+    pendingAppointments: filteredPatients.filter(
+      (apt) => apt.status === "pending" && !apt.orderOnly
+    ).length,
+    confirmedAppointments: filteredPatients.filter(
+      (apt) => apt.status === "confirmed"
+    ).length,
+    completedAppointments: filteredPatients.filter(
+      (apt) => apt.status === "completed"
+    ).length,
+    cancelledAppointments: filteredPatients.filter(
+      (apt) => apt.status === "cancelled"
+    ).length,
   };
 
-  const recentAppointments = patients.slice(0, 5);
-
+  const recentAppointments = filteredPatients.slice(0, 5);
   return (
     <div className="space-y-3 md:space-y-4">
-<div>
-  <h1 className="text-2xl flex justify-between font-bold text-gray-900">
-    <span>Dashboard Overview</span>
-    <p className="text-[16px] md:text-xl mr-3 font-bold text-green-600 bg-green-100 px-4 rounded-lg">
-      {totalAmount}
-    </p>
-  </h1>
-  <p className="text-gray-600 hidden md:flex">
-    Welcome back! Here's what's happening at your clinic today.
-  </p>
-</div>
+  <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+    {/* Left side: Title */}
+    <div>
+      <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-4">
+        <span>Dashboard Overview</span>
+        <span className="text-[16px] md:text-xl font-bold text-green-600 bg-green-100 px-4 py-1 rounded-lg">
+          ₹{totalAmount}
+        </span>
+      </h1>
+      <p className="text-gray-600 mt-1 hidden md:block">
+        Welcome back! Here's what's happening at your clinic today.
+      </p>
+    </div>
+
+    {/* Right side: Date filters */}
+    <div className="flex justify-end w-full md:w-fit gap-2 mt-4 md:mt-0">
+      <div>
+        <input
+          type="date"
+          value={startDate}
+          onChange={(e) => setStartDate(e.target.value)}
+          className="border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-green-300"
+        />
+      </div>
+      <div>
+        <input
+          type="date"
+          value={endDate}
+          onChange={(e) => setEndDate(e.target.value)}
+          className="border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-green-300"
+        />
+      </div>
+    </div>
+  </div>
+
 
 
       {/* Stats Cards */}

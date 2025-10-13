@@ -233,7 +233,7 @@ export const initialPatient:PatientFullTypeWithObjectId={
   deliveryDate: "",
 
   //madicine
-  medicines: [{ medicinename: "", price: 0 }],
+  medicines: [],
   medicinePrice: 0,
 
 
@@ -291,6 +291,7 @@ export type Vendor = {
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string
 };
+
 export type Order = {
   id: string;
   orderDate: string; // e.g., "2024-12-17"
