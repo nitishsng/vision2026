@@ -40,7 +40,7 @@ export function AppointmentsTab() {
       appointment.ptName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       appointment.phoneNo.includes(searchTerm);
     const matchesDate = !dateFilter || appointment.preferredDate === dateFilter;
-    const validAppointment =appointment.orderOnly == false ;
+    const validAppointment = appointment.orderOnly == false ;
         return matchesStatus && matchesSearch && matchesDate && validAppointment;
   });
 

@@ -42,21 +42,21 @@ export function Sidebar({ onTabChange, isOpen, onClose }: SidebarProps) {
   const adminMenuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
     { id: 'appointments', label: 'Appointments', icon: Calendar },
-    { id: 'patients', label: 'Patients', icon: Users },
-    { id: 'services', label: 'Services', icon: Eye },
-    { id: 'orders', label: 'Orders', icon: ShoppingCart },
     { id: 'schedule', label: 'Schedule', icon: Clock },
-    { id: 'operators', label: 'Operators', icon: UserPlus },
+    { id: 'patients', label: 'Patients', icon: Users },
+    { id: 'orders', label: 'Orders', icon: ShoppingCart },
     { id: 'reports', label: 'Reports', icon: FileText },
+    { id: 'operators', label: 'Operators', icon: UserPlus },
+    { id: 'services', label: 'Services', icon: Eye },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
 
   const operatorMenuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
     { id: 'appointments', label: 'Appointments', icon: Calendar },
+    { id: 'schedule', label: 'Schedule', icon: Clock },
     { id: 'patients', label: 'Patients', icon: Users },
     { id: 'orders', label: 'Orders', icon: ShoppingCart },
-    { id: 'schedule', label: 'Schedule', icon: Clock },
     { id: 'reports', label: 'Reports', icon: FileText },
   ];
 

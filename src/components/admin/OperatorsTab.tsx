@@ -128,7 +128,7 @@ const deleteOperator = async (id: string) => {
 
       {/* Search */}
       <div className="bg-white rounded-lg p-4 border border-gray-200">
-        <div className="relative">
+        <div className="relative flex">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
           <input
             type="text"
@@ -138,6 +138,16 @@ const deleteOperator = async (id: string) => {
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
           />
         </div>
+                    <div className="hidden md:flex items-end ">
+              <button
+                onClick={() => {
+                  setSearchTerm("");
+                }}
+                className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                Clear Filters
+              </button>
+            </div>
       </div>
 
       {/* Operators Grid */}

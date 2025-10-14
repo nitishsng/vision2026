@@ -64,6 +64,7 @@ const NewOrder: React.FC<PatientFormProps> = ({
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
+    formData.orderOnly=true;
     try {
       const res = await fetch("/api/appointment", {
         method: "POST",
