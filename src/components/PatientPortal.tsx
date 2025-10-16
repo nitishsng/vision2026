@@ -73,7 +73,7 @@ useEffect(() => {
               >
                 Book Appointment
               </button>
-              <Link href={"/loginpage"}>
+              <Link href={"/login"}>
               <button
                
                 className="px-8 py-3 bg-transparent border-2 border-white text-white rounded-lg hover:bg-white hover:text-teal-600 transition-colors font-semibold"

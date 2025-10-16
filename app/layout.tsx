@@ -17,7 +17,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body >
+      <body cz-shortcut-listen="true">
+
         <AuthProvider>
             <Toaster position="top-right" />
           {children}
