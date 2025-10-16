@@ -32,7 +32,7 @@ export default function Home() {
 
   // Show login form if requested
   if (showLogin) {
-    router.push('/login'); // Redirect to the unified login page
+    router.push('/loginpage'); // Redirect to the unified login page
     return null; // Or a loading spinner, as the redirect will handle the view
   }
 

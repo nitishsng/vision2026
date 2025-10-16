@@ -37,6 +37,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 to-blue-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
+        {/* Header */}
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-teal-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Eye className="h-8 w-8 text-white" />
@@ -45,6 +46,7 @@ export default function LoginPage() {
           <p className="text-gray-600 mt-2">Sign in to access your dashboard</p>
         </div>
 
+        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
@@ -92,6 +94,7 @@ export default function LoginPage() {
           </button>
         </form>
 
+        {/* Back to Home */}
         <div className="mt-4 text-center">
           <button
             onClick={() => router.push('/')}
