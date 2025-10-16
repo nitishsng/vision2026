@@ -1,44 +1,38 @@
 'use client';
+export const dynamic = 'force-dynamic';
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Eye, Lock, Mail, AlertCircle } from 'lucide-react';
-// import { validateUser } from '@/src/middleware/auth';
-import { useAuth } from '@/src/contexts/AuthContext'; // Import useAuth
+import { useAuth } from '@/src/contexts/AuthContext';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  // const [isLoading, setIsLoading] = useState(false); // Remove local isLoading
-  
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get('redirect') || '/';
-  const { login, isLoading } = useAuth(); // Use isLoading from useAuth
+  const { login, isLoading, user } = useAuth(); // Make sure useAuth provides `user`
 
+  // Auto-redirect if user is already logged in
+  useEffect(() => {
+    if (user) {
+      router.replace(redirectTo); // redirect without leaving history
+    }
+  }, [user, redirectTo, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    // setIsLoading(true); // No need for local setIsLoading
 
-    const success = await login(email, password); // Use login from useAuth
+    const success = await login(email, password);
     if (success) {
-      // Redirect based on role or to requested page
-      if (redirectTo !== '/') {
-        router.push(redirectTo);
-      } else {
-  
-        router.push('/');
-      }
+      router.push(redirectTo);
     } else {
       setError('Invalid email or password');
     }
-
   };
-
-
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 to-blue-50 flex items-center justify-center p-4">
@@ -97,6 +91,7 @@ export default function LoginPage() {
             {isLoading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
+
         <div className="mt-4 text-center">
           <button
             onClick={() => router.push('/')}
