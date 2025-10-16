@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { MongoClient } from "mongodb";
 
 const uri = process.env.MONGODB_URI!;
+const DB_Name = process.env.DB_Name!;
 if (!uri) throw new Error("Please define MONGODB_URI in .env.local or environment variables");
 
 let client: MongoClient;
@@ -17,7 +18,7 @@ clientPromise = globalThis._mongoClientPromise;
 export async function GET() {
   try {
     const client = await clientPromise;
-    const db = client.db("visionCare"); // explicitly set your database name
+    const db = client.db(DB_Name); // explicitly set your database name
 
     // list collections
     const collections = await db.listCollections().toArray();

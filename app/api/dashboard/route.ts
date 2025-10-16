@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
-
+const DB_Name = process.env.DB_Name!;
 export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
@@ -20,7 +20,7 @@ export async function GET(req: Request) {
 
     // 3️⃣ Fetch data only if authorized
     const client = await clientPromise;
-    const db = client.db("visionCare");
+    const db = client.db(DB_Name);
 
     const [services, patients, staff] = await Promise.all([
       db.collection("services").find({}).sort({ createdAt: -1 }).toArray(),
