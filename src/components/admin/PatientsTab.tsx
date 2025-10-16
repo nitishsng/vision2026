@@ -5,12 +5,11 @@ import { Users, Search, Edit, User, Eye } from "lucide-react";
 import { useDashboardData } from "@/src/contexts/dataCollection";
 import Link from "next/link";
 import ExportPatientsDetails from "../ExportPatientsDetails";
-
+import { todayDate } from "@/src/contexts/type";
 export function PatientsTab() {
   const { patients } = useDashboardData();
   const [searchTerm, setSearchTerm] = useState("");
-  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
-  const [dateFilter, setDateFilter] = useState(today);
+  const [dateFilter, setDateFilter] = useState(todayDate);
   const [repeatedFilter, setRepeatedFilter] = useState(""); // ✅ new filter
 
   const formatDateDisplay = (date: Date | string) => {
@@ -37,7 +36,7 @@ export function PatientsTab() {
     const validpatient =
       patient.status === "completed" || patient.status === "confirmed";
     const matchesDate =
-      !dateFilter || formatDateDisplay(patient.visitDate) === dateFilter;
+      !dateFilter || (patient.visitDate && formatDateDisplay(patient.visitDate) === dateFilter);
     return matchStatus && matchRepeated && matchesDate && validpatient;
   });
 
@@ -160,7 +159,7 @@ export function PatientsTab() {
                       ) : (
                         <span className="w-3 h-3 rounded-full bg-green-300"></span>
                       )}
-                      <span>{formatDateDisplay(patient.visitDate)}</span>
+                      <span>{patient.visitDate ? formatDateDisplay(patient.visitDate) : ""}</span>
                     </span>
                   </td>
                   <td className="px-2 py-3 whitespace-nowrap">

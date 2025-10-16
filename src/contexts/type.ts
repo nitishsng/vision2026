@@ -84,13 +84,13 @@ export type PatientFullType = {
   purpose: "eye-test" | "frame-selection" | "consultation" | "follow-up";
   status: "pending" | "confirmed" | "completed" | "cancelled";
   notes?: string;
-  createdAt: string;
+  createdAt: Date;
   updatedAt: string;
   repeated: boolean;
   gender?: "";
 
   // Billing / Order Info
-  visitDate: Date;
+  visitDate?: Date | null;
   billNo: string;
 
   // Visit
@@ -99,7 +99,7 @@ export type PatientFullType = {
   // Optical
 
   // Order
-  
+  opticalPayDetails: {date:string,amount:number,transectionId:string}[];
   opticalAdvance: number;
   opticalDue: number;
   opticalaPrice: number;
@@ -197,6 +197,7 @@ export type PatientFullType = {
 
 export type PatientFullTypeWithObjectId = PatientFullType & { _id?: string };
 const defaultEyeDetail: EyeDetail = { right: "Normal", left: "Normal" };
+export const todayDate = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
 
 export const initialPatient:PatientFullTypeWithObjectId={
   id: "",
@@ -209,19 +210,17 @@ export const initialPatient:PatientFullTypeWithObjectId={
   purpose: "eye-test",
   status: "pending",
   notes: "",
-  createdAt: new Date().toISOString(),
+  createdAt: new Date(),
+  visitDate: new Date(),
   updatedAt: "",
   gender: "",
   repeated: false,
  // Billing Info
-  visitDate: new Date(),
   billNo: "",
   visitPrice: 0,
   visitAdvance:0,
   //order
-  opticalAdvance: 0,
-  opticalDue: 0,
-  opticalaPrice:0,
+
   // frame
   orderDate: "",
   deliveryStatus:"pending",
@@ -231,6 +230,12 @@ export const initialPatient:PatientFullTypeWithObjectId={
   lenseType: "",
   lensePrice: 0,
   deliveryDate: "",
+  opticalPayDetails: [],
+  opticalAdvance: 0,
+  opticalDue: 0,
+  opticalaPrice:0,
+
+
 
   //madicine
   medicines: [],
@@ -279,43 +284,42 @@ export const initialPatient:PatientFullTypeWithObjectId={
 
 
 
+// export type Vendor = {
+//   id: string;
+//   name: string;
+//   contactPerson: string;
+//   phone: string;
+//   email: string;
+//   address: string;
+//   isActive: boolean;
+//   createdAt: string; // ISO date string
+//   updatedAt: string; // ISO date string
+// };
 
-export type Vendor = {
-  id: string;
-  name: string;
-  contactPerson: string;
-  phone: string;
-  email: string;
-  address: string;
-  isActive: boolean;
-  createdAt: string; // ISO date string
-  updatedAt: string; // ISO date string
-};
-
-export type Order = {
-  id: string;
-  orderDate: string; // e.g., "2024-12-17"
-  ptName: string; // patient name
-  age: number;
-  gender: "male" | "female" | "other";
-  phone: string;
-  billNo: string;
-  rPower: string; // right eye power
-  lPower: string; // left eye power
-  advance: number;
-  due: number;
-  vendor: string; // linked to Company.name
-  rate: number;
-  frame: string;
-  lens: string;
-  total: number;
-  less: number;
-  adv: number;
-  dueAmount: number;
-  rcv: number;
-  deliveryDate: string; // ISO date string or empty if not set
-  opticalTotal: number;
-  status: "processing" | "completed" | "cancelled"; // restrict to valid states
-  createdAt: string; // ISO string
-  updatedAt: string; // ISO string
-};
+// export type Order = {
+//   id: string;
+//   orderDate: string; // e.g., "2024-12-17"
+//   ptName: string; // patient name
+//   age: number;
+//   gender: "male" | "female" | "other";
+//   phone: string;
+//   billNo: string;
+//   rPower: string; // right eye power
+//   lPower: string; // left eye power
+//   advance: number;
+//   due: number;
+//   vendor: string; // linked to Company.name
+//   rate: number;
+//   frame: string;
+//   lens: string;
+//   total: number;
+//   less: number;
+//   adv: number;
+//   dueAmount: number;
+//   rcv: number;
+//   deliveryDate: string; // ISO date string or empty if not set
+//   opticalTotal: number;
+//   status: "processing" | "completed" | "cancelled"; // restrict to valid states
+//   createdAt: string; // ISO string
+//   updatedAt: string; // ISO string
+// };

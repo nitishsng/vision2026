@@ -1,6 +1,5 @@
 "use client";
-
-import React,{useState} from "react";
+import React, { useState } from "react";
 import {
   Users,
   ShieldCheck,
@@ -14,7 +13,7 @@ import {
   CreditCard,
   TrendingUp,
   BarChart3,
-  Receipt
+  Receipt,
 } from "lucide-react";
 
 import { useDashboardData } from "@/src/contexts/dataCollection";
@@ -25,49 +24,89 @@ export function DashboardOverview() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  // --- Filter patients by createdAt date range ---
-  const filteredPatients = patients.filter((p) => {
-    const created = new Date(p.createdAt);
-    const start = startDate ? new Date(startDate) : null;
-    const end = endDate ? new Date(endDate) : null;
+// Helper: get YYYY-MM-DD string in IST
+const getDateOnlyIST = (date : string) =>
+  new Date(date).toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
+const getDateOnly = (date : Date) =>
+  new Date(date).toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
 
-    if (start && created < start) return false;
-    if (end && created > end) return false;
-    return true;
-  });
+  // --- Filter patients by createdAt date range ---
+const filteredPatients = patients.filter((p) => {
+  const created = getDateOnlyIST(p.visitDate ? new Date(p.visitDate).toISOString() : ""); // patient date in IST
+  const startDateOnly = startDate ? getDateOnlyIST(startDate) : null; // start in IST
+  const endDateOnly = endDate ? getDateOnlyIST(endDate) : null; // end in IST
+  // Check inclusive range: start <= created <= end
+  if (startDateOnly && created < startDateOnly) return false;
+  if (endDateOnly && created > endDateOnly) return false;
+
+  return true;
+});
+  
 
   // --- Totals ---
-  const totalPatients = filteredPatients.filter(
-    (a) => a.status === "confirmed" || a.status === "completed"
+  const totalPatients = filteredPatients.filter((p) =>
+    ["confirmed", "completed"].includes(p.status)
   ).length;
 
+  const start = startDate ? new Date(startDate) : null;
+  const end = endDate ? new Date(endDate) : null;
+
+const { totalAdvance, opticalAdvance, } = patients.reduce((acc, patient) => {
+  const createdDate = getDateOnlyIST(patient.visitDate ? new Date(patient.visitDate).toISOString() : ""); // patient date in IST
+  const startDateOnly = start ? getDateOnly(start) : null; // start in IST
+  const endDateOnly = end ? getDateOnly(end) : null; // end in IST
+
+  // Compare only dates
+  const isInRange =
+    (!startDateOnly || createdDate >= startDateOnly) &&
+    (!endDateOnly || createdDate <= endDateOnly);
+
+  // Only add visit + medicine prices if in range
+  if (isInRange) {
+    acc.totalAdvance += (patient.visitPrice ?? 0) + (patient.medicinePrice ?? 0);
+   
+  }
+
+  // Add optical payments within date range
+  if (Array.isArray(patient.opticalPayDetails)) {
+    const opticalSum = patient.opticalPayDetails.reduce((sum, detail) => {
+      const payDate = getDateOnlyIST(detail.date);
+      const isOpticalInRange =
+        (!startDateOnly || payDate >= startDateOnly) &&
+        (!endDateOnly || payDate <= endDateOnly);
+      return isOpticalInRange ? sum + (detail.amount ?? 0) : sum;
+    }, 0);
+    acc.opticalAdvance +=opticalSum;
+    acc.totalAdvance += opticalSum;
+  }
+
+  return acc;
+}, { 
+  totalAdvance: 0,
+      opticalAdvance:0,
+ });
+
   const {
-    totalAdvance,
     totalDue,
     totalAmount,
     opticalaPrice,
-    opticalAdvance,
     opticalDue,
     totalVisitAmount,
     medicinAmount,
   } = filteredPatients.reduce(
     (acc, patient) => {
-      acc.totalAdvance += patient.totalAdvance ?? 0;
       acc.totalAmount += patient.totalAmount ?? 0;
       acc.totalDue += patient.totalDue ?? 0;
       acc.opticalaPrice += patient.opticalaPrice ?? 0;
-      acc.opticalAdvance += patient.opticalAdvance ?? 0;
       acc.opticalDue += patient.opticalDue ?? 0;
       acc.totalVisitAmount += patient.visitPrice ?? 0;
       acc.medicinAmount += patient.medicinePrice ?? 0;
       return acc;
     },
     {
-      totalAdvance: 0,
       totalDue: 0,
       totalAmount: 0,
       opticalaPrice: 0,
-      opticalAdvance: 0,
       opticalDue: 0,
       totalVisitAmount: 0,
       medicinAmount: 0,
@@ -79,8 +118,7 @@ export function DashboardOverview() {
     totalOperators: staffs.length,
     todayAppointments: filteredPatients.filter(
       (apt) =>
-        new Date(apt.preferredDate).toDateString() ===
-        new Date().toDateString()
+        new Date(apt.preferredDate).toDateString() === new Date().toDateString()
     ).length,
     pendingAppointments: filteredPatients.filter(
       (apt) => apt.status === "pending" && !apt.orderOnly
@@ -99,47 +137,44 @@ export function DashboardOverview() {
   const recentAppointments = filteredPatients.slice(0, 5);
   return (
     <div className="space-y-3 md:space-y-4">
-  <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-    {/* Left side: Title */}
-    <div>
-      <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-4">
-        <span>Dashboard Overview</span>
-        <span className="text-[16px] md:text-xl font-bold text-green-600 bg-green-100 px-4 py-1 rounded-lg">
-          ₹{totalAmount}
-        </span>
-      </h1>
-      <p className="text-gray-600 mt-1 hidden md:block">
-        Welcome back! Here's what's happening at your clinic today.
-      </p>
-    </div>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+        {/* Left side: Title */}
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-4">
+            <span>Dashboard Overview</span>
+            <span className="text-[16px] md:text-xl font-bold text-green-600 bg-green-100 px-4 py-1 rounded-lg">
+              ₹{totalAmount}
+            </span>
+          </h1>
+          <p className="text-gray-600 mt-1 hidden md:block">
+            Welcome back! Here's what's happening at your clinic today.
+          </p>
+        </div>
 
-    {/* Right side: Date filters */}
-    <div className="flex justify-end w-full md:w-fit gap-2 mt-4 md:mt-0">
-      <div>
-        <input
-          type="date"
-          value={startDate}
-          onChange={(e) => setStartDate(e.target.value)}
-          className="border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-green-300"
-        />
+        {/* Right side: Date filters */}
+        <div className="flex justify-end w-full md:w-fit gap-2 mt-4 md:mt-0">
+          <div>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-green-300"
+            />
+          </div>
+          <div>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className="border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-green-300"
+            />
+          </div>
+        </div>
       </div>
-      <div>
-        <input
-          type="date"
-          value={endDate}
-          onChange={(e) => setEndDate(e.target.value)}
-          className="border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-green-300"
-        />
-      </div>
-    </div>
-  </div>
-
-
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 md:gap-4 gap-2">
         {/* 💸 Total Amount */}
-
 
         {/* 💳 Total Collection */}
         <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-100 shadow-sm hover:shadow-md transition">
@@ -157,7 +192,7 @@ export function DashboardOverview() {
             </div>
           </div>
         </div>
-         {/* 💼 Total Visit Amount */}
+        {/* 💼 Total Visit Amount */}
         <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-100 shadow-sm hover:shadow-md transition">
           <div className="flex items-center justify-between">
             <div>
@@ -172,13 +207,17 @@ export function DashboardOverview() {
               <TrendingUp className="h-6 w-6 text-purple-500" />
             </div>
           </div>
-        </div> 
+        </div>
         {/* medicine */}
-                 <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-100 shadow-sm hover:shadow-md transition">
+        <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-100 shadow-sm hover:shadow-md transition">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Mediccine Amount</p>
-              <p className="text-2xl font-bold text-blue-700">{medicinAmount}</p>
+              <p className="text-sm font-medium text-gray-600">
+                Mediccine Amount
+              </p>
+              <p className="text-2xl font-bold text-blue-700">
+                {medicinAmount}
+              </p>
             </div>
             <div className="w-10 h-10 flex bg-blue-100 rounded-lg items-center justify-center">
               <IndianRupee className="h-6 w-6 text-blue-600" />
@@ -201,7 +240,6 @@ export function DashboardOverview() {
             </div>
           </div>
         </div>
-
 
         {/* 💰 Total Due */}
         <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-100 shadow-sm hover:shadow-md transition">
@@ -231,8 +269,6 @@ export function DashboardOverview() {
           </div>
         </div>
 
-
-
         {/* 🧾 Optical Due */}
         <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-100 shadow-sm hover:shadow-md transition">
           <div className="flex items-center justify-between">
@@ -245,7 +281,6 @@ export function DashboardOverview() {
             </div>
           </div>
         </div>
-
 
         {/* 🧍 Total Patients */}
         <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-100 shadow-sm hover:shadow-md transition">
@@ -313,20 +348,22 @@ export function DashboardOverview() {
           </div>
         </div>
         {/* 🧾 Total Orders */}
-<div className="bg-white rounded-xl p-4 md:p-6 border border-gray-100 shadow-sm hover:shadow-md transition">
-  <div className="flex items-center justify-between">
-    <div>
-      <p className="text-sm font-medium text-gray-600">Total Orders</p>
-      <p className="text-2xl font-bold text-purple-700">
-        {patients.filter((p) => p.billNo && p.billNo.trim() !== "").length}
-      </p>
-    </div>
-    <div className="w-10 h-10 flex bg-purple-100 rounded-lg items-center justify-center">
-      <Receipt className="h-6 w-6 text-purple-500" />
-    </div>
-  </div>
-</div>
-
+        <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-100 shadow-sm hover:shadow-md transition">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-600">Total Orders</p>
+              <p className="text-2xl font-bold text-purple-700">
+                {
+                  patients.filter((p) => p.billNo && p.billNo.trim() !== "")
+                    .length
+                }
+              </p>
+            </div>
+            <div className="w-10 h-10 flex bg-purple-100 rounded-lg items-center justify-center">
+              <Receipt className="h-6 w-6 text-purple-500" />
+            </div>
+          </div>
+        </div>
       </div>
       {/* Appointment Status Summary */}
       <div className="grid grid-cols-1 lg:grid-cols-2 md:gap-4 gap-3">

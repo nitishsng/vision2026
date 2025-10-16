@@ -87,8 +87,8 @@ export async function POST(req: Request) {
     const appointmentData: PatientFullTypeWithObjectId = {
       ...body,
       repeated: Boolean(isExistingAndHasAmount), // true if same patient with due > 0
-      createdAt: now,
       updatedAt: now,
+      visitDate:new Date(),
     };
 
     const result = await patientsColl.insertOne(appointmentData);
@@ -98,6 +98,7 @@ export async function POST(req: Request) {
       id: result.insertedId,
       repeated: isExistingAndHasAmount,
     });
+
   } catch (error: unknown) {
     console.error("Error in POST:", error);
     const message =

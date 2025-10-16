@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { useDashboardData } from "@/src/contexts/dataCollection";
-import { PatientFullTypeWithObjectId } from "@/src/contexts/type";
+import { PatientFullTypeWithObjectId, todayDate } from "@/src/contexts/type";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { Delete } from "lucide-react";
@@ -198,7 +198,6 @@ const EditPage = () => {
     index: number
   ) => {
     const { name, value } = e.target;
-    console.log(value);
     const updatedMedicines = [...formData.medicines];
     updatedMedicines[index] = {
       ...updatedMedicines[index],
@@ -220,6 +219,33 @@ const EditPage = () => {
       };
     });
   };
+  const handleAdvanceChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    index: number
+  ) => {
+    const { name, value } = e.target;
+    console.log(name + " " + value);
+    const updatedAdvance = [...formData.opticalPayDetails];
+    updatedAdvance[index] = {
+      ...updatedAdvance[index],
+      [name]: name === "amount" ? Number(value) : value,
+    };
+
+    const totalPrice = updatedAdvance.reduce(
+      (sum, med) => sum + (Number(med.amount) || 0),
+      0
+    );
+
+    setFormData((prev) => {
+      if (!prev) return prev; // handle null safely
+
+      return {
+        ...prev, // keep all other properties (id, name, etc.)
+        opticalPayDetails: updatedAdvance,
+        opticalAdvance: totalPrice,
+      };
+    });
+  };
 
   const addMedicineField = () => {
     setFormData((prev) => {
@@ -228,6 +254,20 @@ const EditPage = () => {
       return {
         ...prev,
         medicines: [...prev.medicines, { medicinename: "", price: 0 }],
+      };
+    });
+  };
+
+  const addPayment = () => {
+    setFormData((prev) => {
+      if (!prev) return prev; // or return null safely
+
+      return {
+        ...prev,
+        opticalPayDetails: [
+          ...prev.opticalPayDetails,
+          { date: todayDate, amount: 0, transectionId: "" },
+        ],
       };
     });
   };
@@ -249,7 +289,25 @@ const EditPage = () => {
       };
     });
   };
+  const removepaymentField = (index: number) => {
+    setFormData((prev) => {
+      if (!prev) return prev; // safely handle null state
 
+      const updatedpamentDetails = prev.opticalPayDetails.filter(
+        (_, i) => i !== index
+      );
+      const totalPrice = updatedpamentDetails.reduce(
+        (sum, med) => sum + (Number(med.amount) || 0),
+        0
+      );
+
+      return {
+        ...prev,
+        opticalPayDetails: updatedpamentDetails,
+        opticalAdvance: totalPrice,
+      };
+    });
+  };
 
   const removeDiagnosis = (index: number) => {
     setFormData((prev) => {
@@ -264,10 +322,8 @@ const EditPage = () => {
     });
   };
 
-
-
   return (
-    <div className="max-w-5xl mx-auto p-6 space-y-8 bg-white shadow rounded-lg">
+    <div className="max-w-5xl mx-auto p-6 space-y-2 md:space-y-4 bg-white shadow rounded-lg">
       {/* Header */}
       <h2 className="text-3xl font-bold text-gray-800">
         Edit Patient{" "}
@@ -363,11 +419,30 @@ const EditPage = () => {
               onChange={handleChange}
               className="border p-3 rounded focus:ring-2 focus:ring-blue-400 w-full"
             >
-              <option value="pending">Pending</option>
-              <option value="confirmed">Confirmed</option>
-              <option value="completed">Completed</option>
-              <option value="canciled">Canciled</option>
+              {/* Show options based on current status */}
+              {["pending", "cancelled"].includes(formData.status) && (
+                <>
+                  <option value="pending">Pending</option>
+                  <option value="confirmed">Confirmed</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                </>
+              )}
+
+              {formData.status === "confirmed" && (
+                <>
+                  <option value="confirmed">Confirmed</option>
+                  <option value="completed">Completed</option>
+                </>
+              )}
+
+              {formData.status === "completed" && (
+                <>
+                  <option value="completed">Completed</option>
+                </>
+              )}
             </select>
+            
           </div>
           {/* Notes & Complaints */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1071,15 +1146,15 @@ const EditPage = () => {
                 placeholder={`Diagnosis ${index + 1}`}
                 className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
               />
-                               {/* <div className="flex justify-end items-center ml-2 md:justify-start"> */}
-                        <button
-                          type="button"
-                          onClick={() => removeDiagnosis(index)}
-                          className="bg-red-500 text-white rounded-lg px-4 hover:bg-red-600 transition"
-                        >
-                          <Delete className="w-4 h-4" />
-                        </button>
-                      {/* </div> */}
+              {/* <div className="flex justify-end items-center ml-2 md:justify-start"> */}
+              <button
+                type="button"
+                onClick={() => removeDiagnosis(index)}
+                className="bg-red-500 text-white rounded-lg px-4 hover:bg-red-600 transition"
+              >
+                <Delete className="w-4 h-4" />
+              </button>
+              {/* </div> */}
             </div>
           ))}
           <button
@@ -1114,8 +1189,8 @@ const EditPage = () => {
       {(someDetails || isLargeScreen) && (
         <div>
           {/* Billing & Dates */}
-          <div className="flex flex-col md:flex-row md:space-x-4 space-y-4 md:space-y-0">
-            <div className="flex-1 flex flex-col">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 bg-white md:p-4 rounded-lg shadow-sm">
+            <div className="flex flex-col">
               <label className="font-medium mb-1">Bill No</label>
               <input
                 type="text"
@@ -1123,16 +1198,17 @@ const EditPage = () => {
                 value={formData.billNo}
                 onChange={handleChange}
                 placeholder="Enter Bill No"
-                className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                className="border border-gray-300 p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400 focus:outline-none"
               />
             </div>
-            <div>
-              <label className="font-medium mb-5">Delivery Status</label> <br />
+
+            <div className="flex flex-col">
+              <label className="font-medium mb-1">Delivery Status</label>
               <select
                 name="deliveryStatus"
                 value={formData.deliveryStatus}
                 onChange={handleChange}
-                className="border py-4 rounded w-full focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                className="border border-gray-300 p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400 focus:outline-none"
               >
                 <option value="pending">Pending</option>
                 <option value="inProgress">In Progress</option>
@@ -1141,25 +1217,25 @@ const EditPage = () => {
               </select>
             </div>
 
-            <div className="flex-1 flex flex-col">
+            <div className="flex flex-col">
               <label className="font-medium mb-1">Order Date</label>
               <input
                 type="date"
                 name="orderDate"
                 value={formData.orderDate}
                 onChange={handleChange}
-                className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                className="border border-gray-300 p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400 focus:outline-none"
               />
             </div>
 
-            <div className="flex-1 flex flex-col">
+            <div className="flex flex-col">
               <label className="font-medium mb-1">Delivery Date</label>
               <input
                 type="date"
                 name="deliveryDate"
                 value={formData.deliveryDate}
                 onChange={handleChange}
-                className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                className="border border-gray-300 p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400 focus:outline-none"
               />
             </div>
           </div>
@@ -1188,81 +1264,82 @@ const EditPage = () => {
             />
           </div> */}
           {/* 👓 Optical / Frame & Lens Payment */}
-          <div>
-            {/* <h3 className="text-lg font-semibold text-gray-700 mb-2">
+          {/* <div> */}
+          {/* <h3 className="text-lg font-semibold text-gray-700 mb-2">
             Optical Order
           </h3> */}
 
-            {/* Frame & Lens */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="flex flex-col">
-                <label className="font-medium mb-1">Frame ID</label>
-                <input
-                  type="text"
-                  name="frameId"
-                  value={formData.frameId || ""}
-                  placeholder="Frame Id"
-                  onChange={handleChange}
-                  className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
-                />
-              </div>
-
-              <div className="flex flex-col">
-                <label className="font-medium mb-1">Frame Price</label>
-                <input
-                  type="number"
-                  name="framePrice"
-                  value={formData.framePrice}
-                  onChange={handleChange}
-                  className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
-                />
-              </div>
-
-              <div className="flex flex-col">
-                <label className="font-medium mb-1">Lens Type</label>
-                <select
-                  name="lenseType" // ✅ must match formData key
-                  value={formData.lenseType || ""}
-                  onChange={handleChange}
-                  className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
-                >
-                  <option value="" disabled>
-                    Select Lens Type
-                  </option>
-                  <option value="progressive">Progressive</option>
-                  <option value="single-vision">Single Vision</option>
-                  <option value="bifocal">Bifocal</option>
-                  <option value="trifocal">Trifocal</option>
-                  <option value="reading">Reading</option>
-                </select>
-              </div>
-
-              <div className="flex flex-col">
-                <label className="font-medium mb-1">Lens Price</label>
-                <input
-                  type="number"
-                  name="lensePrice"
-                  value={formData.lensePrice}
-                  onChange={handleChange}
-                  className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
-                />
-              </div>
+          {/* Frame & Lens */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="flex flex-col">
+              <label className="font-medium mb-1">Frame ID</label>
+              <input
+                type="text"
+                name="frameId"
+                value={formData.frameId || ""}
+                placeholder="Frame Id"
+                onChange={handleChange}
+                className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
+              />
             </div>
 
-            {/* Optical Payment */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3">
-              <div className="flex flex-col">
-                <label className="font-medium mb-1">Optical Advance</label>
+            <div className="flex flex-col">
+              <label className="font-medium mb-1">Frame Price</label>
+              <input
+                type="number"
+                name="framePrice"
+                value={formData.framePrice}
+                onChange={handleChange}
+                className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
+              />
+            </div>
+
+            <div className="flex flex-col">
+              <label className="font-medium mb-1">Lens Type</label>
+              <select
+                name="lenseType" // ✅ must match formData key
+                value={formData.lenseType || ""}
+                onChange={handleChange}
+                className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
+              >
+                <option value="" disabled>
+                  Select Lens Type
+                </option>
+                <option value="progressive">Progressive</option>
+                <option value="single-vision">Single Vision</option>
+                <option value="bifocal">Bifocal</option>
+                <option value="trifocal">Trifocal</option>
+                <option value="reading">Reading</option>
+              </select>
+            </div>
+
+            <div className="flex flex-col">
+              <label className="font-medium mb-1">Lens Price</label>
+              <input
+                type="number"
+                name="lensePrice"
+                value={formData.lensePrice}
+                onChange={handleChange}
+                className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
+              />
+            </div>
+          </div>
+
+          {/* Optical Payment */}
+          <div className="block md:flex gap-4 w-full mt-2 md:p-2">
+            <div className="gap-4 w-full flex md:flex-col flex-2 md:max-w-[200px] ">
+              <div>
+                <label className="font-medium mb-1">Optical Total</label>
                 <input
                   type="number"
-                  name="opticalAdvance"
-                  value={formData.opticalAdvance}
-                  onChange={handleChange}
-                  className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
+                  readOnly
+                  value={
+                    (formData.framePrice || 0) + (formData.lensePrice || 0)
+                  }
+                  className="border p-3 rounded w-full bg-gray-100 cursor-not-allowed"
                 />
               </div>
-
-              <div className="flex flex-col">
+              <div>
                 <label className="font-medium mb-1">Optical Due</label>
                 <input
                   type="number"
@@ -1275,20 +1352,87 @@ const EditPage = () => {
                   className="border p-3 rounded w-full bg-gray-100 cursor-not-allowed"
                 />
               </div>
+            </div>
 
-              <div className="flex flex-col col-span-2 md:col-span-1">
-                <label className="font-medium mb-1">Optical Total</label>
-                <input
-                  type="number"
-                  readOnly
-                  value={
-                    (formData.framePrice || 0) + (formData.lensePrice || 0)
-                  }
-                  className="border p-3 rounded w-full bg-gray-100 cursor-not-allowed"
-                />
+            <div className="w-full grid md:flex rounded-md gap-2 md:gap-3 ">
+              <div className="flex mt-3 rounded-md flex-col w-full">
+                <h3 className="font-semibold">Optical Advance</h3>
+                <div className="grid grid-cols-3 w-full">
+                  <label className="font-medium px-3 text-gray-700">Date</label>
+                  <label className="font-medium px-3 text-gray-700">T-Id</label>
+                  <label className="font-medium px-3 text-gray-700">
+                    Amount
+                  </label>
+                </div>
+                {formData.opticalPayDetails.map((med, index) => (
+                  <div
+                    key={index}
+                    className="grid grid-cols-3 gap-2 items-end bg-gray-50 p-1 md:p-2 "
+                  >
+                    <div className="flex flex-col">
+                      <input
+                        type="date"
+                        name="date"
+                        value={med.date}
+                        onChange={(e) => handleAdvanceChange(e, index)}
+                        className="border p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
+                      />
+                    </div>
+                    <div className="flex flex-col">
+                      <input
+                        type="text"
+                        name="transectionId"
+                        value={med.transectionId}
+                        onChange={(e) => handleAdvanceChange(e, index)}
+                        placeholder="Enter TransectionId"
+                        className="border p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
+                      />
+                    </div>
+
+                    <div className="flex flex-col">
+                      <div className="flex">
+                        <input
+                          type="number"
+                          name="amount"
+                          value={med.amount}
+                          onChange={(e) => handleAdvanceChange(e, index)}
+                          placeholder="Enter Price"
+                          className="border p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
+                        />
+                        <div className="flex justify-end items-center ml-2 md:justify-start">
+                          <button
+                            type="button"
+                            onClick={() => removepaymentField(index)}
+                            className="bg-red-500 text-white rounded-lg px-4 py-2 hover:bg-red-600 transition"
+                          >
+                            <Delete className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                <div className="grid grid-cols-2 justify-between px-3 mt-2 w-full">
+                  <button
+                    type="button"
+                    onClick={addPayment}
+                    className="bg-blue-500 text-white rounded-lg px-2 md:px-3 py-2 w-fit hover:bg-blue-600 transition"
+                  >
+                    + Add Payment
+                  </button>
+                  <div className="flex justify-end">
+                    <input
+                      type="number"
+                      value={formData.opticalAdvance}
+                      readOnly
+                      className="border py-2  rounded-lg bg-gray-100 text-gray-700 text-center"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
+          {/* </div> */}
         </div>
       )}
       {/*Prescription Details Toggle */}

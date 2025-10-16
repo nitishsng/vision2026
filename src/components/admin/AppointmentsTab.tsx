@@ -69,6 +69,7 @@ export function AppointmentsTab() {
     const updatedAppointment = editedAppointments.find((a) => a.id === id);
     if (!updatedAppointment) return;
     setSavingId(id);
+    updatedAppointment.visitDate=new Date();
     try {
       const res = await fetch("/api/appointment", {
         method: "PUT",
