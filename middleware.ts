@@ -1,5 +1,5 @@
 // Next.js middleware for route protection and role-based redirects
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server.js';
 import { getUserFromSession, canAccessAdmin, canAccessOperator } from './src/middleware/auth';
 
 export function middleware(request: NextRequest) {

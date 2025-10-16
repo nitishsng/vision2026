@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { FPatientPortal as PatientPortal } from '@/src/components/PatientPortal';
-// import { LoginForm } from '@/src/components/LoginForm'; // Remove LoginForm import
 import { AdminDashboard } from '@/src/components/admin/AdminDashboard';
 import { OperatorDashboard } from '@/src/components/operator/OperatorDashboard';
 import { useRouter } from 'next/navigation'; // Import useRouter
@@ -11,7 +10,8 @@ import { useRouter } from 'next/navigation'; // Import useRouter
 export default function Home() {
   const { user, isLoading } = useAuth();
   const [showLogin, setShowLogin] = useState(false);
-  const router = useRouter(); // Initialize useRouter
+  const router = useRouter(); 
+
 
   if (isLoading) {
     return (
@@ -19,6 +19,7 @@ export default function Home() {
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500"></div>
       </div>
     );
+
   }
 
   // If user is logged in, show appropriate dashboard
