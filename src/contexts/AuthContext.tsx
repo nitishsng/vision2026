@@ -20,40 +20,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(false);
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
-    setIsLoading(true);
-    try {
-      const res = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await res.json();
-
-      if (res.ok && data.user) {
-        setUser(data.user);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        // Redirect based on user role
-        if (data.user.role === 'admin') {
-          router.push('/admin');
-        } else if (data.user.role === 'operator') {
-          router.push('/operator');
-        } else {
-          router.push('/');
-        }
-        return true;
-      } else {
-        console.error('Login failed:', data.error);
-        return false;
-      }
-    } catch (err) {
-      console.error('Error during login:', err);
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
-  };
+ 
 
   const logout = () => {
     setUser(null);
@@ -63,7 +30,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
