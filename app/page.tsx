@@ -1,16 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { FPatientPortal as PatientPortal } from '@/src/components/PatientPortal';
 import { AdminDashboard } from '@/src/components/admin/AdminDashboard';
 import { OperatorDashboard } from '@/src/components/operator/OperatorDashboard';
-import { useRouter } from 'next/navigation'; // Import useRouter
 
 export default function Home() {
   const { user, isLoading } = useAuth();
-  const [showLogin, setShowLogin] = useState(false);
-  const router = useRouter(); 
 
 
   if (isLoading) {
@@ -32,11 +29,7 @@ export default function Home() {
   }
 
   // Show login form if requested
-  if (showLogin) {
-    router.push('/loginpage'); // Redirect to the unified login page
-    return null; // Or a loading spinner, as the redirect will handle the view
-  }
 
   // Default: show patient portal (landing page)
-  return <PatientPortal onGoToAdmin={() => setShowLogin(true)} />;
+  return <PatientPortal/>;
 }

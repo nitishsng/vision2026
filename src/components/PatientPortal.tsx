@@ -12,15 +12,14 @@ import {
   Shield,
   Award,
 } from "lucide-react";
+
 import PatientForms from "./AppointmentForm";
 // import { useDashboardData } from "../contexts/dataCollection";
 import Link from "next/link";
 import { Service } from "../contexts/type";
-interface PatientPortalProps {
-  onGoToAdmin: () => void;
-}
 
-export function FPatientPortal({ onGoToAdmin }: PatientPortalProps) {
+
+export function FPatientPortal() {
   // const { services } = useDashboardData();
   let servicesLoading = false;
 const [services, setServices] = useState<Service[]>([]); // ⚠️ use array type
@@ -74,12 +73,14 @@ useEffect(() => {
               >
                 Book Appointment
               </button>
+              <Link href={"/lohinpage"}>
               <button
-                onClick={onGoToAdmin}
+               
                 className="px-8 py-3 bg-transparent border-2 border-white text-white rounded-lg hover:bg-white hover:text-teal-600 transition-colors font-semibold"
               >
                 Staff Login
               </button>
+              </Link>
             </div>
           </div>
         </div>

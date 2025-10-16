@@ -24,7 +24,7 @@ export function OperatorsTab() {
 
   const filteredOperators = staffs.filter(
     (operator) =>
-      operator.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      // operator.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       operator.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (operator.phone && operator.phone.includes(searchTerm))
   );
