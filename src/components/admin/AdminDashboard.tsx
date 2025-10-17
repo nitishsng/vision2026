@@ -12,6 +12,7 @@ import { ReportsTab } from './ReportsTab';
 import { ScheduleTab } from '../operator/ScheduleTab';
 import { OrdersTab } from './OrdersTab';
 
+
 export function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
