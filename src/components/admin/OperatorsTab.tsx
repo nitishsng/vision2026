@@ -126,29 +126,29 @@ const deleteOperator = async (id: string) => {
         </div>
       )}
 
-      {/* Search */}
-      <div className="bg-white rounded-lg p-4 border border-gray-200">
-        <div className="relative flex">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-          <input
-            type="text"
-            placeholder="Search by name, email, or phone..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-          />
-        </div>
-                    <div className="hidden md:flex items-end ">
-              <button
-                onClick={() => {
-                  setSearchTerm("");
-                }}
-                className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-              >
-                Clear Filters
-              </button>
-            </div>
-      </div>
+{/* Search */}
+<div className="bg-white flex items-center justify-between w-full rounded-lg p-4 border border-gray-200">
+  {/* Search Input */}
+  <div className="relative flex-1">
+    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+    <input
+      type="text"
+      placeholder="Search by name, email, or phone..."
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
+      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+    />
+  </div>
+
+  {/* Clear Button */}
+  <button
+    onClick={() => setSearchTerm("")}
+    className="ml-4 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors whitespace-nowrap"
+  >
+    Clear Filters
+  </button>
+</div>
+
 
       {/* Operators Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4">

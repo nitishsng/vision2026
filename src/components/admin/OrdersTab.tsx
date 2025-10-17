@@ -81,12 +81,14 @@ export function OrdersTab() {
         ...formData,
         orderOnly: formData?.orderOnly || true,
         updatedAt: new Date().toISOString(),
-        
-       // Optical Price
+
+        // Optical Price
         opticalaPrice:
           (formData?.framePrice ?? 0) + (formData?.lensePrice ?? 0),
         opticalDue:
-          (formData?.framePrice ?? 0) + (formData?.lensePrice ?? 0) - (formData?.opticalAdvance ?? 0) ,
+          (formData?.framePrice ?? 0) +
+          (formData?.lensePrice ?? 0) -
+          (formData?.opticalAdvance ?? 0),
 
         // Total Amount
         totalAmount:
@@ -106,9 +108,8 @@ export function OrdersTab() {
           (formData?.framePrice ?? 0) +
           (formData?.lensePrice ?? 0) -
           (formData?.opticalAdvance ?? 0),
+      };
 
-        };
-       
       if (!id) throw new Error("Missing patient ID");
 
       const res = await fetch(`/api/patient?id=${id}`, {
@@ -128,7 +129,6 @@ export function OrdersTab() {
       toast.error("Failed to save");
     } finally {
       setSaving(false);
-      console.log("Saving edited order:", formData);
       handleCloseEditPopup();
     }
   };
@@ -332,7 +332,7 @@ export function OrdersTab() {
             </div>
           </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-1">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-1">
             <div>
               <label className="hidden md:block text-sm font-medium text-gray-700 mb-1">
                 Delivery Status
@@ -362,7 +362,7 @@ export function OrdersTab() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
               />
             </div>
-             <div className="hidden md:flex items-end ">
+            <div className="hidden md:flex items-end ">
               <button
                 onClick={() => {
                   setSearchTerm("");
@@ -394,7 +394,7 @@ export function OrdersTab() {
                   Phone No
                 </th>
                 <th className="px-2 md:px-4 py-2 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Due
+                  Delivary-Date
                 </th>
                 <th className="px-2 md:px-4 py-2 border-b-2 border-gray-200 bg-gray-100 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   Actions
@@ -441,12 +441,8 @@ export function OrdersTab() {
                       )}
                     </td>
 
-                    <td
-                      className={`px-2 md:px-4 py-2 border-b border-gray-200 text-sm font-semibold ${
-                        order.totalDue > 0 ? "text-red-600" : "text-green-600"
-                      }`}
-                    >
-                      ₹{order.totalDue}
+                    <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm font-semibold">
+                      {order.deliveryDate}
                     </td>
                     <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm text-center">
                       <div className="flex justify-center items-center space-x-3">
@@ -718,8 +714,6 @@ export function OrdersTab() {
                     <option value="delivered">Delivered</option>
                   </select>
                 </h3>
-
-                <div></div>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                   <div>
                     <label className="font-medium mb-1 block">Order Date</label>
@@ -731,7 +725,6 @@ export function OrdersTab() {
                       className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
                     />
                   </div>
-
                   <div>
                     <label className="font-medium mb-1 block">
                       Delivery Date
@@ -763,21 +756,31 @@ export function OrdersTab() {
                     <input
                       type="number"
                       name="framePrice"
-                      value={formData.framePrice}
+                      value={formData.framePrice || 0}
                       onChange={handleInputChange}
                       className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
                     />
                   </div>
 
                   <div>
-                    <label className="font-medium mb-1 block">Lens ID</label>
+                    <label className="font-medium mb-1 block">Lens Type</label>
                     <input
                       type="text"
+                      list="lensTypeOptions"
                       name="lenseType"
-                      value={formData.lenseType}
+                      value={formData.lenseType || ""}
                       onChange={handleInputChange}
+                      placeholder="Select or enter lens type"
                       className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
                     />
+
+                    <datalist id="lensTypeOptions">
+                      <option value="Progressive" />
+                      <option value="Single Vision" />
+                      <option value="Bifocal" />
+                      <option value="Trifocal" />
+                      <option value="Reading" />
+                    </datalist>
                   </div>
 
                   <div>
@@ -785,7 +788,7 @@ export function OrdersTab() {
                     <input
                       type="number"
                       name="lensePrice"
-                      value={formData.lensePrice}
+                      value={formData.lensePrice || 0}
                       onChange={handleInputChange}
                       className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
                     />
@@ -797,7 +800,7 @@ export function OrdersTab() {
                     <input
                       type="number"
                       name="opticalaPrice"
-                      value={formData.lensePrice + formData.framePrice}
+                      value={formData.lensePrice + formData.framePrice || 0}
                       readOnly
                       className="border p-3 rounded w-full bg-gray-100 cursor-not-allowed"
                     />
@@ -807,59 +810,70 @@ export function OrdersTab() {
                     <input
                       type="number"
                       name="opticalAdvance"
-                      value={formData.opticalAdvance}
+                      value={formData.opticalAdvance || 0}
                       onChange={handleInputChange}
                       className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
                     />
                   </div>
                 </div>
               </section>
-
-              {/* 💰 Financial Summary */}
-              <section className="space-y-2">
-                <h3 className="text-xl font-semibold text-gray-700 border-b pb-2">
-                  Financial Summary
+              {/* 💰 Grand Totals Section */}
+              <div className="bg-white shadow-md rounded-2xl p-3 md:p-4 border border-gray-100">
+                <h3 className="text-xl font-semibold text-gray-700 mb-4">
+                  Grand Totals
                 </h3>
 
-                <div className="grid grid-cols-3 md:grid-cols-3 gap-4">
-                  <div>
-                    <label className="font-medium mb-1 block">
-                      Total Amount
+                <div className="grid grid-cols-3 gap-2 md:gap-6">
+                  <div className="flex flex-col">
+                    <label className="font-medium text-gray-700 mb-1">
+                      T-Amount
                     </label>
                     <input
                       type="number"
-                      name="totalAmount"
-                      value={formData.totalAmount}
                       readOnly
-                      className="border p-3 rounded w-full bg-gray-100 cursor-not-allowed"
+                      value={
+                        (formData.visitPrice || 0) +
+                        (formData.framePrice || 0) +
+                        (formData.lensePrice || 0) +
+                        (formData.medicinePrice || 0)
+                      }
+                      className="border p-3 rounded-lg bg-gray-100 cursor-not-allowed"
                     />
                   </div>
 
-                  <div>
-                    <label className="font-medium mb-1 block">
-                      Total Advance
+                  <div className="flex flex-col">
+                    <label className="font-medium text-gray-700 mb-1">
+                      T-Advance
                     </label>
                     <input
                       type="number"
-                      name="totalAdvance"
-                      value={formData.totalAdvance}
                       readOnly
-                      className="border p-3 rounded w-full bg-gray-100 cursor-not-allowed"
+                      value={
+                        (formData.opticalAdvance || 0) +
+                        (formData.medicinePrice || 0) +
+                        (formData.visitPrice || 0)
+                      }
+                      className="border p-3 rounded-lg bg-gray-100 cursor-not-allowed"
                     />
                   </div>
 
-                  <div>
-                    <label className="font-medium mb-1 block">Total Due</label>
+                  <div className="flex flex-col">
+                    <label className="font-medium text-gray-700 mb-1">
+                      Total Due
+                    </label>
                     <input
                       type="number"
-                      name="totalDue"
-                      value={formData.totalDue}
                       readOnly
-                      className="border p-3 rounded w-full bg-gray-100 cursor-not-allowed"
+                      value={
+                        (formData.framePrice || 0) +
+                        (formData.lensePrice || 0) -
+                        (formData.opticalAdvance || 0)
+                      }
+                      className="border p-3 rounded-lg bg-gray-100 cursor-not-allowed"
                     />
                   </div>
                 </div>
-              </section>
+              </div>
             </div>
 
             {/* Buttons */}

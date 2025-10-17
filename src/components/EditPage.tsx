@@ -442,7 +442,6 @@ const EditPage = () => {
                 </>
               )}
             </select>
-            
           </div>
           {/* Notes & Complaints */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1294,23 +1293,24 @@ const EditPage = () => {
               />
             </div>
 
-            <div className="flex flex-col">
+            <div className="flex flex-col max-w-sm">
               <label className="font-medium mb-1">Lens Type</label>
-              <select
-                name="lenseType" // ✅ must match formData key
+              <input
+                type="text"
+                list="lensTypeOptions"
+                name="lenseType"
                 value={formData.lenseType || ""}
                 onChange={handleChange}
+                placeholder="Select or enter lens type"
                 className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
-              >
-                <option value="" disabled>
-                  Select Lens Type
-                </option>
-                <option value="progressive">Progressive</option>
-                <option value="single-vision">Single Vision</option>
-                <option value="bifocal">Bifocal</option>
-                <option value="trifocal">Trifocal</option>
-                <option value="reading">Reading</option>
-              </select>
+              />
+              <datalist id="lensTypeOptions">
+                <option value="Progressive" />
+                <option value="Single Vision" />
+                <option value="Bifocal" />
+                <option value="Trifocal" />
+                <option value="Reading" />
+              </datalist>
             </div>
 
             <div className="flex flex-col">
