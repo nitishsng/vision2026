@@ -85,6 +85,20 @@ export const appointmentForm: React.FC<PatientFormProps> = ({
               />
             </div>
             <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                Gender
+              </label>
+            <select
+              name="gender"
+              onChange={handleChange}
+              className="border p-3 rounded focus:ring-2 focus:ring-blue-400 w-full"
+            >
+              <option value="F">Female</option>
+              <option value="M">Male</option>
+              <option value="Othher">Other</option>
+            </select>
+            </div>
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Age
               </label>
@@ -121,34 +135,36 @@ export const appointmentForm: React.FC<PatientFormProps> = ({
                 className="w-full px-3 py-1 md:py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
               />
             </div>
-<div>
-  <label className="block text-sm font-medium text-gray-700 mb-1">
-    Preferred Time
-  </label>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Preferred Time
+              </label>
 
-  <select
-    name="preferredTime"
-    onChange={handleChange}
-    className="border p-3 rounded focus:ring-2 focus:ring-blue-400 w-full"
-  >
-    {Array.from({ length: 19 }, (_, i) => {
-      const hour24 = 9 + Math.floor(i / 2);
-      const minutes = i % 2 === 0 ? "00" : "30";
-      const value = `${hour24.toString().padStart(2, "0")}:${minutes}`;
+              <select
+                name="preferredTime"
+                onChange={handleChange}
+                className="border p-3 rounded focus:ring-2 focus:ring-blue-400 w-full"
+              >
+                {Array.from({ length: 19 }, (_, i) => {
+                  const hour24 = 9 + Math.floor(i / 2);
+                  const minutes = i % 2 === 0 ? "00" : "30";
+                  const value = `${hour24
+                    .toString()
+                    .padStart(2, "0")}:${minutes}`;
 
-      // Convert to 12-hour format with AM/PM
-      const hour12 = hour24 % 12 === 0 ? 12 : hour24 % 12;
-      const ampm = hour24 < 12 ? "AM" : "PM";
-      const label = `${hour12}:${minutes} ${ampm}`;
+                  // Convert to 12-hour format with AM/PM
+                  const hour12 = hour24 % 12 === 0 ? 12 : hour24 % 12;
+                  const ampm = hour24 < 12 ? "AM" : "PM";
+                  const label = `${hour12}:${minutes} ${ampm}`;
 
-      return (
-        <option key={value} value={value}>
-          {label}
-        </option>
-      );
-    })}
-  </select>
-</div>
+                  return (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
