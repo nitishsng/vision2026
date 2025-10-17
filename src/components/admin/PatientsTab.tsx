@@ -131,9 +131,6 @@ export function PatientsTab() {
                   Patient Name
                 </th>
                 <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Age
-                </th>
-                <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Phone No
                 </th>
                 <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -178,9 +175,6 @@ export function PatientsTab() {
                         )}
                       </div>
                     </div>
-                  </td>
-                  <td className="px-2 py-3 whitespace-nowrap text-sm text-gray-900">
-                    {patient.age}
                   </td>
                   <td className="px-2 py-3 whitespace-nowrap text-sm text-gray-900">
                     {patient.phoneNo ? (
