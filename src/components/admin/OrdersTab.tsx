@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Eye, Edit, Search, Plus } from "lucide-react";
+import { Eye, Edit, Search, Plus, Delete } from "lucide-react";
 import { PatientFullTypeWithObjectId } from "@/src/contexts/type";
 import { useDashboardData } from "@/src/contexts/dataCollection";
 import toast from "react-hot-toast";
 import NewOrder from "../NewOrder";
+  import { todayDate } from "@/src/contexts/type";
+
 export function OrdersTab() {
   const { patients, fetchData } = useDashboardData();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -285,6 +287,69 @@ export function OrdersTab() {
     const message = lines.join("\n");
     const url = `https://wa.me/+91${phone}?text=${encodeURIComponent(message)}`;
     window.open(url, "_blank");
+  };
+
+
+
+    const addPayment = () => {
+      setFormData((prev) => {
+        if (!prev) return prev; // or return null safely
+  
+        return {
+          ...prev,
+          opticalPayDetails: [
+            ...prev.opticalPayDetails,
+            { date: todayDate, amount: 0, transectionId: "" },
+          ],
+        };
+      });
+    };
+  const removepaymentField = (index: number) => {
+    setFormData((prev) => {
+      if (!prev) return prev; // safely handle null state
+
+      const updatedpamentDetails = prev.opticalPayDetails.filter(
+        (_, i) => i !== index
+      );
+      const totalPrice = updatedpamentDetails.reduce(
+        (sum, med) => sum + (Number(med.amount) || 0),
+        0
+      );
+
+      return {
+        ...prev,
+        opticalPayDetails: updatedpamentDetails,
+        opticalAdvance: totalPrice,
+      };
+    });
+  };
+  
+  const handleAdvanceChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    index: number
+  ) => {
+    const { name, value } = e.target;
+    console.log(name + " " + value);
+    const updatedAdvance = formData ? [...formData.opticalPayDetails] : [];
+    updatedAdvance[index] = {
+      ...updatedAdvance[index],
+      [name]: name === "amount" ? Number(value) : value,
+    };
+
+    const totalPrice = updatedAdvance.reduce(
+      (sum, med) => sum + (Number(med.amount) || 0),
+      0
+    );
+
+    setFormData((prev) => {
+      if (!prev) return prev; // handle null safely
+
+      return {
+        ...prev, // keep all other properties (id, name, etc.)
+        opticalPayDetails: updatedAdvance,
+        opticalAdvance: totalPrice,
+      };
+    });
   };
 
   return (
@@ -701,191 +766,267 @@ export function OrdersTab() {
               Edit Order (Bill No: {formData.billNo})
             </h3>
 
-            <div className="space-y-2">
-              {/* 🛒 Order Information */}
-              <section className="space-y-2">
-                <h3 className=" flex justify-between border-b pb-2">
-                  <span className="text-xl font-semibold  text-gray-700">
-                    Order Information{" "}
-                  </span>
-                  <select
-                    name="deliveryStatus"
-                    value={formData.deliveryStatus}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        deliveryStatus: e.target.value,
-                      })
-                    }
-                    className=" px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                  >
-                    <option value="pending">Pending</option>
-                    <option value="inProgress">In Progress</option>
-                    <option value="readyToDeliver">Ready to Deliver</option>
-                    <option value="delivered">Delivered</option>
-                  </select>
-                </h3>
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div>
-                    <label className="font-medium mb-1 block">Order Date</label>
-                    <input
-                      type="date"
-                      name="orderDate"
-                      value={formData.orderDate.split("T")[0]}
-                      onChange={handleInputChange}
-                      className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
-                    />
-                  </div>
-                  <div>
-                    <label className="font-medium mb-1 block">
-                      Delivery Date
-                    </label>
-                    <input
-                      type="date"
-                      name="deliveryDate"
-                      value={formData.deliveryDate?.split("T")[0] || ""}
-                      onChange={handleInputChange}
-                      className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
-                    />
-                  </div>
+           <div className="space-y-2">
+  {/* 🛒 Order Information */}
+  <section className="space-y-2">
+    <h3 className="flex justify-between border-b pb-2 items-center">
+      <span className="text-lg md:text-xl font-semibold text-gray-700">
+        Order Information
+      </span>
+      <select
+        name="deliveryStatus"
+        value={formData.deliveryStatus}
+        onChange={(e) =>
+          setFormData({
+            ...formData,
+            deliveryStatus: e.target.value,
+          })
+        }
+        className="text-sm px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+      >
+        <option value="pending">Pending</option>
+        <option value="inProgress">In Progress</option>
+        <option value="readyToDeliver">Ready to Deliver</option>
+        <option value="delivered">Delivered</option>
+      </select>
+    </h3>
 
-                  <div>
-                    <label className="font-medium mb-1 block">Frame ID</label>
-                    <input
-                      type="text"
-                      name="frameId"
-                      value={formData.frameId}
-                      onChange={handleInputChange}
-                      className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
-                    />
-                  </div>
+       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div>
+        <label className="font-medium mb-1 block text-sm md:text-base">
+          Order Date
+        </label>
+        <input
+          type="date"
+          name="orderDate"
+          value={formData.orderDate.split('T')[0]}
+          onChange={handleInputChange}
+          className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+        />
+      </div>
 
-                  <div>
-                    <label className="font-medium mb-1 block">
-                      Frame Price
-                    </label>
-                    <input
-                      type="number"
-                      name="framePrice"
-                      value={formData.framePrice || 0}
-                      onChange={handleInputChange}
-                      className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
-                    />
-                  </div>
+      <div>
+        <label className="font-medium mb-1 block text-sm md:text-base">
+          Delivery Date
+        </label>
+        <input
+          type="date"
+          name="deliveryDate"
+          value={formData.deliveryDate?.split('T')[0] || ''}
+          onChange={handleInputChange}
+          className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+        />
+      </div>
 
-                  <div>
-                    <label className="font-medium mb-1 block">Lens Type</label>
-                    <input
-                      type="text"
-                      list="lensTypeOptions"
-                      name="lenseType"
-                      value={formData.lenseType || ""}
-                      onChange={handleInputChange}
-                      placeholder="Select or enter lens type"
-                      className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
-                    />
+      <div>
+        <label className="font-medium mb-1 block text-sm md:text-base">
+          Frame ID
+        </label>
+        <input
+          type="text"
+          name="frameId"
+          value={formData.frameId}
+          onChange={handleInputChange}
+          className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+        />
+      </div>
 
-                    <datalist id="lensTypeOptions">
-                      <option value="Progressive" />
-                      <option value="Single Vision" />
-                      <option value="Bifocal" />
-                      <option value="Trifocal" />
-                      <option value="Reading" />
-                    </datalist>
-                  </div>
+      <div>
+        <label className="font-medium mb-1 block text-sm md:text-base">
+          Frame Price
+        </label>
+        <input
+          type="number"
+          name="framePrice"
+          value={formData.framePrice || 0}
+          onChange={handleInputChange}
+          className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+        />
+      </div>
 
-                  <div>
-                    <label className="font-medium mb-1 block">Lens Price</label>
-                    <input
-                      type="number"
-                      name="lensePrice"
-                      value={formData.lensePrice || 0}
-                      onChange={handleInputChange}
-                      className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
-                    />
-                  </div>
-                  <div>
-                    <label className="font-medium mb-1 block">
-                      Optical Price
-                    </label>
-                    <input
-                      type="number"
-                      name="opticalaPrice"
-                      value={formData.lensePrice + formData.framePrice || 0}
-                      readOnly
-                      className="border p-3 rounded w-full bg-gray-100 cursor-not-allowed"
-                    />
-                  </div>
-                  <div>
-                    <label className="font-medium mb-1 block">Pay</label>
-                    <input
-                      type="number"
-                      name="opticalAdvance"
-                      value={formData.opticalAdvance || 0}
-                      onChange={handleInputChange}
-                      className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
-                    />
-                  </div>
-                </div>
-              </section>
-              {/* 💰 Grand Totals Section */}
-              <div className="bg-white shadow-md rounded-2xl p-3 md:p-4 border border-gray-100">
-                <h3 className="text-xl font-semibold text-gray-700 mb-4">
-                  Grand Totals
-                </h3>
+      <div>
+        <label className="font-medium mb-1 block text-sm md:text-base">
+          Lens Type
+        </label>
+        <input
+          type="text"
+          list="lensTypeOptions"
+          name="lenseType"
+          value={formData.lenseType || ''}
+          onChange={handleInputChange}
+          placeholder="Select or enter lens type"
+          className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+        />
+        <datalist id="lensTypeOptions">
+          <option value="Progressive" />
+          <option value="Single Vision" />
+          <option value="Bifocal" />
+          <option value="Trifocal" />
+          <option value="Reading" />
+        </datalist>
+      </div>
 
-                <div className="grid grid-cols-3 gap-2 md:gap-6">
-                  <div className="flex flex-col">
-                    <label className="font-medium text-gray-700 mb-1">
-                      T-Amount
-                    </label>
-                    <input
-                      type="number"
-                      readOnly
-                      value={
-                        (formData.visitPrice || 0) +
-                        (formData.framePrice || 0) +
-                        (formData.lensePrice || 0) +
-                        (formData.medicinePrice || 0)
-                      }
-                      className="border p-3 rounded-lg bg-gray-100 cursor-not-allowed"
-                    />
-                  </div>
+      <div>
+        <label className="font-medium mb-1 block text-sm md:text-base">
+          Lens Price
+        </label>
+        <input
+          type="number"
+          name="lensePrice"
+          value={formData.lensePrice || 0}
+          onChange={handleInputChange}
+          className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+        />
+      </div>
 
-                  <div className="flex flex-col">
-                    <label className="font-medium text-gray-700 mb-1">
-                      T-Advance
-                    </label>
-                    <input
-                      type="number"
-                      readOnly
-                      value={
-                        (formData.opticalAdvance || 0) +
-                        (formData.medicinePrice || 0) +
-                        (formData.visitPrice || 0)
-                      }
-                      className="border p-3 rounded-lg bg-gray-100 cursor-not-allowed"
-                    />
-                  </div>
+      <div>
+        <label className="font-medium mb-1 block text-sm md:text-base">
+          Optical Price
+        </label>
+        <input
+          type="number"
+          name="opticalaPrice"
+          value={formData.lensePrice + formData.framePrice || 0}
+          readOnly
+          className="border p-2 md:p-3 rounded w-full bg-gray-100 cursor-not-allowed text-sm md:text-base"
+        />
+      </div>
+    </div>
 
-                  <div className="flex flex-col">
-                    <label className="font-medium text-gray-700 mb-1">
-                      Total Due
-                    </label>
-                    <input
-                      type="number"
-                      readOnly
-                      value={
-                        (formData.framePrice || 0) +
-                        (formData.lensePrice || 0) -
-                        (formData.opticalAdvance || 0)
-                      }
-                      className="border p-3 rounded-lg bg-gray-100 cursor-not-allowed"
-                    />
-                  </div>
-                </div>
+    {/* Payment Details */}
+    <div className="w-full grid md:flex rounded-md gap-2 md:gap-3">
+      <div className="flex mt-3 rounded-md flex-col w-full">
+        <h3 className="font-semibold text-base md:text-lg">Payment Details</h3>
+
+        <div className="grid grid-cols-3 w-full text-xs md:text-sm font-medium text-gray-700 px-1 md:px-3">
+          <label>Date</label>
+          <label>T-Id</label>
+          <label>Amount</label>
+        </div>
+
+        {formData.opticalPayDetails.map((med, index) => (
+          <div
+            key={index}
+            className="grid grid-cols-3 gap-2 items-end bg-gray-50 p-1 md:p-2 rounded"
+          >
+            <div className="flex flex-col">
+              <input
+                type="date"
+                name="date"
+                value={med.date}
+                onChange={(e) => handleAdvanceChange(e, index)}
+                className="border p-2 md:p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+              />
+            </div>
+
+            <div className="flex flex-col">
+              <input
+                type="text"
+                name="transectionId"
+                value={med.transectionId}
+                onChange={(e) => handleAdvanceChange(e, index)}
+                placeholder="Enter TransectionId"
+                className="border p-2 md:p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+              />
+            </div>
+
+            <div className="flex flex-col">
+              <div className="flex">
+                <input
+                  type="number"
+                  name="amount"
+                  value={med.amount}
+                  onChange={(e) => handleAdvanceChange(e, index)}
+                  placeholder="Enter Price"
+                  className="border p-2 md:p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+                />
+                <button
+                  type="button"
+                  onClick={() => removepaymentField(index)}
+                  className="bg-red-500 text-white rounded-lg px-3 md:px-4 py-2 ml-1 hover:bg-red-600 transition"
+                >
+                  <Delete className="w-4 h-4" />
+                </button>
               </div>
             </div>
+          </div>
+        ))}
+
+        <div className="grid grid-cols-2 justify-between px-2 md:px-3 mt-2 w-full">
+          <button
+            type="button"
+            onClick={addPayment}
+            className="bg-blue-500 text-white rounded-lg px-2 md:px-3 py-2 w-fit hover:bg-blue-600 transition text-sm md:text-base"
+          >
+            + Add Payment
+          </button>
+          <div className="flex justify-end">
+            <input
+              type="number"
+              value={formData.opticalAdvance}
+              readOnly
+              className="border py-2 min-w-[90px] md:min-w-[100px] rounded-lg bg-gray-100 text-gray-700 text-center text-sm md:text-base"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* 💰 Grand Totals Section */}
+  <div className="bg-white shadow-md rounded-2xl p-3 md:p-4 border border-gray-100">
+    <div className="grid grid-cols-3 gap-1 md:gap-6">
+      <div className="flex flex-col">
+        <label className="font-medium text-gray-700 mb-1 text-sm md:text-base">
+          T-Amount
+        </label>
+        <input
+          type="number"
+          readOnly
+          value={
+            (formData.visitPrice || 0) +
+            (formData.framePrice || 0) +
+            (formData.lensePrice || 0) +
+            (formData.medicinePrice || 0)
+          }
+          className="border p-2 md:p-3 rounded-lg bg-gray-100 cursor-not-allowed text-sm md:text-base"
+        />
+      </div>
+
+      <div className="flex flex-col">
+        <label className="font-medium text-gray-700 mb-1 text-sm md:text-base">
+          T-Advance
+        </label>
+        <input
+          type="number"
+          readOnly
+          value={
+            (formData.opticalAdvance || 0) +
+            (formData.medicinePrice || 0) +
+            (formData.visitPrice || 0)
+          }
+          className="border p-2 md:p-3 rounded-lg bg-gray-100 cursor-not-allowed text-sm md:text-base"
+        />
+      </div>
+
+      <div className="flex flex-col">
+        <label className="font-medium text-gray-700 mb-1 text-sm md:text-base">
+          Total Due
+        </label>
+        <input
+          type="number"
+          readOnly
+          value={
+            (formData.framePrice || 0) +
+            (formData.lensePrice || 0) -
+            (formData.opticalAdvance || 0)
+          }
+          className="border p-2 md:p-3 rounded-lg bg-gray-100 cursor-not-allowed text-sm md:text-base"
+        />
+      </div>
+    </div>
+  </div>
+</div>
 
             {/* Buttons */}
             <div className="flex justify-end mt-8 space-x-4">
