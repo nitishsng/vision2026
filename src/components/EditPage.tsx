@@ -322,6 +322,49 @@ const EditPage = () => {
     });
   };
 
+  // Medicine name and price mapping
+const medicineList = {
+  "moximax": 148,
+  "yesflox P": 100,
+  "Heltroz": 150,
+  "locfresh gel": 155,
+  "cycloact": 70,
+  "selfquin LP": 170,
+  "ratroday": 210,
+  "ciplox": 18,
+  "ocurest ah": 117,
+  "realtob oint": 90,
+  "hycotic": 85,
+  "yesflu tab": 54,
+  "nepadot": 185,
+  "realtob f": 125,
+  "tobra": 60,
+  "myneph+": 130,
+  "selfquin P": 125,
+  "ceflox": 58,
+  "yesflox": 80,
+  "yapat": 105,
+  "yapat kt": 140,
+  "ralcafit": 240,
+};
+
+// When selecting or typing medicine name
+const handleMedicineSelect = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+  const { value } = e.target;
+  const [namePart] = value.split("-"); // handle "name - price" input
+  const cleanName = namePart.trim().toLowerCase();
+
+  const newMedicines = [...formData.medicines];
+  newMedicines[index].medicinename = value;
+
+  // Auto-fill price if match found
+  if (cleanName in medicineList) {
+    newMedicines[index].price = medicineList[cleanName as keyof typeof medicineList];
+  }
+
+  setFormData({ ...formData, medicines: newMedicines });
+};
+
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-2 md:space-y-4 bg-white shadow rounded-lg">
       {/* Header */}
@@ -1320,70 +1363,101 @@ const EditPage = () => {
             </div>
             {/* Medicines */}
             <div className="flex bg-gray-50 flex-col w-full">
-              <div className="grid grid-cols-2 w-full">
-                <label className="font-medium px-3 text-gray-700">
-                  Medicine Name
-                </label>
-                <label className="font-medium px-3 text-gray-700">Price</label>
-              </div>
-              {formData.medicines.map((med, index) => (
-                <div
-                  key={index}
-                  className="grid grid-cols-2 gap-1 items-end bg-gray-50 p-1 md:p-2 "
-                >
-                  <div className="flex flex-col">
-                    <input
-                      type="text"
-                      name="medicinename"
-                      value={med.medicinename}
-                      onChange={(e) => handleMedicineChange(e, index)}
-                      placeholder="Enter Medicine Name"
-                      className="border py-1 px-3 md:py-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
-                    />
-                  </div>
+  {/* Header */}
+  <div className="grid grid-cols-2 w-full">
+    <label className="font-medium px-3 text-gray-700">Medicine Name</label>
+    <label className="font-medium px-3 text-gray-700">Price</label>
+  </div>
 
-                  <div className="flex flex-col">
-                    <div className="flex">
-                      <input
-                        type="number"
-                        name="price"
-                        value={med.price}
-                        onChange={(e) => handleMedicineChange(e, index)}
-                        placeholder="Enter Price"
-                        className="border py-1 px-3 md:py-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
-                      />
-                      <div className="flex justify-end items-center ml-2 md:justify-start">
-                        <button
-                          type="button"
-                          onClick={() => removeMedicineField(index)}
-                          className="bg-red-500 text-white rounded-lg px-4 py-2 hover:bg-red-600 transition"
-                        >
-                          <Delete className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
+  {/* Medicine List */}
+  {formData.medicines.map((med, index) => (
+    <div
+      key={index}
+      className="grid grid-cols-2 gap-1 items-end bg-gray-50 p-1 md:p-2"
+    >
+      <div className="flex flex-col">
+        {/* 👇 datalist-enabled input */}
+        <input
+          list="medicine-options"
+          type="text"
+          name="medicinename"
+          value={med.medicinename}
+          onChange={(e) => handleMedicineSelect(e, index)}
+          placeholder="Enter or select Medicine Name"
+          className="border py-1 px-3 md:py-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
+        />
+      </div>
 
-              <div className="grid grid-cols-2 justify-between px-3 mt-2 w-full">
-                <button
-                  type="button"
-                  onClick={addMedicineField}
-                  className="bg-blue-500 text-white rounded-lg px-2 md:px-3 py-2 w-fit hover:bg-blue-600 transition"
-                >
-                  + Add Medicine
-                </button>
-                <div className="flex justify-end">
-                  <input
-                    type="number"
-                    value={formData.medicinePrice}
-                    readOnly
-                    className="border py-1 md:p-3 min-w-[100px]  rounded-lg bg-gray-100 text-gray-700 text-center"
-                  />
-                </div>
-              </div>
-            </div>
+      <div className="flex flex-col">
+        <div className="flex">
+          <input
+            type="number"
+            name="price"
+            value={med.price}
+            onChange={(e) => handleMedicineChange(e, index)}
+            placeholder="Enter Price"
+            className="border py-1 px-3 md:py-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
+          />
+          <div className="flex justify-end items-center ml-2 md:justify-start">
+            <button
+              type="button"
+              onClick={() => removeMedicineField(index)}
+              className="bg-red-500 text-white rounded-lg px-4 py-2 hover:bg-red-600 transition"
+            >
+              <Delete className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  ))}
+
+  {/* Medicine Datalist */}
+  <datalist id="medicine-options">
+    <option value="moximax" />
+    <option value="yesflox P" />
+    <option value="Heltroz" />
+    <option value="locfresh gel" />
+    <option value="cycloact" />
+    <option value="selfquin LP" />
+    <option value="ratroday" />
+    <option value="ciplox" />
+    <option value="ocurest ah" />
+    <option value="realtob oint" />
+    <option value="hycotic" />
+    <option value="yesflu tab" />
+    <option value="nepadot" />
+    <option value="realtob f" />
+    <option value="tobra" />
+    <option value="myneph+" />
+    <option value="selfquin P" />
+    <option value="ceflox" />
+    <option value="yesflox" />
+    <option value="yapat" />
+    <option value="yapat kt" />
+    <option value="ralcafit" />
+  </datalist>
+
+  {/* Add Button and Total */}
+  <div className="grid grid-cols-2 justify-between px-3 mt-2 w-full">
+    <button
+      type="button"
+      onClick={addMedicineField}
+      className="bg-blue-500 text-white rounded-lg px-2 md:px-3 py-2 w-fit hover:bg-blue-600 transition"
+    >
+      + Add Medicine
+    </button>
+    <div className="flex justify-end">
+      <input
+        type="number"
+        value={formData.medicinePrice}
+        readOnly
+        className="border py-1 md:p-3 min-w-[100px] rounded-lg bg-gray-100 text-gray-700 text-center"
+      />
+    </div>
+  </div>
+</div>
+
           </div>
         </div>
 
