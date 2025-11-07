@@ -101,7 +101,7 @@ export function OrdersTab() {
         totalAdvance:
           (formData?.visitPrice ?? 0) +
           (formData?.medicinePrice ?? 0) +
-          (formData?.opticalAdvance ?? 0),
+          (formData?.opticalAdvance ?? 0), 
 
         // Total Due
         totalDue:
