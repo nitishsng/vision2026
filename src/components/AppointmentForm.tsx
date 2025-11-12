@@ -24,7 +24,6 @@ export const appointmentForm: React.FC<PatientFormProps> = ({
       ...prev,
       [name]: value,
     }));
-    console.log(formValues);
   };
 
   function generateAppointmentId() {
@@ -122,6 +121,19 @@ export const appointmentForm: React.FC<PatientFormProps> = ({
                 className="w-full px-3 py-1 md:py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
               />
             </div>
+                        <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Address 
+              </label>
+                 <input
+                type="notes"
+                name="note"
+                required
+                placeholder="Enter Your Address"
+                onChange={handleChange}
+                className="w-full px-3 py-1 md:py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+              />
+            </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Preferred Date
@@ -166,34 +178,25 @@ export const appointmentForm: React.FC<PatientFormProps> = ({
               </select>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Purpose
-              </label>
-              <select
-                name="purpose"
-                required
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-              >
-                <option value="">Select Purpose</option>
-                <option value="eye-test">Eye Test</option>
-                <option value="frame-selection">Frame Selection</option>
-                <option value="consultation">Consultation</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Additional Notes (Optional)
-              </label>
-              <textarea
-                name="notes"
-                rows={3}
-                onChange={handleChange}
-                className="w-full px-3 py-1 md:py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                placeholder="Any specific concerns or requirements..."
-              />
-            </div>
+<div>
+  <label className="block text-sm font-medium text-gray-700 mb-1">
+    Purpose
+  </label>
+  <select
+    name="purpose"
+    required
+    onChange={handleChange}
+    defaultValue="consultation"
+    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+  >
+    <option value="">Select Purpose</option>
+    <option value="eye-test">Eye Test</option>
+    <option value="consultation">Consultation</option>
+    <option value="frame-selection">Frame Selection</option>
+  </select>
+</div>
+
+
           </div>
 
           <div className="flex justify-end space-x-4 mt-6">

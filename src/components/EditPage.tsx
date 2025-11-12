@@ -224,7 +224,6 @@ const EditPage = () => {
     index: number
   ) => {
     const { name, value } = e.target;
-    console.log(name + " " + value);
     const updatedAdvance = [...formData.opticalPayDetails];
     updatedAdvance[index] = {
       ...updatedAdvance[index],
@@ -253,7 +252,7 @@ const EditPage = () => {
 
       return {
         ...prev,
-        medicines: [...prev.medicines, { medicinename: "", price: 0 }],
+        medicines: [...prev.medicines, {date:todayDate, medicinename: "", price: 0 }],
       };
     });
   };
@@ -362,7 +361,18 @@ const handleMedicineSelect = (e: React.ChangeEvent<HTMLInputElement>, index: num
     newMedicines[index].price = medicineList[cleanName as keyof typeof medicineList];
   }
 
-  setFormData({ ...formData, medicines: newMedicines });
+  // ✅ Recalculate total medicine price
+  const totalPrice = newMedicines.reduce(
+    (sum, med) => sum + (Number(med.price) || 0),
+    0
+  );
+
+  // ✅ Update formData including new total
+  setFormData({
+    ...formData,
+    medicines: newMedicines,
+    medicinePrice: totalPrice,
+  });
 };
 
   return (
@@ -1349,22 +1359,24 @@ const handleMedicineSelect = (e: React.ChangeEvent<HTMLInputElement>, index: num
 
           {/* Visit Price */}
           <div className="grid grid-cols-1 md:flex gap-1 md:gap-3">
-            <div className="flex flex-col max-w-[200px]">
-              <label className="font-medium text-gray-700 mb-1">
-                Visit Price
-              </label>
-              <input
-                type="number"
-                name="visitPrice"
-                value={formData.visitPrice}
-                onChange={handleChange}
-                className="border px-3 py-1 md:py-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
-              />
-            </div>
+    <div className="flex flex-col max-w-[200px]">
+  <label className="font-medium text-gray-700 mb-1">
+    Visit Price
+  </label>
+  <input
+    type="number"
+    name="visitPrice"
+    value={formData.visitPrice || (formData.repeated ? 100 : 200)}
+    onChange={handleChange}
+    className="border px-3 py-1 md:py-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
+  />
+</div>
+
             {/* Medicines */}
             <div className="flex bg-gray-50 flex-col w-full">
   {/* Header */}
   <div className="grid grid-cols-2 w-full">
+    <label className="font-medium px-3 text-gray-700">Date</label>
     <label className="font-medium px-3 text-gray-700">Medicine Name</label>
     <label className="font-medium px-3 text-gray-700">Price</label>
   </div>
@@ -1373,8 +1385,18 @@ const handleMedicineSelect = (e: React.ChangeEvent<HTMLInputElement>, index: num
   {formData.medicines.map((med, index) => (
     <div
       key={index}
-      className="grid grid-cols-2 gap-1 items-end bg-gray-50 p-1 md:p-2"
+      className="grid grid-cols-3 gap-1 items-end bg-gray-50 p-1 md:p-2"
     >
+                 <div className="flex flex-col">
+                  <input
+                    type="date"
+                    name="date"
+                    value={med.date}
+                    onChange={(e) => handleAdvanceChange(e, index)}
+                    className="border py-2 md:p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+                  />
+                </div>
+    
       <div className="flex flex-col">
         {/* 👇 datalist-enabled input */}
         <input

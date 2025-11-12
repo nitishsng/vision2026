@@ -36,13 +36,15 @@ export function PatientsTab() {
     const validpatient =
       patient.status === "completed" || patient.status === "confirmed";
     const matchesDate =
-      !dateFilter || (patient.visitDate && formatDateDisplay(patient.visitDate) === dateFilter);
+      !dateFilter ||
+      (patient.visitDate &&
+        formatDateDisplay(patient.visitDate) === dateFilter);
     return matchStatus && matchRepeated && matchesDate && validpatient;
   });
 
   return (
     <div className="space-y-4 md:space-x-6">
-            <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center">
         <div>
           <h1 className="text-[20px] md:text-2xl font-bold text-gray-900">
             Patients Management
@@ -73,7 +75,7 @@ export function PatientsTab() {
             </div>
           </div>
 
-                   <div className="grid grid-cols-2 md:grid-cols-3 gap-1">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-1">
             <div>
               <label className="hidden md:block text-sm font-medium text-gray-700 mb-1">
                 Status
@@ -101,11 +103,11 @@ export function PatientsTab() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
               />
             </div>
-                        <div className="hidden md:flex items-end ">
+            <div className="hidden md:flex items-end ">
               <button
                 onClick={() => {
                   setSearchTerm("");
-                  setRepeatedFilter("")
+                  setRepeatedFilter("");
                   setDateFilter("");
                 }}
                 className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
@@ -117,7 +119,6 @@ export function PatientsTab() {
         </div>
       </div>
 
-
       {/* Patients Table */}
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
@@ -125,7 +126,7 @@ export function PatientsTab() {
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
                 <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Order Date
+                  Visit Date
                 </th>
                 <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Patient Name
@@ -134,7 +135,8 @@ export function PatientsTab() {
                   Phone No
                 </th>
                 <th className="px-2 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Bill No
+                  {/* Bill No */}
+                  Diagnosis
                 </th>
                 <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
@@ -156,7 +158,11 @@ export function PatientsTab() {
                       ) : (
                         <span className="w-3 h-3 rounded-full bg-green-300"></span>
                       )}
-                      <span>{patient.visitDate ? formatDateDisplay(patient.visitDate) : ""}</span>
+                      <span>
+                        {patient.visitDate
+                          ? formatDateDisplay(patient.visitDate)
+                          : ""}
+                      </span>
                     </span>
                   </td>
                   <td className="px-2 py-3 whitespace-nowrap">
@@ -190,7 +196,8 @@ export function PatientsTab() {
                   </td>
                   <td className="px-2 py-3 whitespace-nowrap">
                     <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
-                      {patient.billNo}
+                      {/* {patient.billNo} */}
+                      {patient.diagnosis}
                     </span>
                   </td>
                   <td className="px-2 py-3 whitespace-nowrap text-sm font-medium">

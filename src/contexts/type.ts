@@ -114,7 +114,7 @@ export type PatientFullType = {
   deliveryDate: string;
 
   // Medicine
-  medicines: {medicinename:string,price:number}[];
+  medicines: {date:string,medicinename:string,price:number}[];
   medicinePrice: number;
 
 
@@ -207,7 +207,7 @@ export const initialPatient:PatientFullTypeWithObjectId={
   phoneNo: "",
   preferredDate: "",
   preferredTime: "",
-  purpose: "eye-test",
+  purpose: "consultation",
   status: "pending",
   notes: "",
   createdAt: new Date(),
