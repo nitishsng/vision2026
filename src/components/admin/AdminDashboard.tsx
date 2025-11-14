@@ -11,6 +11,7 @@ import { ServicesTab } from './ServicesTab';
 import { ReportsTab } from './ReportsTab';
 import { ScheduleTab } from '../operator/ScheduleTab';
 import { OrdersTab } from './OrdersTab';
+import { MedicinesTab } from './MedicinesTab';
 
 
 export function AdminDashboard() {
@@ -43,6 +44,8 @@ export function AdminDashboard() {
         return <ReportsTab />;
       case 'orders':
         return <OrdersTab />;
+      case 'medicines':
+        return <MedicinesTab />;
       case 'settings':
         return <><div>Comming soon...</div></>;
       default:

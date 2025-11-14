@@ -1,15 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { initialPatient, PatientFullTypeWithObjectId } from "../contexts/type";
 import toast from "react-hot-toast";
+import Medicine from "./Medicine";
+import OpticalPayment from "./OpticalPayment";
 
 interface PatientFormProps {
   setNewOrderForm: React.Dispatch<React.SetStateAction<boolean>>;
   setorderSuccess: React.Dispatch<React.SetStateAction<boolean>>;
+  catagory:string;
 }
 
 const NewOrder: React.FC<PatientFormProps> = ({
   setNewOrderForm,
   setorderSuccess,
+  catagory
 }) => {
   const [formData, setFormData] =
     useState<PatientFullTypeWithObjectId>(initialPatient);
@@ -90,7 +94,14 @@ const NewOrder: React.FC<PatientFormProps> = ({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg p-4 md:p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-lg">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">
-          🧾 New Optical Order
+{
+  catagory === "medicine" ? (
+    <div>🧾 New Medicine Customer</div>
+  ) : catagory === "order" ? (
+    <div>🧾 New Optical Order</div>
+  ) : null
+}
+
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -137,6 +148,16 @@ const NewOrder: React.FC<PatientFormProps> = ({
               </div>
 
               <div>
+                <label className="font-medium mb-1 block">Address</label>
+                <input
+                  type="text"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleInputChange}
+                  className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
+                />
+              </div>
+              <div>
                 <label className="font-medium mb-1 block">Bill No</label>
                 <input
                   type="text"
@@ -146,10 +167,14 @@ const NewOrder: React.FC<PatientFormProps> = ({
                   className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
                 />
               </div>
+
             </div>
           </section>
-
+          
           {/* 🕓 Order Information */}
+
+    {catagory === "order" && (
+
           <section className="space-y-2">
             <h3 className="text-xl font-semibold text-gray-700 border-b pb-2">
               Order Information
@@ -241,7 +266,7 @@ const NewOrder: React.FC<PatientFormProps> = ({
                 />
               </div>
 
-              <div>
+              {/* <div>
                 <label className="font-medium mb-1 block">Pay (Advance)</label>
                 <input
                   type="number"
@@ -250,10 +275,38 @@ const NewOrder: React.FC<PatientFormProps> = ({
                   onChange={handleInputChange}
                   className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
                 />
-              </div>
+              </div> */}
+
             </div>
+            
+                        {formData && (
+                          <OpticalPayment
+                            formData={formData}
+                            setFormData={
+                              setFormData as React.Dispatch<
+                                React.SetStateAction<PatientFullTypeWithObjectId>
+                              >
+                            }
+                          />
+                        )}
           </section>
 
+    )}      
+
+
+{catagory === "medicine" && (
+  formData && (
+    <Medicine
+      formData={formData}
+      setFormData={
+        setFormData as React.Dispatch<
+          React.SetStateAction<PatientFullTypeWithObjectId>
+        >
+      }
+    />
+  )
+)}
+  
           {/* 💰 Financial Summary */}
           <section className="space-y-2">
             <h3 className="text-xl font-semibold text-gray-700 border-b pb-2">

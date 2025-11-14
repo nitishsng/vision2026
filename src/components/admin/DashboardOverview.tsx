@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState ,useEffect} from "react";
 import {
   Users,
   ShieldCheck,
@@ -17,6 +17,15 @@ import {
 } from "lucide-react";
 
 import { useDashboardData } from "@/src/contexts/dataCollection";
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const {
+  normalizeYYYYMMDD,
+  isInRange,
+  sumVisit,
+  sumMedicines,
+  sumOpticalPayments,
+  computeTotals,
+} = require("@/src/utils/dateFilters.js");
 export function DashboardOverview() {
   const { staffs, patients } = useDashboardData();
 
@@ -24,11 +33,9 @@ export function DashboardOverview() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-// Helper: get YYYY-MM-DD string in IST
-const getDateOnlyIST = (date : string) =>
-  new Date(date).toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
-const getDateOnly = (date : Date) =>
-  new Date(date).toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
+// Helper: get YYYY-MM-DD string (IST)
+const getDateOnlyIST = (date: string) => normalizeYYYYMMDD(date) || "";
+const getDateOnly = (date: Date) => normalizeYYYYMMDD(date) || "";
 
   // --- Filter patients by createdAt date range ---
 const filteredPatients = patients.filter((p) => {
@@ -51,67 +58,39 @@ const filteredPatients = patients.filter((p) => {
   const start = startDate ? new Date(startDate) : null;
   const end = endDate ? new Date(endDate) : null;
 
-const { totalAdvance, opticalAdvance, } = patients.reduce((acc, patient) => {
-  const createdDate = getDateOnlyIST(patient.visitDate ? new Date(patient.visitDate).toISOString() : ""); // patient date in IST
-  const startDateOnly = start ? getDateOnly(start) : null; // start in IST
-  const endDateOnly = end ? getDateOnly(end) : null; // end in IST
+// const total=
 
-  // Compare only dates
-  const isInRange =
-    (!startDateOnly || createdDate >= startDateOnly) &&
-    (!endDateOnly || createdDate <= endDateOnly);
+useEffect(() => {
+console.log(startDate)
+}, [startDate])
 
-  // Only add visit + medicine prices if in range
-  if (isInRange) {
-    acc.totalAdvance += (patient.visitPrice ?? 0) + (patient.medicinePrice ?? 0);
-   
-  }
 
-  // Add optical payments within date range
-  if (Array.isArray(patient.opticalPayDetails)) {
-    const opticalSum = patient.opticalPayDetails.reduce((sum, detail) => {
-      const payDate = getDateOnlyIST(detail.date);
-      const isOpticalInRange =
-        (!startDateOnly || payDate >= startDateOnly) &&
-        (!endDateOnly || payDate <= endDateOnly);
-      return isOpticalInRange ? sum + (detail.amount ?? 0) : sum;
-    }, 0);
-    acc.opticalAdvance +=opticalSum;
-    acc.totalAdvance += opticalSum;
-  }
 
-  return acc;
-}, { 
-  totalAdvance: 0,
-      opticalAdvance:0,
- });
+
+const totals = computeTotals(patients, startDate, endDate);
+const totalAdvance = totals.totalAdvance;
+const opticalAdvance = totals.opticalTotal;
 
   const {
     totalDue,
-    totalAmount,
     opticalaPrice,
     opticalDue,
-    totalVisitAmount,
-    medicinAmount,
   } = filteredPatients.reduce(
     (acc, patient) => {
-      acc.totalAmount += patient.totalAmount ?? 0;
       acc.totalDue += patient.totalDue ?? 0;
       acc.opticalaPrice += patient.opticalaPrice ?? 0;
       acc.opticalDue += patient.opticalDue ?? 0;
-      acc.totalVisitAmount += patient.visitPrice ?? 0;
-      acc.medicinAmount += patient.medicinePrice ?? 0;
       return acc;
     },
     {
       totalDue: 0,
-      totalAmount: 0,
       opticalaPrice: 0,
       opticalDue: 0,
-      totalVisitAmount: 0,
-      medicinAmount: 0,
     }
   );
+
+  const totalVisitAmount = sumVisit(patients, startDate, endDate);
+  const medicinAmount = sumMedicines(patients, startDate, endDate);
 
   // --- Stats ---
   const stats = {
@@ -134,7 +113,11 @@ const { totalAdvance, opticalAdvance, } = patients.reduce((acc, patient) => {
     ).length,
   };
 
-  const recentAppointments = filteredPatients.slice(0, 5);
+  const cleanedPatients = filteredPatients.filter(p => p.status !== "pending");
+
+const recentAppointments = cleanedPatients.slice(0, 5);
+
+
   return (
     <div className="space-y-3 md:space-y-4">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
@@ -143,7 +126,7 @@ const { totalAdvance, opticalAdvance, } = patients.reduce((acc, patient) => {
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-4">
             <span>Dashboard Overview</span>
             <span className="text-[16px] md:text-xl font-bold text-green-600 bg-green-100 px-4 py-1 rounded-lg">
-              ₹{totalAmount}
+              ₹{totalAdvance + opticalDue}
             </span>
           </h1>
           <p className="text-gray-600 mt-1 hidden md:block">
@@ -242,7 +225,7 @@ const { totalAdvance, opticalAdvance, } = patients.reduce((acc, patient) => {
         </div>
 
         {/* 💰 Total Due */}
-        <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-100 shadow-sm hover:shadow-md transition">
+        {/* <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-100 shadow-sm hover:shadow-md transition">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Total Due</p>
@@ -252,7 +235,7 @@ const { totalAdvance, opticalAdvance, } = patients.reduce((acc, patient) => {
               <Wallet className="h-6 w-6 text-red-500" />
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* 👓 Total Optical */}
         <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-100 shadow-sm hover:shadow-md transition">
@@ -300,7 +283,7 @@ const { totalAdvance, opticalAdvance, } = patients.reduce((acc, patient) => {
         </div>
 
         {/* 👩‍⚕️ Total Staff */}
-        <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-100 shadow-sm hover:shadow-md transition">
+        {/* <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-100 shadow-sm hover:shadow-md transition">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Total Staff</p>
@@ -312,10 +295,10 @@ const { totalAdvance, opticalAdvance, } = patients.reduce((acc, patient) => {
               <ShieldCheck className="h-6 w-6 text-teal-500" />
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* 📅 Total Appointments */}
-        <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-100 shadow-sm hover:shadow-md transition">
+        {/* <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-100 shadow-sm hover:shadow-md transition">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">
@@ -329,24 +312,9 @@ const { totalAdvance, opticalAdvance, } = patients.reduce((acc, patient) => {
               <Calendar className="h-6 w-6 text-cyan-500" />
             </div>
           </div>
-        </div>
+        </div> */}
 
-        {/* ⏳ Pending Requests */}
-        <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-100 shadow-sm hover:shadow-md transition">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">
-                Pending Requests
-              </p>
-              <p className="text-2xl font-bold text-orange-700">
-                {stats.pendingAppointments}
-              </p>
-            </div>
-            <div className="w-10 h-10 flex bg-orange-100 rounded-lg items-center justify-center">
-              <Clock className="h-6 w-6 text-orange-500" />
-            </div>
-          </div>
-        </div>
+  
         {/* 🧾 Total Orders */}
         <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-100 shadow-sm hover:shadow-md transition">
           <div className="flex items-center justify-between">
@@ -417,9 +385,9 @@ const { totalAdvance, opticalAdvance, } = patients.reduce((acc, patient) => {
             Recent Appointments
           </h3>
           <div className="space-y-3">
-            {recentAppointments.map((appointment) => (
+            {recentAppointments.map((appointment,index) => (
               <div
-                key={appointment.id}
+                key={index}
                 className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0"
               >
                 <div>

@@ -79,6 +79,7 @@ export const appointmentForm: React.FC<PatientFormProps> = ({
                 type="text"
                 name="ptName"
                 required
+                placeholder="Enter Your Name"
                 onChange={handleChange}
                 className="w-full px-3 py-1 md:py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
               />
@@ -105,6 +106,7 @@ export const appointmentForm: React.FC<PatientFormProps> = ({
                 type="number"
                 name="age"
                 required
+                placeholder="Enter Your Age"
                 onChange={handleChange}
                 className="w-full px-3 py-1 md:py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
               />
@@ -117,6 +119,7 @@ export const appointmentForm: React.FC<PatientFormProps> = ({
                 type="tel"
                 name="phoneNo"
                 required
+                placeholder="10 degits Phone NO"
                 onChange={handleChange}
                 className="w-full px-3 py-1 md:py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
               />
@@ -126,8 +129,8 @@ export const appointmentForm: React.FC<PatientFormProps> = ({
                 Address 
               </label>
                  <input
-                type="notes"
-                name="note"
+                type="text"
+                name="address"
                 required
                 placeholder="Enter Your Address"
                 onChange={handleChange}

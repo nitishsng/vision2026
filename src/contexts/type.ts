@@ -74,11 +74,12 @@ export type EyeDetail = {
 };
 
 export type PatientFullType = {
-    id: string;
+  id: string;
   ptName: string;
   age: number; 
   phoneNo: string;
   email?: string;
+  address?: string;
   preferredDate: string; 
   preferredTime: string; 
   purpose: "eye-test" | "frame-selection" | "consultation" | "follow-up";
@@ -122,6 +123,7 @@ export type PatientFullType = {
   totalAmount: number;
   totalAdvance: number;
   totalDue: number;
+  
   // Medical Info
   primaryWorkupBy: string;
   presentComplaints: string[];
@@ -205,6 +207,7 @@ export const initialPatient:PatientFullTypeWithObjectId={
   age: 0,
   email: "",
   phoneNo: "",
+  address: "",
   preferredDate: "",
   preferredTime: "",
   purpose: "consultation",
