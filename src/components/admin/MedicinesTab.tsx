@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Eye, Edit, Search, Plus} from "lucide-react";
-import { PatientFullTypeWithObjectId} from "@/src/contexts/type";
+import { Eye, Edit, Search, Plus } from "lucide-react";
+import { PatientFullTypeWithObjectId } from "@/src/contexts/type";
 import { useDashboardData } from "@/src/contexts/dataCollection";
 import toast from "react-hot-toast";
 import NewOrder from "../NewOrderMedicine";
@@ -28,7 +28,7 @@ export function MedicinesTab() {
     const day = String(d.getDate()).padStart(2, "0");
     const month = String(d.getMonth() + 1).padStart(2, "0");
     const year = String(d.getFullYear());
-    return `${year}-${month}-${day}`; 
+    return `${year}-${month}-${day}`;
   };
 
   const medicinesPatients = patients.filter((patient) => {
@@ -47,7 +47,7 @@ export function MedicinesTab() {
         (m) => formatDateDisplay(m.date) === dateFilter
       );
 
-    return matchesSearch && matchesDate && hasMedicines ;
+    return matchesSearch && matchesDate && hasMedicines;
   });
 
   const handleViewClick = (p: PatientFullTypeWithObjectId) => {
@@ -69,7 +69,6 @@ export function MedicinesTab() {
     setIsEditPopupOpen(false);
     setFormData(null);
   };
-
 
   const [saving, setSaving] = useState(false);
   const handleSaveEdit = async () => {
@@ -192,7 +191,10 @@ export function MedicinesTab() {
                   Phone No
                 </th>
                 <th className="px-2 md:px-4 py-2 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Medicine Total
+                  Date
+                </th>
+                <th className="px-2 md:px-4 py-2 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  Amount
                 </th>
                 <th className="px-2 md:px-4 py-2 border-b-2 border-gray-200 bg-gray-100 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   Actions
@@ -211,13 +213,11 @@ export function MedicinesTab() {
                   </td>
                 </tr>
               ) : (
-                medicinesPatients.map((p,index) => (
+                medicinesPatients.map((p, index) => (
                   <tr
                     key={index}
                     className={`transition-colors ${
-                      p.totalDue > 0
-                        ? "bg-red-50"
-                        : "bg-white text-gray-800"
+                      p.totalDue > 0 ? "bg-red-50" : "bg-white text-gray-800"
                     } hover:bg-gray-50`}
                   >
                     <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm">
@@ -235,6 +235,10 @@ export function MedicinesTab() {
                         "N/A"
                       )}
                     </td>
+                    <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm font-semibold">
+                      {new Date(p.createdAt).toLocaleDateString("en-GB")}
+                    </td>
+
                     <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm font-semibold">
                       ₹{p.medicinePrice || 0}
                     </td>
@@ -340,7 +344,16 @@ export function MedicinesTab() {
               Edit Medicines (Bill No: {formData.billNo})
             </h3>
             <div className="space-y-3">
-       {formData && <Medicine formData={formData} setFormData={setFormData as React.Dispatch<React.SetStateAction<PatientFullTypeWithObjectId>>} />}
+              {formData && (
+                <Medicine
+                  formData={formData}
+                  setFormData={
+                    setFormData as React.Dispatch<
+                      React.SetStateAction<PatientFullTypeWithObjectId>
+                    >
+                  }
+                />
+              )}
 
               <div className="bg-white shadow-md rounded-2xl p-3 md:p-4 border border-gray-100">
                 <div className="grid grid-cols-3 gap-1 md:gap-6">
@@ -411,8 +424,6 @@ export function MedicinesTab() {
               </div>
             </div>
           </div>
-
-     
         </div>
       )}
     </div>

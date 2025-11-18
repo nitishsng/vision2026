@@ -15,11 +15,19 @@ const EditPage = () => {
   const params = useParams();
   const id = params?.id as string;
 
-  const existingPatient = patients.find((p) => p._id === id);
+const existingPatient = patients.find((p) => p._id === id);
+
+if (existingPatient) {
+   if (!existingPatient.visitPrice) {
+    existingPatient.visitPrice = existingPatient.repeated ? 100 : 200;
+  }
+}
+
 
   const [formData, setFormData] = useState<PatientFullTypeWithObjectId | null>(
     null
   );
+
   const [saving, setSaving] = useState(false);
 
   const [basicDetails, setbasicDetails] = useState(false);
@@ -60,7 +68,6 @@ const EditPage = () => {
     >
   ) => {
     const { name, value, type } = e.target;
-
     setFormData((prev) =>
       prev
         ? {
@@ -75,6 +82,9 @@ const EditPage = () => {
         : prev
     );
   };
+   
+
+
 
   // Generic nested change handler
   const handleNestedChange = (path: string, value: any) => {
@@ -1278,7 +1288,7 @@ const EditPage = () => {
               <input
                 type="number"
                 name="visitPrice"
-                value={formData.visitPrice || (formData.repeated ? 100 : 200)}
+                value={formData.visitPrice}
                 onChange={handleChange}
                 className="border px-3 py-1 md:py-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
               />
