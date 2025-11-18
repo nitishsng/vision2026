@@ -148,32 +148,27 @@ export function MedicinesTab() {
       </div>
 
       <div className="bg-white rounded-lg p-2 md:p-5 border border-gray-200">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
-          <div>
-            <label className="hidden md:block text-sm font-medium text-gray-700 mb-1">
-              Search
-            </label>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <input
-                type="text"
-                placeholder="Search by name, phone, bill number, or email..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-              />
-            </div>
+        <div className="flex gap-2 md:gap-4 items-center">
+          {/* Search Input */}
+          <div className="flex-1 relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <input
+              type="text"
+              placeholder="Search by name, phone, bill number, or email..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+            />
           </div>
 
+          {/* Date Input */}
           <div>
-            <label className="hidden md:block text-sm font-medium text-gray-700 mb-1">
-              Date
-            </label>
             <input
               type="date"
               value={dateFilter}
               onChange={(e) => setDateFilter(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 w-auto"
+              style={{ width: "fit-content" }}
             />
           </div>
         </div>
@@ -220,7 +215,19 @@ export function MedicinesTab() {
                       p.totalDue > 0 ? "bg-red-50" : "bg-white text-gray-800"
                     } hover:bg-gray-50`}
                   >
-                    <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm">
+                    <td className="px-2 gap-1 flex md:px-4 py-2 border-b border-gray-200 text-sm">
+                      <div>
+                        {p.repeated && (
+                          <div className="flex mb-[2px] space-x-1 items-center">
+                            <span className="w-2 h-2 rounded-full bg-green-600"></span>
+                          </div>
+                        )}
+                        {p.opticalaPrice > 0 && (
+                          <div className="flex mb-[2px] space-x-1 items-center">
+                            <span className="w-2 h-2 rounded-full bg-orange-500"></span>
+                          </div>
+                        )}
+                      </div>
                       {p.ptName}
                     </td>
                     <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm">

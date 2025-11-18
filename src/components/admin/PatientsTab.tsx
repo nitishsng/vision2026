@@ -150,14 +150,26 @@ export function PatientsTab() {
                   className="hover:bg-gray-50 transition-colors"
                 >
                   <td className="px-2 py-3 whitespace-nowrap text-sm text-gray-900">
-                    <span className="flex items-center gap-2">
-                      {patient.repeated ? (
-                        <div className="flex space-x-1">
-                          <span className="w-3 h-3 rounded-full bg-green-600"></span>
+                    <span className="flex items-center gap-1">
+                      <div>
+
+                      {patient.repeated && (
+                        <div className="flex mb-[2px] space-x-1 items-center">
+                          <span className="w-2 h-2  rounded-full bg-green-600"></span>
                         </div>
-                      ) : (
-                        <span className="w-3 h-3 rounded-full bg-green-300"></span>
                       )}
+                      {patient.opticalaPrice > 0 && (
+                        <div className="flex mb-[2px] space-x-1 items-center ">
+                          <span className="w-2 h-2  rounded-full bg-orange-500"></span>
+                        </div>
+                      )}
+                      {patient.medicines.length>0 && (
+                        <div className="flex mb-[2px] space-x-1 items-center ">
+                          <span className="w-2 h-2  rounded-full bg-blue-800"></span>
+                        </div>
+                      )}
+                      </div>
+
                       <span>
                         {patient.visitDate
                           ? formatDateDisplay(patient.visitDate)
