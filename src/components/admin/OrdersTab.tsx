@@ -434,16 +434,24 @@ export function OrdersTab() {
                     <td className="px-2 gap-1 flex md:px-4 py-2 border-b border-gray-200 text-sm font-medium">
                       <div>
 
-                          {order.repeated && (
+                          {order.repeated ? (
                     <div className="flex mb-[2px] space-x-1 items-center">
                           <span className="w-2 h-2 rounded-full bg-green-600"></span>
                         </div>
-                      )}
-                      {order.medicines.length >0 && (
+                      ):(
+                               <div className="flex mb-[2px] space-x-1 items-center">
+                            <span className="w-2 h-2 rounded-full bg-transparent"></span>
+                          </div>
+                        )}
+                      {order.medicines.length >0 ? (
                       <div className="flex mb-[2px] space-x-1 items-center">
                 <span className="w-2 h-2 rounded-full bg-blue-800"></span>
                         </div>
-                      ) }
+                      ):(
+                               <div className="flex mb-[2px] space-x-1 items-center">
+                            <span className="w-2 h-2 rounded-full bg-transparent"></span>
+                          </div>
+                        ) }
                       </div>
                       {order.billNo}
                     </td>

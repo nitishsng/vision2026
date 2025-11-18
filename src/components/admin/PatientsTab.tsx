@@ -153,21 +153,33 @@ export function PatientsTab() {
                     <span className="flex items-center gap-1">
                       <div>
 
-                      {patient.repeated && (
+                      {patient.repeated ? (
                         <div className="flex mb-[2px] space-x-1 items-center">
                           <span className="w-2 h-2  rounded-full bg-green-600"></span>
                         </div>
-                      )}
-                      {patient.opticalaPrice > 0 && (
+                      ):(
+                               <div className="flex mb-[2px] space-x-1 items-center">
+                            <span className="w-2 h-2 rounded-full bg-transparent"></span>
+                          </div>
+                        )}
+                      {patient.opticalaPrice > 0 ? (
                         <div className="flex mb-[2px] space-x-1 items-center ">
                           <span className="w-2 h-2  rounded-full bg-orange-500"></span>
                         </div>
-                      )}
-                      {patient.medicines.length>0 && (
+                      ):(
+                               <div className="flex mb-[2px] space-x-1 items-center">
+                            <span className="w-2 h-2 rounded-full bg-transparent"></span>
+                          </div>
+                        )}
+                      {patient.medicines.length>0 ? (
                         <div className="flex mb-[2px] space-x-1 items-center ">
                           <span className="w-2 h-2  rounded-full bg-blue-800"></span>
                         </div>
-                      )}
+                      ):(
+                               <div className="flex mb-[2px] space-x-1 items-center">
+                            <span className="w-2 h-2 rounded-full bg-transparent"></span>
+                          </div>
+                        )}
                       </div>
 
                       <span>
