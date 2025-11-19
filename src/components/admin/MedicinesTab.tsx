@@ -46,7 +46,6 @@ export function MedicinesTab() {
       (patient.medicines || []).some(
         (m) => formatDateDisplay(m.date) === dateFilter
       );
-
     return matchesSearch && matchesDate && hasMedicines;
   });
 
@@ -221,8 +220,8 @@ export function MedicinesTab() {
                           <div className="flex mb-[2px] space-x-1 items-center">
                             <span className="w-2 h-2 rounded-full bg-green-600"></span>
                           </div>
-                        ):(
-                               <div className="flex mb-[2px] space-x-1 items-center">
+                        ) : (
+                          <div className="flex mb-[2px] space-x-1 items-center">
                             <span className="w-2 h-2 rounded-full bg-transparent"></span>
                           </div>
                         )}
@@ -230,12 +229,11 @@ export function MedicinesTab() {
                           <div className="flex mb-[2px] space-x-1 items-center">
                             <span className="w-2 h-2 rounded-full bg-orange-500"></span>
                           </div>
-                        ):(
-                               <div className="flex mb-[2px] space-x-1 items-center">
+                        ) : (
+                          <div className="flex mb-[2px] space-x-1 items-center">
                             <span className="w-2 h-2 rounded-full bg-transparent"></span>
                           </div>
-                        )
-                        }
+                        )}
                       </div>
                       {p.ptName}
                     </td>
@@ -252,7 +250,11 @@ export function MedicinesTab() {
                       )}
                     </td>
                     <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm font-semibold">
-                      {new Date(p.createdAt).toLocaleDateString("en-GB")}
+                      {p.medicines[0]?.date
+                        ? new Date(p.medicines[0].date)
+                            .toLocaleDateString("en-GB") // dd/mm/yyyy
+                            .replace(/\//g, "-") // convert to dd-mm-yyyy
+                        : ""}
                     </td>
 
                     <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm font-semibold">

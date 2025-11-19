@@ -163,9 +163,9 @@ export function OrdersTab() {
         : deliveryStatusFilter === patient.deliveryStatus;
 
     const matchesDate =
-      !dateFilter || formatDateDisplay(patient.deliveryDate) === dateFilter;
+      !dateFilter || formatDateDisplay(patient.orderDate) === dateFilter;
     return (
-      matchStatus && filterByDeliveryStatus && matchesDate && patient.billNo && patient.opticalPayDetails.length ||0 >0 || patient.opticalAdvance>0
+      matchStatus && filterByDeliveryStatus && matchesDate && patient.billNo &&( patient.opticalPayDetails.length ||0 >0 || patient.opticalAdvance>0)
     );
   });
 
@@ -432,7 +432,7 @@ export function OrdersTab() {
                     } hover:bg-gray-50`}
                   >
                     <td className="px-2 gap-1 flex md:px-4 py-2 border-b border-gray-200 text-sm font-medium">
-                      <div>
+                      <div >
 
                           {order.repeated ? (
                     <div className="flex mb-[2px] space-x-1 items-center">
