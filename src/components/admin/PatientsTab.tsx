@@ -23,8 +23,8 @@ export function PatientsTab() {
     return `${year}-${month}-${day}`;
   };
 
-  const [viewDetails, setviewDetails] = useState<PatientFullType | null>(null);
-  const [ViewDetailsOpen, setViewDetailsOpen] = useState(false);
+const [viewDetails, setviewDetails] = useState<PatientFullType | null>(null);
+const [ViewDetailsOpen, setViewDetailsOpen] = useState(false);
 
   const filteredPatients = patients.filter((patient) => {
     const matchStatus =
@@ -124,13 +124,15 @@ export function PatientsTab() {
           </div>
         </div>
       </div>
-      {ViewDetailsOpen && (
-        <PatientDetailsModal
-          open={ViewDetailsOpen}
-          onClose={() => setViewDetailsOpen(false)}
-          data={viewDetails}
-        />
-      )}
+{
+  ViewDetailsOpen && (
+    <PatientDetailsModal
+      open={ViewDetailsOpen}
+      onClose={() => setViewDetailsOpen(false)}
+      data={viewDetails}
+    />
+  )
+}
 
       {/* Patients Table */}
       <div className="bg-white rounded-lg border  border-gray-200 overflow-hidden">
@@ -162,46 +164,47 @@ export function PatientsTab() {
                   key={patient._id}
                   className="hover:bg-gray-50 transition-colors"
                 >
-                  <td className="px-2 gap-1 flex items-center md:px-4 py-2 border-b border-gray-200 text-sm">
+                  <td className="px-2 gap-1 flex items-center md:px-4 py-2">
+
                     <div className="flex">
-                      <div className="flex flex-col items-center justify-center">
-                        {/* REPEATED */}
-                        {patient.repeated && (
-                          <span className="w-2 h-2 mb-[2px] rounded-full bg-green-600"></span>
-                        )}
 
-                        {/* OPTICAL PRICE */}
-                        {patient.opticalaPrice > 0 && (
-                          <span className="w-2 h-2 mb-[2px] rounded-full bg-orange-500"></span>
-                        )}
+                    <div className="flex flex-col gap-1 items-center justify-center">
+                      {/* REPEATED */}
+                      {patient.repeated && (
+                        <span className="w-2 h-2 rounded-full bg-green-600"></span>
+                      )}
 
-                        {/* MEDICINES */}
-                        {patient.medicines.length > 0 && (
-                          <span className="w-2 h-2 mb-[2px] rounded-full bg-blue-800"></span>
-                        )}
+                      {/* OPTICAL PRICE */}
+                      {patient.opticalaPrice > 0 && (
+                        <span className="w-2 h-2 rounded-full bg-orange-500"></span>
+                      )}
 
-                        {/* NONE TRUE */}
-                        {!(
-                          patient.repeated ||
-                          patient.opticalaPrice > 0 ||
-                          patient.medicines.length > 0
-                        ) && (
-                          <span className="w-2 h-2 mb-[2px] rounded-full bg-transparent"></span>
-                        )}
-                      </div>
+                      {/* MEDICINES */}
+                      {patient.medicines.length > 0 && (
+                        <span className="w-2 h-2 rounded-full bg-blue-800"></span>
+                      )}
 
-                      <span className="whitespace-nowrap">
-                        {patient.visitDate
-                          ? `${String(
-                              new Date(patient.visitDate).getDate()
-                            ).padStart(2, "0")}-${String(
-                              new Date(patient.visitDate).getMonth() + 1
-                            ).padStart(2, "0")}-${new Date(
-                              patient.visitDate
-                            ).getFullYear()}`
-                          : ""}
-                      </span>
+                      {/* NONE TRUE */}
+                      {!(
+                        patient.repeated ||
+                        patient.opticalaPrice > 0 ||
+                        patient.medicines.length > 0
+                      ) && (
+                        <span className="w-2 h-2 rounded-full bg-transparent"></span>
+                      )}
                     </div>
+
+  <span className="whitespace-nowrap">
+    {patient.visitDate
+      ? `${String(new Date(patient.visitDate).getDate()).padStart(2, "0")}-${String(
+          new Date(patient.visitDate).getMonth() + 1
+        ).padStart(2, "0")}-${new Date(patient.visitDate).getFullYear()}`
+      : ""}
+  </span>
+
+
+                    </div>
+
                   </td>
                   <td className="px-2 py-3 whitespace-nowrap">
                     <div className="flex items-center space-x-3">
@@ -236,16 +239,6 @@ export function PatientsTab() {
                   </td>
                   <td className="px-2 py-3 whitespace-nowrap text-sm font-medium">
                     <div className="flex items-center space-x-2">
-                      <button
-                        onClick={() => {
-                          setviewDetails(patient);
-                          setViewDetailsOpen(true);
-                        }}
-                        className="text-green-600 hover:text-green-800 p-1 rounded transition-colors"
-                        title="View Details"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </button>
                       <Link href={`edit/${patient._id}`}>
                         <button
                           className="text-teal-600 hover:text-teal-800 p-1 rounded transition-colors"
@@ -254,6 +247,18 @@ export function PatientsTab() {
                           <Edit className="h-4 w-4" />
                         </button>
                       </Link>
+                      
+        <button  
+  onClick={() => {
+    setviewDetails(patient);
+    setViewDetailsOpen(true);
+  }}
+  className="text-green-600 hover:text-green-800 p-1 rounded transition-colors"
+  title="View Details"
+>
+  <Eye className="h-4 w-4" />
+</button>
+
                     </div>
                   </td>
                 </tr>

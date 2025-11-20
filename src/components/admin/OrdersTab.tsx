@@ -164,17 +164,13 @@ export function OrdersTab() {
 
     const matchesDate =
       !dateFilter || formatDateDisplay(patient.orderDate) === dateFilter;
-return (
-  matchStatus &&
-  filterByDeliveryStatus &&
-  matchesDate &&
-  patient.billNo &&
-  (
-    (patient.opticalPayDetails?.length > 0) ||
-    (patient.opticalAdvance > 0)
-  )
-);
-
+    return (
+      matchStatus &&
+      filterByDeliveryStatus &&
+      matchesDate &&
+      patient.billNo &&
+      (patient.opticalPayDetails?.length > 0 || patient.opticalAdvance > 0)
+    );
   });
 
   const sendToWhatsApp = (formData: PatientFullTypeWithObjectId) => {
@@ -437,41 +433,37 @@ return (
                         : "bg-white text-gray-800"
                     } hover:bg-gray-50`}
                   >
-<td className="px-2 gap-1 flex items-center md:px-4 py-2 border-b border-gray-200 text-sm font-medium">
+                    <td className="px-2 gap-1 flex items-center md:px-4 py-2 border-b border-gray-200 text-sm font-medium">
+                      {/* Dot column (vertically centered) */}
+                      <div className="flex flex-col justify-center items-center">
+                        {/* REPEATED */}
+                        {order.repeated && (
+                          <span className="w-2 h-2 mb-[2px] rounded-full bg-green-600"></span>
+                        )}
 
-  {/* Dot column (vertically centered) */}
-  <div className="flex flex-col justify-center items-center">
+                        {/* OPTICAL PRICE */}
+                        {order.opticalaPrice > 0 && (
+                          <span className="w-2 h-2 mb-[2px] rounded-full bg-orange-500"></span>
+                        )}
 
-    {/* REPEATED */}
-    {order.repeated && (
-      <span className="w-2 h-2 mb-[2px] rounded-full bg-green-600"></span>
-    )}
+                        {/* MEDICINES */}
+                        {order.medicines.length > 0 && (
+                          <span className="w-2 h-2 mb-[2px] rounded-full bg-blue-800"></span>
+                        )}
 
-    {/* OPTICAL PRICE */}
-    {order.opticalaPrice > 0 && (
-      <span className="w-2 h-2 mb-[2px] rounded-full bg-orange-500"></span>
-    )}
+                        {/* NONE TRUE */}
+                        {!(
+                          order.repeated ||
+                          order.opticalaPrice > 0 ||
+                          order.medicines.length > 0
+                        ) && (
+                          <span className="w-2 h-2 mb-[2px] rounded-full bg-transparent"></span>
+                        )}
+                      </div>
 
-    {/* MEDICINES */}
-    {order.medicines.length > 0 && (
-      <span className="w-2 h-2 mb-[2px] rounded-full bg-blue-800"></span>
-    )}
-
-    {/* NONE TRUE */}
-    {!(
-      order.repeated ||
-      order.opticalaPrice > 0 ||
-      order.medicines.length > 0
-    ) && (
-      <span className="w-2 h-2 mb-[2px] rounded-full bg-transparent"></span>
-    )}
-
-  </div>
-
-  {/* Text */}
-  {order.billNo}
-</td>
-
+                      {/* Text */}
+                      {order.billNo}
+                    </td>
 
                     <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm">
                       {order.ptName}
@@ -488,13 +480,17 @@ return (
                         "N/A"
                       )}
                     </td>
-<td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm font-semibold">
-  {order.orderDate
-    ? `${String(new Date(order.orderDate).getDate()).padStart(2, "0")}-${String(
-        new Date(order.orderDate).getMonth() + 1
-      ).padStart(2, "0")}-${new Date(order.orderDate).getFullYear()}`
-    : "N/A"}
-</td>
+                    <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm font-semibold">
+                      {order.orderDate
+                        ? `${String(
+                            new Date(order.orderDate).getDate()
+                          ).padStart(2, "0")}-${String(
+                            new Date(order.orderDate).getMonth() + 1
+                          ).padStart(2, "0")}-${new Date(
+                            order.orderDate
+                          ).getFullYear()}`
+                        : "N/A"}
+                    </td>
 
                     <td
                       className={`px-2 md:px-4 py-2 border-b border-gray-200 text-sm font-semibold ${
