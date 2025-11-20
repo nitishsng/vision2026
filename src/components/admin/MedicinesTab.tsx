@@ -214,29 +214,37 @@ export function MedicinesTab() {
                       p.totalDue > 0 ? "bg-red-50" : "bg-white text-gray-800"
                     } hover:bg-gray-50`}
                   >
-                    <td className="px-2 gap-1 flex md:px-4 py-2 border-b border-gray-200 text-sm">
-                      <div>
-                        {p.repeated ? (
-                          <div className="flex mb-[2px] space-x-1 items-center">
-                            <span className="w-2 h-2 rounded-full bg-green-600"></span>
-                          </div>
-                        ) : (
-                          <div className="flex mb-[2px] space-x-1 items-center">
-                            <span className="w-2 h-2 rounded-full bg-transparent"></span>
-                          </div>
-                        )}
-                        {p.opticalaPrice > 0 ? (
-                          <div className="flex mb-[2px] space-x-1 items-center">
-                            <span className="w-2 h-2 rounded-full bg-orange-500"></span>
-                          </div>
-                        ) : (
-                          <div className="flex mb-[2px] space-x-1 items-center">
-                            <span className="w-2 h-2 rounded-full bg-transparent"></span>
-                          </div>
-                        )}
-                      </div>
-                      {p.ptName}
-                    </td>
+<td className="px-2 gap-1 flex items-center md:px-4 py-2 border-b border-gray-200 text-sm">
+
+  <div className="flex flex-col items-center justify-center">
+    {/* REPEATED */}
+    {p.repeated && (
+      <span className="w-2 h-2 mb-[2px] rounded-full bg-green-600"></span>
+    )}
+
+    {/* OPTICAL PRICE */}
+    {p.opticalaPrice > 0 && (
+      <span className="w-2 h-2 mb-[2px] rounded-full bg-orange-500"></span>
+    )}
+
+    {/* MEDICINES */}
+    {p.medicines.length > 0 && (
+      <span className="w-2 h-2 mb-[2px] rounded-full bg-blue-800"></span>
+    )}
+
+    {/* NONE TRUE */}
+    {!(
+      p.repeated ||
+      p.opticalaPrice > 0 ||
+      p.medicines.length > 0
+    ) && (
+      <span className="w-2 h-2 mb-[2px] rounded-full bg-transparent"></span>
+    )}
+  </div>
+
+  {p.ptName}
+</td>
+
                     <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm">
                       {p.phoneNo ? (
                         <a

@@ -6,6 +6,9 @@ import { useDashboardData } from "@/src/contexts/dataCollection";
 import Link from "next/link";
 import ExportPatientsDetails from "../ExportPatientsDetails";
 import { todayDate } from "@/src/contexts/type";
+import { PatientFullType } from "@/src/contexts/type";
+import PatientDetailsModal from "./PatientDetailsModal";
+
 export function PatientsTab() {
   const { patients } = useDashboardData();
   const [searchTerm, setSearchTerm] = useState("");
@@ -19,6 +22,9 @@ export function PatientsTab() {
     const year = String(d.getFullYear()); // last 2 digits
     return `${year}-${month}-${day}`;
   };
+
+  const [viewDetails, setviewDetails] = useState<PatientFullType | null>(null);
+  const [ViewDetailsOpen, setViewDetailsOpen] = useState(false);
 
   const filteredPatients = patients.filter((patient) => {
     const matchStatus =
@@ -118,9 +124,16 @@ export function PatientsTab() {
           </div>
         </div>
       </div>
+      {ViewDetailsOpen && (
+        <PatientDetailsModal
+          open={ViewDetailsOpen}
+          onClose={() => setViewDetailsOpen(false)}
+          data={viewDetails}
+        />
+      )}
 
       {/* Patients Table */}
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded-lg border  border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
@@ -149,51 +162,49 @@ export function PatientsTab() {
                   key={patient._id}
                   className="hover:bg-gray-50 transition-colors"
                 >
-                  <td className="px-2 py-3 whitespace-nowrap text-sm text-gray-900">
-                    <span className="flex items-center gap-1">
-                      <div>
+                  <td className="px-2 gap-1 flex items-center md:px-4 py-2 border-b border-gray-200 text-sm">
+                    <div className="flex">
+                      <div className="flex flex-col items-center justify-center">
+                        {/* REPEATED */}
+                        {patient.repeated && (
+                          <span className="w-2 h-2 mb-[2px] rounded-full bg-green-600"></span>
+                        )}
 
-                      {patient.repeated ? (
-                        <div className="flex mb-[2px] space-x-1 items-center">
-                          <span className="w-2 h-2  rounded-full bg-green-600"></span>
-                        </div>
-                      ):(
-                               <div className="flex mb-[2px] space-x-1 items-center">
-                            <span className="w-2 h-2 rounded-full bg-transparent"></span>
-                          </div>
+                        {/* OPTICAL PRICE */}
+                        {patient.opticalaPrice > 0 && (
+                          <span className="w-2 h-2 mb-[2px] rounded-full bg-orange-500"></span>
                         )}
-                      {patient.opticalaPrice > 0 ? (
-                        <div className="flex mb-[2px] space-x-1 items-center ">
-                          <span className="w-2 h-2  rounded-full bg-orange-500"></span>
-                        </div>
-                      ):(
-                               <div className="flex mb-[2px] space-x-1 items-center">
-                            <span className="w-2 h-2 rounded-full bg-transparent"></span>
-                          </div>
+
+                        {/* MEDICINES */}
+                        {patient.medicines.length > 0 && (
+                          <span className="w-2 h-2 mb-[2px] rounded-full bg-blue-800"></span>
                         )}
-                      {patient.medicines.length>0 ? (
-                        <div className="flex mb-[2px] space-x-1 items-center ">
-                          <span className="w-2 h-2  rounded-full bg-blue-800"></span>
-                        </div>
-                      ):(
-                               <div className="flex mb-[2px] space-x-1 items-center">
-                            <span className="w-2 h-2 rounded-full bg-transparent"></span>
-                          </div>
+
+                        {/* NONE TRUE */}
+                        {!(
+                          patient.repeated ||
+                          patient.opticalaPrice > 0 ||
+                          patient.medicines.length > 0
+                        ) && (
+                          <span className="w-2 h-2 mb-[2px] rounded-full bg-transparent"></span>
                         )}
                       </div>
 
-                      <span>
+                      <span className="whitespace-nowrap">
                         {patient.visitDate
-                          ? formatDateDisplay(patient.visitDate)
+                          ? `${String(
+                              new Date(patient.visitDate).getDate()
+                            ).padStart(2, "0")}-${String(
+                              new Date(patient.visitDate).getMonth() + 1
+                            ).padStart(2, "0")}-${new Date(
+                              patient.visitDate
+                            ).getFullYear()}`
                           : ""}
                       </span>
-                    </span>
+                    </div>
                   </td>
                   <td className="px-2 py-3 whitespace-nowrap">
                     <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-teal-100 rounded-full flex items-center justify-center">
-                        <User className="h-4 w-4 text-teal-600" />
-                      </div>
                       <div>
                         <p className="text-sm font-medium text-gray-900">
                           {patient.ptName}
@@ -220,12 +231,21 @@ export function PatientsTab() {
                   </td>
                   <td className="px-2 py-3 whitespace-nowrap">
                     <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
-                      {/* {patient.billNo} */}
                       {patient.diagnosis}
                     </span>
                   </td>
                   <td className="px-2 py-3 whitespace-nowrap text-sm font-medium">
                     <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => {
+                          setviewDetails(patient);
+                          setViewDetailsOpen(true);
+                        }}
+                        className="text-green-600 hover:text-green-800 p-1 rounded transition-colors"
+                        title="View Details"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </button>
                       <Link href={`edit/${patient._id}`}>
                         <button
                           className="text-teal-600 hover:text-teal-800 p-1 rounded transition-colors"
@@ -234,12 +254,6 @@ export function PatientsTab() {
                           <Edit className="h-4 w-4" />
                         </button>
                       </Link>
-                      <button
-                        className="text-green-600 hover:text-green-800 p-1 rounded transition-colors"
-                        title="Delete Patient"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </button>
                     </div>
                   </td>
                 </tr>

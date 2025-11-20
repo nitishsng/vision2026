@@ -164,9 +164,17 @@ export function OrdersTab() {
 
     const matchesDate =
       !dateFilter || formatDateDisplay(patient.orderDate) === dateFilter;
-    return (
-      matchStatus && filterByDeliveryStatus && matchesDate && patient.billNo &&( patient.opticalPayDetails.length ||0 >0 || patient.opticalAdvance>0)
-    );
+return (
+  matchStatus &&
+  filterByDeliveryStatus &&
+  matchesDate &&
+  patient.billNo &&
+  (
+    (patient.opticalPayDetails?.length > 0) ||
+    (patient.opticalAdvance > 0)
+  )
+);
+
   });
 
   const sendToWhatsApp = (formData: PatientFullTypeWithObjectId) => {
@@ -288,8 +296,6 @@ export function OrdersTab() {
     const url = `https://wa.me/+91${phone}?text=${encodeURIComponent(message)}`;
     window.open(url, "_blank");
   };
-
-
 
   return (
     <div className="p-2">
@@ -431,30 +437,42 @@ export function OrdersTab() {
                         : "bg-white text-gray-800"
                     } hover:bg-gray-50`}
                   >
-                    <td className="px-2 gap-1 flex md:px-4 py-2 border-b border-gray-200 text-sm font-medium">
-                      <div >
+<td className="px-2 gap-1 flex items-center md:px-4 py-2 border-b border-gray-200 text-sm font-medium">
 
-                          {order.repeated ? (
-                    <div className="flex mb-[2px] space-x-1 items-center">
-                          <span className="w-2 h-2 rounded-full bg-green-600"></span>
-                        </div>
-                      ):(
-                               <div className="flex mb-[2px] space-x-1 items-center">
-                            <span className="w-2 h-2 rounded-full bg-transparent"></span>
-                          </div>
-                        )}
-                      {order.medicines.length >0 ? (
-                      <div className="flex mb-[2px] space-x-1 items-center">
-                <span className="w-2 h-2 rounded-full bg-blue-800"></span>
-                        </div>
-                      ):(
-                               <div className="flex mb-[2px] space-x-1 items-center">
-                            <span className="w-2 h-2 rounded-full bg-transparent"></span>
-                          </div>
-                        ) }
-                      </div>
-                      {order.billNo}
-                    </td>
+  {/* Dot column (vertically centered) */}
+  <div className="flex flex-col justify-center items-center">
+
+    {/* REPEATED */}
+    {order.repeated && (
+      <span className="w-2 h-2 mb-[2px] rounded-full bg-green-600"></span>
+    )}
+
+    {/* OPTICAL PRICE */}
+    {order.opticalaPrice > 0 && (
+      <span className="w-2 h-2 mb-[2px] rounded-full bg-orange-500"></span>
+    )}
+
+    {/* MEDICINES */}
+    {order.medicines.length > 0 && (
+      <span className="w-2 h-2 mb-[2px] rounded-full bg-blue-800"></span>
+    )}
+
+    {/* NONE TRUE */}
+    {!(
+      order.repeated ||
+      order.opticalaPrice > 0 ||
+      order.medicines.length > 0
+    ) && (
+      <span className="w-2 h-2 mb-[2px] rounded-full bg-transparent"></span>
+    )}
+
+  </div>
+
+  {/* Text */}
+  {order.billNo}
+</td>
+
+
                     <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm">
                       {order.ptName}
                     </td>
@@ -470,11 +488,13 @@ export function OrdersTab() {
                         "N/A"
                       )}
                     </td>
-
-                    <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm font-semibold">
-                      {/* {order.deliveryDate} */}
-                      {order.orderDate}
-                    </td>
+<td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm font-semibold">
+  {order.orderDate
+    ? `${String(new Date(order.orderDate).getDate()).padStart(2, "0")}-${String(
+        new Date(order.orderDate).getMonth() + 1
+      ).padStart(2, "0")}-${new Date(order.orderDate).getFullYear()}`
+    : "N/A"}
+</td>
 
                     <td
                       className={`px-2 md:px-4 py-2 border-b border-gray-200 text-sm font-semibold ${
@@ -857,17 +877,17 @@ export function OrdersTab() {
                 </div>
 
                 {/* Payment Details */}
-   
-               {formData && (
-                 <OpticalPayment
-                   formData={formData}
-                   setFormData={
-                     setFormData as React.Dispatch<
-                       React.SetStateAction<PatientFullTypeWithObjectId>
-                     >
-                   }
-                 />
-               )}
+
+                {formData && (
+                  <OpticalPayment
+                    formData={formData}
+                    setFormData={
+                      setFormData as React.Dispatch<
+                        React.SetStateAction<PatientFullTypeWithObjectId>
+                      >
+                    }
+                  />
+                )}
               </section>
 
               {/* 💰 Grand Totals Section */}
