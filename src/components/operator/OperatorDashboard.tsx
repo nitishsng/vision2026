@@ -1,41 +1,43 @@
-'use client';
+"use client";
 
-import React, { useState,useEffect } from 'react';
-import { Header } from '../Header';
-import { Sidebar } from '../Sidebar';
-import { DashboardOverview } from '../admin/DashboardOverview';
-import { AppointmentsTab } from '../admin/AppointmentsTab';
-import { PatientsTab } from '../admin/PatientsTab';
-import { ScheduleTab } from './ScheduleTab';
-import { ReportsTab } from '../admin/ReportsTab';
-import { OrdersTab } from '../admin/OrdersTab';
-
+import React, { useState, useEffect } from "react";
+import { Header } from "../Header";
+import { Sidebar } from "../Sidebar";
+import { DashboardOverview } from "../admin/DashboardOverview";
+import { AppointmentsTab } from "../admin/AppointmentsTab";
+import { PatientsTab } from "../admin/PatientsTab";
+import { ScheduleTab } from "./ScheduleTab";
+import { ReportsTab } from "../admin/ReportsTab";
+import { OrdersTab } from "../admin/OrdersTab";
+import { MedicinesTab } from "../admin/MedicinesTab";
 export function OperatorDashboard() {
-    const [activeTab, setActiveTab] = useState('dashboard');
-    const [sidebarOpen, setSidebarOpen] = useState(false);
-  
-    // Load saved activeTab from localStorage on mount
-    useEffect(() => {
-      const savedTab = localStorage.getItem('activeTab');
-      if (savedTab) {
-        setActiveTab(savedTab);
-      }
-    }, [activeTab]);
-  
+  const [activeTab, setActiveTab] = useState("dashboard");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Load saved activeTab from localStorage on mount
+  useEffect(() => {
+    const savedTab = localStorage.getItem("activeTab");
+    if (savedTab) {
+      setActiveTab(savedTab);
+    }
+  }, [activeTab]);
+
   const renderContent = () => {
     switch (activeTab) {
-      case 'dashboard':
+      case "dashboard":
         return <DashboardOverview />;
-      case 'appointments':
+      case "appointments":
         return <AppointmentsTab />;
-      case 'patients':
+      case "patients":
         return <PatientsTab />;
-      case 'schedule':
+      case "schedule":
         return <ScheduleTab />;
-      case 'reports':
+      case "reports":
         return <ReportsTab />;
-      case 'orders':
+      case "orders":
         return <OrdersTab />;
+      case "medicines":
+        return <MedicinesTab />;
       default:
         return <DashboardOverview />;
     }
@@ -43,18 +45,16 @@ export function OperatorDashboard() {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <Sidebar 
+      <Sidebar
         onTabChange={setActiveTab}
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
       />
-      
+
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header onMenuClick={() => setSidebarOpen(true)} />
-        
-        <main className="flex-1 overflow-y-auto p-6">
-          {renderContent()}
-        </main>
+
+        <main className="flex-1 overflow-y-auto p-6">{renderContent()}</main>
       </div>
     </div>
   );

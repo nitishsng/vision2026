@@ -51,13 +51,14 @@ export function Sidebar({ onTabChange, isOpen, onClose }: SidebarProps) {
     { id: 'services', label: 'Services', icon: Eye },
     { id: 'settings', label: 'Settings', icon: Settings },
   ];
-
+  
   const operatorMenuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
     { id: 'appointments', label: 'Appointments', icon: Calendar },
     { id: 'schedule', label: 'Schedule', icon: Clock },
     { id: 'patients', label: 'Patients', icon: Users },
     { id: 'orders', label: 'Orders', icon: ShoppingCart },
+    { id: 'medicines', label: 'Medicines', icon: Pill },
     { id: 'reports', label: 'Reports', icon: FileText },
   ];
 
