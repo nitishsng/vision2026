@@ -1624,8 +1624,8 @@ const EditPage = () => {
       {/* Payment Details */}
       <div className="space-y-2">
         {/* 🧾 Visit & Medicines Section */}
-        <div className="bg-white shadow-md rounded-2xl p-4 border border-gray-100">
-          <h3 className="text-xl font-semibold text-gray-700 mb-4">
+        <div className="bg-white shadow-md rounded-2xl px-2 py-3 border border-gray-100">
+          <h3 className="text-xl font-semibold text-gray-700 mb-2">
             Visit & Medicines
           </h3>
 
@@ -1639,20 +1639,25 @@ const EditPage = () => {
               {(formData.visitDetails || []).map((v, index) => (
                 <div
                   key={index}
-                  className="grid grid-cols-2 gap-2 items-center mb-2 w-full"
+                  className="grid grid-cols-2 gap-2 items-center mb-2 w-full p-2 rounded"
                 >
-                  <input
-                    type="date"
-                    value={v.visitDate || ""}
-                    onChange={(e) =>
-                      handleNestedChange(
-                        `visitDetails.${index}.visitDate`,
-                        e.target.value
-                      )
-                    }
-                    className="border px-2 py-1 md:py-3 rounded text-sm w-full"
-                  />
-                  <div className="flex gap-2">
+                  {/* LEFT column */}
+                  <div>
+                    <input
+                      type="date"
+                      value={v.visitDate || ""}
+                      onChange={(e) =>
+                        handleNestedChange(
+                          `visitDetails.${index}.visitDate`,
+                          e.target.value
+                        )
+                      }
+                      className="border px-2 py-1 md:py-3 rounded text-sm w-full"
+                    />
+                  </div>
+
+                  {/* RIGHT column */}
+                  <div className="flex gap-2 items-center">
                     <input
                       type="number"
                       value={Number(v.visitPrice) || 0}
@@ -1664,6 +1669,7 @@ const EditPage = () => {
                       }
                       className="border px-2 py-1 md:py-3 rounded text-sm w-full"
                     />
+
                     <button
                       onClick={() =>
                         setFormData((prev) => {
@@ -1673,10 +1679,10 @@ const EditPage = () => {
                             visitDetails: (prev.visitDetails || []).filter(
                               (_, i) => i !== index
                             ),
-                          } as PatientFullTypeWithObjectId;
+                          };
                         })
                       }
-                      className="text-red-500 text-sm underline w-full sm:w-auto"
+                      className="text-red-500"
                     >
                       <Delete className="w-8 h-8" />
                     </button>
@@ -1684,24 +1690,31 @@ const EditPage = () => {
                 </div>
               ))}
 
-              <div className="flex flex-col-2 justify-between">
-                <button
-                  onClick={() =>
-                    setFormData((prev) => {
-                      if (!prev) return prev;
-                      const newEntry = { visitDate: todayDate, visitPrice: 0 };
-                      return {
-                        ...prev,
-                        visitDetails: [newEntry, ...(prev.visitDetails || [])],
-                      } as PatientFullTypeWithObjectId;
-                    })
-                  }
-                  className="mt-2 px-3 py-1 bg-blue-600 text-white rounded text-sm md:text-base"
-                >
-                  + Add Visit
-                </button>
-                {/* Total Visit Amount */}
-                <button className="mt-2 font-medium text-gray-700">
+              <div className="flex flex-col-2 justify-evenly">
+                <div>
+                  <button
+                    onClick={() =>
+                      setFormData((prev) => {
+                        if (!prev) return prev;
+                        const newEntry = {
+                          visitDate: todayDate,
+                          visitPrice: 0,
+                        };
+                        return {
+                          ...prev,
+                          visitDetails: [
+                            ...(prev.visitDetails || []),
+                            newEntry,
+                          ],
+                        } as PatientFullTypeWithObjectId;
+                      })
+                    }
+                    className=" px-10 py-2 bg-blue-600 text-white rounded text-sm md:text-base"
+                  >
+                    + Add Visit
+                  </button>
+                </div>
+                <div>
                   <input
                     type="number"
                     readOnly
@@ -1709,9 +1722,9 @@ const EditPage = () => {
                       (total, v) => total + Number(v.visitPrice || 0),
                       0
                     )}
-                    className="border py-1 px-1 md:py-2 rounded-lg bg-gray-100 cursor-not-allowed"
+                    className="border py-1 px-2 md:py-2 rounded-lg bg-gray-100 cursor-not-allowed max-w-[150px]"
                   />
-                </button>
+                </div>
               </div>
             </div>
 

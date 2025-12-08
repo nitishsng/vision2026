@@ -42,7 +42,7 @@ const COLORS = [
 
 export function AnalysisTab() {
   const { patients, isLoading } = useDashboardData();
-  const [mode, setMode] = useState<Mode>("monthly");
+  const [mode, setMode] = useState<Mode>("yearly");
 
   const now = new Date();
   const [month, setMonth] = useState<number>(now.getMonth());
@@ -242,7 +242,13 @@ export function AnalysisTab() {
   // UI
   // --------------------------------------------------------------------------
   return (
-    <div className="space-y-4 md:space-y-6 pb-8">
+    <div>
+         {isLoading ? (
+        <div className="flex items-center justify-center py-6">
+          <div className="animate-spin h-8 w-8 border-b-2 border-teal-500 rounded-full"></div>
+        </div>
+      ):(
+            <div className="space-y-4 md:space-y-6 pb-8">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-xl md:text-2xl font-bold text-gray-900">
@@ -386,11 +392,7 @@ export function AnalysisTab() {
       </div>
 
       {/* LOADING INDICATOR */}
-      {isLoading && (
-        <div className="flex items-center justify-center py-6">
-          <div className="animate-spin h-8 w-8 border-b-2 border-teal-500 rounded-full"></div>
-        </div>
-      )}
+   
 
       {/* -----------------------
         CHARTS GRID
@@ -488,5 +490,8 @@ export function AnalysisTab() {
         </div>
       </div>
     </div>
+      )}
+    </div>
+
   );
 }

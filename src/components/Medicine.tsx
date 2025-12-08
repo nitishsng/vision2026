@@ -128,7 +128,7 @@ const Medicine: React.FC<MedicineProps> = ({ formData, setFormData }) => {
               name="medicinename"
               value={med.medicinename}
               onChange={(e) => handleMedicineSelect(e, index)}
-              placeholder="Enter or select Medicine Name"
+              placeholder="Medicine Name"
               className="border py-1 px-1 md:py-2 rounded-lg w-full focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
             />
           </div>
@@ -142,13 +142,13 @@ const Medicine: React.FC<MedicineProps> = ({ formData, setFormData }) => {
                 value={med.price}
                 onChange={(e) => handleMedicineChange(e, index)}
                 placeholder="Enter Price"
-                className="border py-1 px-1 md:py-2 rounded-lg w-full focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
+                className="border py-1 px-2 md:py-2 rounded-lg w-full focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
               />
               <div className="flex justify-end items-center ml-2">
                 <button
                   type="button"
                   onClick={() => removeMedicineField(index)}
-                  className="bg-red-500 text-white rounded-lg px-4 py-2 hover:bg-red-600 transition"
+                  className="bg-red-500 text-white rounded-lg px-2 py-2 hover:bg-red-600 transition"
                 >
                   <Trash className="w-3 h-4" />
                 </button>
@@ -166,11 +166,11 @@ const Medicine: React.FC<MedicineProps> = ({ formData, setFormData }) => {
       </datalist>
 
       {/* Add + Total */}
-      <div className="grid grid-cols-2 justify-between px-3  w-full">
+      <div className="grid grid-cols-2 justify-between px-3 gap-3  w-full">
         <button
           type="button"
           onClick={addMedicineField}
-          className="mt-2 px-3 py-1 bg-blue-600 text-white rounded text-sm md:text-base"
+          className="px-3 py-1 bg-blue-600 text-white rounded text-sm md:text-base"
         >
           + Add Medicine
         </button>
