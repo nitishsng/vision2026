@@ -9,7 +9,12 @@ export function ScheduleTab() {
   const appointments = patients.filter((a) => a.status !== 'completed');
   const [selectedDate, setSelectedDate] = useState(new Date());
 
-  const formatDate = (date: Date) => date.toISOString().split('T')[0];
+  const formatDate = (date: Date) => {
+    if (!(date instanceof Date) || isNaN(date.getTime())) {
+      return new Date().toISOString().split('T')[0];
+    }
+    return date.toISOString().split('T')[0];
+  };
 
   const dayAppointments = appointments
     .filter((apt) => apt.preferredDate === formatDate(selectedDate))
@@ -83,7 +88,19 @@ export function ScheduleTab() {
           <input
             type="date"
             value={formatDate(selectedDate)}
-            onChange={(e) => setSelectedDate(new Date(e.target.value))}
+            onChange={(e) => {
+              const val = e.target.value;
+              if (!val) {
+                setSelectedDate(new Date());
+                return;
+              }
+              const parsed = new Date(val);
+              if (!isNaN(parsed.getTime())) {
+                setSelectedDate(parsed);
+              } else {
+                setSelectedDate(new Date());
+              }
+            }}
             className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
           />
         </div>
@@ -105,16 +122,16 @@ export function ScheduleTab() {
               return (
                 <div
                   key={time}
-                  className="flex items-start border-b border-gray-100 py-2 last:border-b-0"
+                  className="flex items-start border-b border-gray-100 py-1 "
                 >
-                  <div className="w-14 text-sm font-medium text-gray-600 mt-2">{time}</div>
+                  <div className="w-14 text-sm font-medium text-gray-600 mt-1">{time}</div>
                   <div className="flex-1 ml-2 md:ml-4">
                     {timeAppointments.length > 0 ? (
                       <div className="flex flex-wrap gap-2">
                         {timeAppointments.map((appointment, idx) => (
                           <div
                             key={idx}
-                            className={`flex-1 min-w-[220px] md:min-w-[250px] lg:min-w-[280px] p-2 md:p-3 rounded-lg border-l-4 ${
+                            className={`flex-1 min-w-[220px] md:min-w-[250px] lg:min-w-[280px] p-2  rounded-lg border-l-4 ${
                               appointment.status === 'confirmed'
                                 ? 'bg-green-50 border-green-400'
                                 : appointment.status === 'pending'
@@ -129,9 +146,9 @@ export function ScheduleTab() {
                                 <p className="font-medium text-gray-900">
                                   {appointment.ptName}
                                 </p>
-                                <p className="text-sm text-gray-600">
+                                {/* <p className="text-sm text-gray-600">
                                   Age: {appointment.age} • {appointment.phoneNo}
-                                </p>
+                                </p> */}
                                 <p className="text-sm text-gray-600 capitalize">
                                   {appointment.purpose.replace('-', ' ')}
                                 </p>
@@ -141,7 +158,7 @@ export function ScheduleTab() {
                         ))}
                       </div>
                     ) : (
-                      <div className="p-2 md:p-3 border-2 border-dashed border-gray-200 rounded-lg text-center">
+                      <div className="p-1 border-2 border-dashed border-gray-200 rounded-lg text-center">
                         <p className="text-sm text-gray-400">
                           No appointment scheduled
                         </p>

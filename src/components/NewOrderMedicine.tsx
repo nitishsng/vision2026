@@ -32,23 +32,7 @@ const NewOrder: React.FC<PatientFormProps> = ({
     }));
   };
 
-  // auto calculate totals
-  useEffect(() => {
-    const opticalaPrice =
-      Number(formData.framePrice) + Number(formData.lensePrice);
-    const totalAmount = opticalaPrice;
-    const totalAdvance = Number(formData.opticalAdvance);
-    const totalDue = totalAmount - totalAdvance;
-    const opticalDue=opticalaPrice-Number(formData.opticalAdvance);
-    setFormData((prev) => ({
-      ...prev,
-      opticalaPrice,
-      totalAmount,
-      totalAdvance,
-      opticalDue,
-      totalDue,
-    }));
-  }, [formData.framePrice, formData.lensePrice, formData.opticalAdvance]);
+  // Derived totals are computed inline for display
 
   // set default dates
   useEffect(() => {
@@ -68,7 +52,11 @@ const NewOrder: React.FC<PatientFormProps> = ({
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-    formData.orderOnly=true;
+    if( catagory== "medicine")
+      formData.catagory="medicine";
+    else if(catagory == "order")
+      formData.catagory="order";
+    
     try {
       const res = await fetch("/api/appointment", {
         method: "POST",
@@ -259,23 +247,13 @@ const NewOrder: React.FC<PatientFormProps> = ({
                 <label className="font-medium mb-1 block">Optical Price</label>
                 <input
                   type="number"
-                  name="opticalaPrice"
-                  value={formData.opticalaPrice}
+                  value={(formData.framePrice || 0) + (formData.lensePrice || 0)}
                   readOnly
                   className="border p-3 rounded w-full bg-gray-100 cursor-not-allowed"
                 />
               </div>
 
-              {/* <div>
-                <label className="font-medium mb-1 block">Pay (Advance)</label>
-                <input
-                  type="number"
-                  name="opticalAdvance"
-                  value={formData.opticalAdvance}
-                  onChange={handleInputChange}
-                  className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
-                />
-              </div> */}
+            
 
             </div>
             
@@ -318,8 +296,7 @@ const NewOrder: React.FC<PatientFormProps> = ({
                 <label className="font-medium mb-1 block">Total Amount</label>
                 <input
                   type="number"
-                  name="totalAmount"
-                  value={formData.totalAmount}
+                  value={(formData.framePrice || 0) + (formData.lensePrice || 0)}
                   readOnly
                   className="border p-3 rounded w-full bg-gray-100 cursor-not-allowed"
                 />
@@ -329,8 +306,20 @@ const NewOrder: React.FC<PatientFormProps> = ({
                 <label className="font-medium mb-1 block">Total Advance</label>
                 <input
                   type="number"
-                  name="totalAdvance"
-                  value={formData.totalAdvance}
+                  value={
+                    (formData.opticalPayDetails || []).reduce(
+                      (sum, d) => sum + (Number(d.amount) || 0),
+                      0
+                    ) +
+                    (formData.visitDetails || []).reduce(
+                      (sum, v) => sum + (Number(v.visitPrice) || 0),
+                      0
+                    ) +
+                    (formData.medicines || []).reduce(
+                      (sum, m) => sum + (Number(m.price) || 0),
+                      0
+                    )
+                  }
                   readOnly
                   className="border p-3 rounded w-full bg-gray-100 cursor-not-allowed"
                 />
@@ -340,8 +329,7 @@ const NewOrder: React.FC<PatientFormProps> = ({
                 <label className="font-medium mb-1 block">Total Due</label>
                 <input
                   type="number"
-                  name="totalDue"
-                  value={formData.totalDue}
+                  value={(formData.framePrice || 0) + (formData.lensePrice || 0) - (formData.opticalPayDetails || []).reduce((sum, d) => sum + (Number(d.amount) || 0), 0)}
                   readOnly
                   className="border p-3 rounded w-full bg-gray-100 cursor-not-allowed"
                 />
@@ -361,7 +349,11 @@ const NewOrder: React.FC<PatientFormProps> = ({
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={
+                loading ||
+                (catagory === "medicine" && (formData.medicines || []).length < 1) ||
+                (catagory === "order" && (formData.opticalPayDetails || []).length < 1)
+              }
               className="flex items-center justify-center px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 disabled:opacity-70"
             >
               {loading ? "Saving..." : "Save Order"}

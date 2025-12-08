@@ -6,7 +6,7 @@ import { Toaster } from "react-hot-toast";
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Kachakali Vision Care - Eye Center Management',
+  title: 'Kachakali Vision Care ',
   description: 'Professional eye care management system for Kachakali Vision Care',
 };
 

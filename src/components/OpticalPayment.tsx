@@ -24,15 +24,9 @@ const OpticalPayment: React.FC<OpticalPaymentProps> = ({
       [name]: name === "amount" ? Number(value) : value,
     };
 
-    const totalPrice = updatedAdvance.reduce(
-      (sum, med) => sum + (Number(med.amount) || 0),
-      0
-    );
-
     setFormData((prev) => ({
       ...prev,
       opticalPayDetails: updatedAdvance,
-      opticalAdvance: totalPrice,
     }));
   };
 
@@ -54,15 +48,9 @@ const OpticalPayment: React.FC<OpticalPaymentProps> = ({
         (_, i) => i !== index
       );
 
-      const totalPrice = updatedPaymentDetails.reduce(
-        (sum, med) => sum + (Number(med.amount) || 0),
-        0
-      );
-
       return {
         ...prev,
         opticalPayDetails: updatedPaymentDetails,
-        opticalAdvance: totalPrice,
       };
     });
   };
@@ -148,7 +136,7 @@ const OpticalPayment: React.FC<OpticalPaymentProps> = ({
           <div className="flex justify-end">
             <input
               type="number"
-              value={formData.opticalAdvance}
+              value={formData.opticalPayDetails.reduce((sum, d) => sum + (Number(d.amount) || 0), 0)}
               readOnly
               className="border py-2 min-w-[90px] md:min-w-[100px] rounded-lg bg-gray-100 text-gray-700 text-center text-sm md:text-base"
             />

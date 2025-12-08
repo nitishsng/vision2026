@@ -15,14 +15,7 @@ const EditPage = () => {
   const params = useParams();
   const id = params?.id as string;
 
-const existingPatient = patients.find((p) => p._id === id);
-
-if (existingPatient) {
-   if (!existingPatient.visitPrice) {
-    existingPatient.visitPrice = existingPatient.repeated ? 100 : 200;
-  }
-}
-
+  const existingPatient = patients.find((p) => p._id === id);
 
   const [formData, setFormData] = useState<PatientFullTypeWithObjectId | null>(
     null
@@ -53,7 +46,7 @@ if (existingPatient) {
 
   useEffect(() => {
     if (existingPatient) {
-      setFormData(existingPatient as any); // cast safely
+      setFormData(normalizePatient(existingPatient as any));
     }
   }, [existingPatient]);
 
@@ -74,37 +67,115 @@ if (existingPatient) {
             ...prev,
             [name]:
               type === "number" ? (value === "" ? "" : Number(value)) : value,
-            // Auto-update due if advance changes
-            ...(name === "advance"
-              ? { due: prev.totalAmount - (value === "" ? 0 : Number(value)) }
-              : {}),
           }
         : prev
     );
   };
-   
 
+  type VisionEntry = PatientFullTypeWithObjectId["vision"][number];
+  type VisionKey = keyof VisionEntry["rightEye"];
 
-
-  // Generic nested change handler
   const handleNestedChange = (path: string, value: any) => {
     setFormData((prev) => {
       if (!prev) return prev;
+      const parts = path.split(".");
+      const section = parts[0];
+      const index = Number(parts[1]);
+      if (parts.length === 1) {
+        return { ...prev, [section]: value } as PatientFullTypeWithObjectId;
+      }
+      if (Number.isNaN(index)) return prev;
 
-      const newData = { ...prev };
-      const keys = path.split(".");
+      const next: any = { ...prev };
+      const arr: any[] = Array.isArray((prev as any)[section])
+        ? [...(prev as any)[section]]
+        : [];
 
-      let temp: any = newData;
-      keys.forEach((key, index) => {
-        if (index === keys.length - 1) {
-          temp[key] = value;
+      const defaults: Record<string, any> = {
+        vision: {
+          updateDate: todayDate,
+          rightEye: { unaidedDistance: "" },
+          leftEye: { unaidedDistance: "" },
+        },
+        examDetails: {
+          updateDate: todayDate,
+          adnexa: { right: "", left: "" },
+          conjunctiva: { right: "", left: "" },
+          cornea: { right: "", left: "" },
+          anteriorChamber: { right: "", left: "" },
+          iris: { right: "", left: "" },
+          lens: { right: "", left: "" },
+          fundus: { right: "", left: "" },
+          orbit: { right: "", left: "" },
+          syringing: { right: "", left: "" },
+          vitreous: { right: "", left: "" },
+        },
+        iopPachyCCT: {
+          updateDate: todayDate,
+          rightEye: { methodTime: "", iop: 0 },
+          leftEye: { methodTime: "", iop: 0 },
+        },
+        glassesPrescription: {
+          updateDate: todayDate,
+          use: "",
+          rightEye: { sph: "", add: "" },
+          leftEye: { sph: "", add: "" },
+        },
+        visitDetails: { visitDate: todayDate, visitPrice: 0 },
+      };
+
+      const current = arr[index] ?? defaults[section];
+
+      if (parts[2] === "updateDate") {
+        arr[index] = { ...current, updateDate: value };
+      } else if (section === "vision") {
+        const eye = parts[2] as "rightEye" | "leftEye";
+        const key = parts[3] as VisionKey;
+        arr[index] = { ...current, [eye]: { ...current[eye], [key]: value } };
+      } else if (section === "glassesPrescription") {
+        if (parts[2] === "use") {
+          arr[index] = { ...current, use: value };
         } else {
-          temp[key] = { ...temp[key] };
-          temp = temp[key];
+          const eye = parts[2];
+          const key = parts[3];
+          const isNumeric = key === "axis";
+          arr[index] = {
+            ...current,
+            [eye]: {
+              ...current[eye],
+              [key]: isNumeric ? Number(value) : value,
+            },
+          };
         }
-      });
+      } else if (section === "iopPachyCCT") {
+        const eye = parts[2];
+        const key = parts[3];
+        const isNumeric =
+          key === "iop" || key === "correctedIop" || key === "cct";
+        arr[index] = {
+          ...current,
+          [eye]: { ...current[eye], [key]: isNumeric ? Number(value) : value },
+        };
+      } else if (section === "examDetails") {
+        const param = parts[2];
+        const side = parts[3];
+        arr[index] = {
+          ...current,
+          [param]: { ...current[param], [side]: value },
+        };
+      } else if (section === "visitDetails") {
+        const key = parts[2];
+        const isNumeric = key === "visitPrice";
+        arr[index] = {
+          ...current,
+          [key]: isNumeric ? Number(value) : value,
+        };
+      } else {
+        return prev;
+      }
 
-      return newData;
+      next[section] = arr;
+      return next as PatientFullTypeWithObjectId;
     });
   };
 
@@ -115,28 +186,6 @@ if (existingPatient) {
       const updatedFormData = {
         ...formData,
         updatedAt: new Date().toISOString(),
-
-        totalAmount:
-          (formData.visitPrice ?? 0) +
-          (formData.medicinePrice ?? 0) +
-          (formData.framePrice ?? 0) +
-          (formData.lensePrice ?? 0),
-
-        totalAdvance:
-          (formData.visitPrice ?? 0) +
-          (formData.medicinePrice ?? 0) +
-          (formData.opticalAdvance ?? 0),
-
-        totalDue:
-          (formData.framePrice ?? 0) +
-          (formData.lensePrice ?? 0) -
-          (formData.opticalAdvance ?? 0),
-
-        opticalaPrice: (formData.framePrice ?? 0) + (formData.lensePrice ?? 0),
-        opticalDue:
-          (formData?.framePrice ?? 0) +
-          (formData?.lensePrice ?? 0) -
-          (formData?.opticalAdvance ?? 0),
       };
 
       if (!id) throw new Error("Missing patient ID");
@@ -205,7 +254,6 @@ if (existingPatient) {
     );
   };
 
-
   const removeDiagnosis = (index: number) => {
     setFormData((prev) => {
       if (!prev) return prev; // safely handle null state
@@ -220,7 +268,7 @@ if (existingPatient) {
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-6 space-y-2 md:space-y-4 bg-white shadow rounded-lg">
+    <div className="max-w-5xl mx-auto p-2 md:p-4 space-y-2 md:space-y-4 bg-white shadow rounded-lg">
       {/* Header */}
       <h2 className="text-3xl font-bold text-gray-800">
         Edit Patient{" "}
@@ -290,14 +338,14 @@ if (existingPatient) {
             <input
               type="date"
               name="preferredDate"
-              value={formData.preferredDate}
+              value={formData.preferredDate || ""}
               onChange={handleChange}
               className="border p-2 md:p-3 rounded text-sm md:text-base focus:ring-2 focus:ring-blue-400 w-full"
             />
 
             <select
               name="preferredTime"
-              value={formData.preferredTime}
+              value={formData.preferredTime || ""}
               onChange={handleChange}
               className="border p-2 md:p-3 rounded text-sm md:text-base focus:ring-2 focus:ring-blue-400 w-full"
             >
@@ -388,135 +436,213 @@ if (existingPatient) {
             Vision Details
           </h3>
 
-          {/* Responsive Scroll Wrapper */}
-          <div className="w-full overflow-x-auto">
-            <div className="inline-block w-full align-middle">
-              <table className="w-full border border-gray-300 rounded-lg overflow-hidden text-xs md:text-sm">
-                <thead className="bg-gray-100">
-                  <tr>
-                    <th className="px-2 md:px-4 py-1.5 md:py-2 text-left font-medium text-gray-600 w-1/3 md:w-[40%]">
-                      Parameter
-                    </th>
-                    <th className="px-2 md:px-4 py-1.5 md:py-2 text-left font-medium text-gray-600 w-1/3 md:w-[30%]">
-                      Right
-                    </th>
-                    <th className="px-2 md:px-4 py-1.5 md:py-2 text-left font-medium text-gray-600 w-1/3 md:w-[30%]">
-                      Left
-                    </th>
-                  </tr>
-                </thead>
+          {/* Add new vision entry */}
+          <button
+            onClick={() =>
+              setFormData((prev) => {
+                if (!prev) return prev;
+                const newEntry = {
+                  updateDate: todayDate,
+                  rightEye: { unaidedDistance: "" },
+                  leftEye: { unaidedDistance: "" },
+                };
+                return {
+                  ...prev,
+                  vision: [newEntry, ...(prev.vision || [])],
+                } as PatientFullTypeWithObjectId;
+              })
+            }
+            className="px-3 py-1 bg-blue-600 text-white rounded text-xs md:text-sm"
+          >
+            + Add Vision Entry
+          </button>
 
-                <tbody className="divide-y divide-gray-200">
-                  {[
-                    {
-                      label: "Unaided Distance",
-                      rightKey: "unaidedDistance",
-                      leftKey: "unaidedDistance",
-                      distanceOptions: [
-                        "6/6",
-                        "6/9",
-                        "6/12",
-                        "6/18",
-                        "6/24",
-                        "6/36",
-                        "6/60",
-                      ],
-                    },
-                    {
-                      label: "Unaided Near",
-                      rightKey: "unaidedNear",
-                      leftKey: "unaidedNear",
-                      nearOptions: ["N5", "N6", "N8", "N10", "N12"],
-                    },
-                    {
-                      label: "Best Corrected Distance",
-                      rightKey: "bestCorrectedDistance",
-                      leftKey: "bestCorrectedDistance",
-                      distanceOptions: [
-                        "6/6",
-                        "6/9",
-                        "6/12",
-                        "6/18",
-                        "6/24",
-                        "6/36",
-                      ],
-                    },
-                    {
-                      label: "Best Corrected Near",
-                      rightKey: "bestCorrectedNear",
-                      leftKey: "bestCorrectedNear",
-                      nearOptions: ["N5", "N6", "N8", "N10", "N12"],
-                    },
-                  ].map(
-                    ({
-                      label,
-                      rightKey,
-                      leftKey,
-                      distanceOptions,
-                      nearOptions,
-                    }) => {
-                      const options = distanceOptions || nearOptions || [];
-                      return (
-                        <tr key={label}>
-                          <td className="px-2 md:px-4 py-1 md:py-1.5 font-medium text-gray-700 whitespace-nowrap">
-                            {label}
-                          </td>
-
-                          {/* Right Eye */}
-                          <td className="px-2 md:px-4 py-1 md:py-1.5">
-                            <input
-                              type="text"
-                              list={`${rightKey}Options`}
-                              name={`vision.rightEye.${rightKey}`}
-                              value={
-                                (formData.vision?.rightEye as any)?.[
-                                  rightKey
-                                ] || ""
-                              }
-                              onChange={(e) =>
-                                handleNestedChange(
-                                  `vision.rightEye.${rightKey}`,
-                                  e.target.value
-                                )
-                              }
-                              placeholder="Value"
-                              className="border p-1.5 md:p-2 rounded w-full focus:ring-1 focus:ring-blue-400 text-xs md:text-sm"
-                            />
-                            <datalist id={`${rightKey}Options`}>
-                              {options.map((opt) => (
-                                <option key={opt} value={opt} />
-                              ))}
-                            </datalist>
-                          </td>
-
-                          {/* Left Eye */}
-                          <td className="px-2 md:px-4 py-1 md:py-1.5">
-                            <input
-                              type="text"
-                              list={`${leftKey}Options`}
-                              name={`vision.leftEye.${leftKey}`}
-                              value={
-                                (formData.vision?.leftEye as any)?.[leftKey] ||
-                                ""
-                              }
-                              onChange={(e) =>
-                                handleNestedChange(
-                                  `vision.leftEye.${leftKey}`,
-                                  e.target.value
-                                )
-                              }
-                              placeholder="Value"
-                              className="border p-1.5 md:p-2 rounded w-full focus:ring-1 focus:ring-blue-400 text-xs md:text-sm"
-                            />
-                          </td>
-                        </tr>
-                      );
+          {/* Loop through all vision entries */}
+          {formData.vision?.map((entry, index) => (
+            <div
+              key={index}
+              className="space-y-3 border p-2 rounded-lg bg-gray-50"
+            >
+              {/* Entry Heading */}
+              <div className="flex justify-between items-center">
+                <h4 className="text-sm md:text-base font-semibold text-gray-700">
+                  Vision Entry #{(formData.vision?.length || 0) - index}
+                </h4>
+                {/* Date */}
+                <div className="flex gap-3 items-center">
+                  <input
+                    type="date"
+                    value={entry.updateDate || ""}
+                    onChange={(e) =>
+                      handleNestedChange(
+                        `vision.${index}.updateDate`,
+                        e.target.value
+                      )
                     }
-                  )}
-                </tbody>
-              </table>
+                    className="border p-1.5 md:p-2 rounded text-xs md:text-sm"
+                  />
+                  {/* Delete entry */}
+                  <button
+                    onClick={() =>
+                      setFormData((prev) => {
+                        if (!prev) return prev;
+                        return {
+                          ...prev,
+                          vision: (prev.vision || []).filter(
+                            (_, i) => i !== index
+                          ),
+                        };
+                      })
+                    }
+                    className="text-red-500 text-xs underline"
+                  >
+                    <Delete className="w-8 h-8" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Table */}
+              <div className="w-full overflow-x-auto">
+                <table className="w-full border border-gray-300 rounded-lg text-xs md:text-sm">
+                  <thead className="bg-gray-100">
+                    <tr>
+                      <th className="px-2 md:px-4 py-2 text-left font-medium text-gray-600 w-1/3">
+                        Parameter
+                      </th>
+                      <th className="px-2 md:px-4 py-2 text-left font-medium text-gray-600 w-1/3">
+                        Right
+                      </th>
+                      <th className="px-2 md:px-4 py-2 text-left font-medium text-gray-600 w-1/3">
+                        Left
+                      </th>
+                    </tr>
+                  </thead>
+
+                  <tbody className="divide-y divide-gray-200">
+                    {(
+                      [
+                        {
+                          label: "Unaided Distance",
+                          key: "unaidedDistance" as VisionKey,
+                          options: [
+                            "6/6",
+                            "6/9",
+                            "6/12",
+                            "6/18",
+                            "6/24",
+                            "6/36",
+                            "6/60",
+                          ],
+                        },
+                        {
+                          label: "Unaided Near",
+                          key: "unaidedNear" as VisionKey,
+                          options: ["N5", "N6", "N8", "N10", "N12"],
+                        },
+                        {
+                          label: "Best Corrected Distance",
+                          key: "bestCorrectedDistance" as VisionKey,
+                          options: [
+                            "6/6",
+                            "6/9",
+                            "6/12",
+                            "6/18",
+                            "6/24",
+                            "6/36",
+                          ],
+                        },
+                        {
+                          label: "Best Corrected Near",
+                          key: "bestCorrectedNear" as VisionKey,
+                          options: ["N5", "N6", "N8", "N10", "N12"],
+                        },
+                      ] as {
+                        label: string;
+                        key: VisionKey;
+                        options: string[];
+                      }[]
+                    ).map(({ label, key, options }) => (
+                      <tr key={key}>
+                        <td className="px-2 md:px-4 py-2 font-medium text-gray-700 whitespace-nowrap">
+                          {label}
+                        </td>
+
+                        {/* Right eye */}
+                        <td className="px-2 md:px-4 py-2">
+                          <input
+                            type="text"
+                            list={`${key}Options-${index}`}
+                            value={(entry.rightEye[key] ?? "") as string}
+                            onChange={(e) =>
+                              handleNestedChange(
+                                `vision.${index}.rightEye.${key}`,
+                                e.target.value
+                              )
+                            }
+                            className="border p-1.5 md:p-2 rounded w-full"
+                          />
+                        </td>
+
+                        {/* Left eye */}
+                        <td className="px-2 md:px-4 py-2">
+                          <input
+                            type="text"
+                            list={`${key}Options-${index}`}
+                            value={(entry.leftEye[key] ?? "") as string}
+                            onChange={(e) =>
+                              handleNestedChange(
+                                `vision.${index}.leftEye.${key}`,
+                                e.target.value
+                              )
+                            }
+                            className="border p-1.5 md:p-2 rounded w-full"
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {(
+                [
+                  {
+                    label: "Unaided Distance",
+                    key: "unaidedDistance" as VisionKey,
+                    options: [
+                      "6/6",
+                      "6/9",
+                      "6/12",
+                      "6/18",
+                      "6/24",
+                      "6/36",
+                      "6/60",
+                    ],
+                  },
+                  {
+                    label: "Unaided Near",
+                    key: "unaidedNear" as VisionKey,
+                    options: ["N5", "N6", "N8", "N10", "N12"],
+                  },
+                  {
+                    label: "Best Corrected Distance",
+                    key: "bestCorrectedDistance" as VisionKey,
+                    options: ["6/6", "6/9", "6/12", "6/18", "6/24", "6/36"],
+                  },
+                  {
+                    label: "Best Corrected Near",
+                    key: "bestCorrectedNear" as VisionKey,
+                    options: ["N5", "N6", "N8", "N10", "N12"],
+                  },
+                ] as { label: string; key: VisionKey; options: string[] }[]
+              ).map(({ key, options }) => (
+                <datalist key={key} id={`${key}Options-${index}`}>
+                  {options.map((opt) => (
+                    <option key={opt} value={opt} />
+                  ))}
+                </datalist>
+              ))}
             </div>
-          </div>
+          ))}
         </div>
       )}
 
@@ -538,132 +664,244 @@ if (existingPatient) {
             Exam Details
           </h3>
 
-          {/* Responsive Scroll Wrapper */}
-          <div className="w-full overflow-x-auto">
-            <div className="inline-block w-full align-middle">
-              <table className="w-full border border-gray-300 rounded-lg overflow-hidden text-xs md:text-sm">
-                <thead className="bg-gray-100 sticky top-0 z-10">
-                  <tr>
-                    <th className="px-2 md:px-4 py-1.5 md:py-2 text-left font-medium text-gray-600 w-1/3 md:w-[40%]">
-                      Parameter
-                    </th>
-                    <th className="px-2 md:px-4 py-1.5 md:py-2 text-left font-medium text-gray-600 w-1/3 md:w-[30%]">
-                      Right
-                    </th>
-                    <th className="px-2 md:px-4 py-1.5 md:py-2 text-left font-medium text-gray-600 w-1/3 md:w-[30%]">
-                      Left
-                    </th>
-                  </tr>
-                </thead>
+          <button
+            onClick={() =>
+              setFormData((prev) => {
+                if (!prev) return prev;
+                const newEntry = {
+                  updateDate: todayDate,
+                  adnexa: { right: "", left: "" },
+                  conjunctiva: { right: "", left: "" },
+                  cornea: { right: "", left: "" },
+                  anteriorChamber: { right: "", left: "" },
+                  iris: { right: "", left: "" },
+                  lens: { right: "", left: "" },
+                  fundus: { right: "", left: "" },
+                  orbit: { right: "", left: "" },
+                  syringing: { right: "", left: "" },
+                  vitreous: { right: "", left: "" },
+                };
+                return {
+                  ...prev,
+                  examDetails: [newEntry, ...(prev.examDetails || [])],
+                } as PatientFullTypeWithObjectId;
+              })
+            }
+            className="px-3 py-1 bg-blue-600 text-white rounded text-xs md:text-sm"
+          >
+            + Add Exam Entry
+          </button>
 
-                <tbody className="divide-y divide-gray-200">
-                  {[
-                    {
-                      label: "Adnexa",
-                      name: "adnexa",
-                      options: ["Normal", "Swelling", "Redness"],
-                    },
-                    {
-                      label: "Conjunctiva",
-                      name: "conjunctiva",
-                      options: ["Normal", "Pale", "Injected"],
-                    },
-                    {
-                      label: "Cornea",
-                      name: "cornea",
-                      options: ["Clear", "Opacity", "Edema"],
-                    },
-                    {
-                      label: "Anterior Chamber",
-                      name: "anteriorChamber",
-                      options: ["Normal", "Shallow", "Deep"],
-                    },
-                    {
-                      label: "Iris",
-                      name: "iris",
-                      options: ["Normal", "Atrophy"],
-                    },
-                    {
-                      label: "Lens",
-                      name: "lens",
-                      options: ["Clear", "Cataract", "Pseudophakia"],
-                    },
-                    {
-                      label: "Fundus",
-                      name: "fundus",
-                      options: ["Normal", "DR", "HR", "AMD"],
-                    },
-                    {
-                      label: "Orbit",
-                      name: "orbit",
-                      options: ["Normal", "Mass", "Inflammation"],
-                    },
-                    {
-                      label: "Syringing",
-                      name: "syringing",
-                      options: ["Patent", "Blocked"],
-                    },
-                    {
-                      label: "Vitreous",
-                      name: "vitreous",
-                      options: ["Clear", "Floaters"],
-                    },
-                  ].map(({ label, name, options }) => (
-                    <tr key={name}>
-                      <td className="px-2 md:px-4 py-1 md:py-1.5 font-medium text-gray-700 whitespace-nowrap">
-                        {label}
-                      </td>
+          {formData.examDetails?.map((entry, index) => (
+            <div
+              key={index}
+              className="space-y-3 border p-2 rounded-lg bg-gray-50"
+            >
+              <div className="flex justify-between items-center">
+                <h4 className="text-sm md:text-base font-semibold text-gray-700">
+                  Exam Entry #{(formData.examDetails?.length || 0) - index}
+                </h4>
+                <div className="flex gap-3 items-center">
+                  <input
+                    type="date"
+                    value={entry.updateDate || ""}
+                    onChange={(e) =>
+                      handleNestedChange(
+                        `examDetails.${index}.updateDate`,
+                        e.target.value
+                      )
+                    }
+                    className="border p-1.5 md:p-2 rounded text-xs md:text-sm"
+                  />
+                  <button
+                    onClick={() =>
+                      setFormData((prev) => {
+                        if (!prev) return prev;
+                        return {
+                          ...prev,
+                          examDetails: (prev.examDetails || []).filter(
+                            (_, i) => i !== index
+                          ),
+                        } as PatientFullTypeWithObjectId;
+                      })
+                    }
+                    className="text-red-500 text-xs underline"
+                  >
+                    <Delete className="h-8 w-8" />
+                  </button>
+                </div>
+              </div>
 
-                      {/* Right Eye */}
-                      <td className="px-2 md:px-4 py-1 md:py-1.5">
-                        <input
-                          type="text"
-                          list={`${name}Options`}
-                          name={`examDetails.${name}.right`}
-                          value={
-                            (formData.examDetails as any)?.[name]?.right || ""
-                          }
-                          onChange={(e) =>
-                            handleNestedChange(
-                              `examDetails.${name}.right`,
-                              e.target.value
-                            )
-                          }
-                          placeholder="R"
-                          className="border p-1.5 md:p-2 rounded w-full focus:ring-1 focus:ring-blue-400 text-xs md:text-sm"
-                        />
-                        <datalist id={`${name}Options`}>
-                          {options.map((opt) => (
-                            <option key={opt} value={opt} />
-                          ))}
-                        </datalist>
-                      </td>
-
-                      {/* Left Eye */}
-                      <td className="px-2 md:px-4 py-1 md:py-1.5">
-                        <input
-                          type="text"
-                          list={`${name}Options`}
-                          name={`examDetails.${name}.left`}
-                          value={
-                            (formData.examDetails as any)?.[name]?.left || ""
-                          }
-                          onChange={(e) =>
-                            handleNestedChange(
-                              `examDetails.${name}.left`,
-                              e.target.value
-                            )
-                          }
-                          placeholder="L"
-                          className="border p-1.5 md:p-2 rounded w-full focus:ring-1 focus:ring-blue-400 text-xs md:text-sm"
-                        />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <div className="w-full overflow-x-auto">
+                <div className="inline-block w-full align-middle">
+                  <table className="w-full border border-gray-300 rounded-lg overflow-hidden text-xs md:text-sm">
+                    <thead className="bg-gray-100 sticky top-0 z-10">
+                      <tr>
+                        <th className="px-2 md:px-4 py-1.5 md:py-2 text-left font-medium text-gray-600 w-1/3 md:w-[40%]">
+                          Parameter
+                        </th>
+                        <th className="px-2 md:px-4 py-1.5 md:py-2 text-left font-medium text-gray-600 w-1/3 md:w-[30%]">
+                          Right
+                        </th>
+                        <th className="px-2 md:px-4 py-1.5 md:py-2 text-left font-medium text-gray-600 w-1/3 md:w-[30%]">
+                          Left
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {[
+                        {
+                          label: "Adnexa",
+                          name: "adnexa",
+                          options: ["Normal", "Swelling", "Redness"],
+                        },
+                        {
+                          label: "Conjunctiva",
+                          name: "conjunctiva",
+                          options: ["Normal", "Pale", "Injected"],
+                        },
+                        {
+                          label: "Cornea",
+                          name: "cornea",
+                          options: ["Clear", "Opacity", "Edema"],
+                        },
+                        {
+                          label: "Anterior Chamber",
+                          name: "anteriorChamber",
+                          options: ["Normal", "Shallow", "Deep"],
+                        },
+                        {
+                          label: "Iris",
+                          name: "iris",
+                          options: ["Normal", "Atrophy"],
+                        },
+                        {
+                          label: "Lens",
+                          name: "lens",
+                          options: ["Clear", "Cataract", "Pseudophakia"],
+                        },
+                        {
+                          label: "Fundus",
+                          name: "fundus",
+                          options: ["Normal", "DR", "HR", "AMD"],
+                        },
+                        {
+                          label: "Orbit",
+                          name: "orbit",
+                          options: ["Normal", "Mass", "Inflammation"],
+                        },
+                        {
+                          label: "Syringing",
+                          name: "syringing",
+                          options: ["Patent", "Blocked"],
+                        },
+                        {
+                          label: "Vitreous",
+                          name: "vitreous",
+                          options: ["Clear", "Floaters"],
+                        },
+                      ].map(({ label, name, options }) => (
+                        <tr key={name}>
+                          <td className="px-2 md:px-4 py-1 md:py-1.5 font-medium text-gray-700 whitespace-nowrap">
+                            {label}
+                          </td>
+                          <td className="px-2 md:px-4 py-1 md:py-1.5">
+                            <input
+                              type="text"
+                              list={`${name}Options`}
+                              value={(entry as any)?.[name]?.right || ""}
+                              onChange={(e) =>
+                                handleNestedChange(
+                                  `examDetails.${index}.${name}.right`,
+                                  e.target.value
+                                )
+                              }
+                              placeholder="R"
+                              className="border p-1.5 md:p-2 rounded w-full focus:ring-1 focus:ring-blue-400 text-xs md:text-sm"
+                            />
+                          </td>
+                          <td className="px-2 md:px-4 py-1 md:py-1.5">
+                            <input
+                              type="text"
+                              list={`${name}Options`}
+                              value={(entry as any)?.[name]?.left || ""}
+                              onChange={(e) =>
+                                handleNestedChange(
+                                  `examDetails.${index}.${name}.left`,
+                                  e.target.value
+                                )
+                              }
+                              placeholder="L"
+                              className="border p-1.5 md:p-2 rounded w-full focus:ring-1 focus:ring-blue-400 text-xs md:text-sm"
+                            />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
-          </div>
+          ))}
+
+          {[
+            {
+              label: "Adnexa",
+              name: "adnexa",
+              options: ["Normal", "Swelling", "Redness"],
+            },
+            {
+              label: "Conjunctiva",
+              name: "conjunctiva",
+              options: ["Normal", "Pale", "Injected"],
+            },
+            {
+              label: "Cornea",
+              name: "cornea",
+              options: ["Clear", "Opacity", "Edema"],
+            },
+            {
+              label: "Anterior Chamber",
+              name: "anteriorChamber",
+              options: ["Normal", "Shallow", "Deep"],
+            },
+            {
+              label: "Iris",
+              name: "iris",
+              options: ["Normal", "Atrophy"],
+            },
+            {
+              label: "Lens",
+              name: "lens",
+              options: ["Clear", "Cataract", "Pseudophakia"],
+            },
+            {
+              label: "Fundus",
+              name: "fundus",
+              options: ["Normal", "DR", "HR", "AMD"],
+            },
+            {
+              label: "Orbit",
+              name: "orbit",
+              options: ["Normal", "Mass", "Inflammation"],
+            },
+            {
+              label: "Syringing",
+              name: "syringing",
+              options: ["Patent", "Blocked"],
+            },
+            {
+              label: "Vitreous",
+              name: "vitreous",
+              options: ["Clear", "Floaters"],
+            },
+          ].map(({ name, options }) => (
+            <datalist key={name} id={`${name}Options`}>
+              {options.map((opt) => (
+                <option key={opt} value={opt} />
+              ))}
+            </datalist>
+          ))}
         </div>
       )}
 
@@ -684,111 +922,164 @@ if (existingPatient) {
           <h3 className="text-lg md:text-xl font-semibold text-gray-700">
             Glasses Prescription
           </h3>
+          <button
+            onClick={() =>
+              setFormData((prev) => {
+                if (!prev) return prev;
+                const newEntry = {
+                  updateDate: todayDate,
+                  use: "",
+                  rightEye: { sph: "", add: "" },
+                  leftEye: { sph: "", add: "" },
+                };
+                return {
+                  ...prev,
+                  glassesPrescription: [
+                    newEntry,
+                    ...(prev.glassesPrescription || []),
+                  ],
+                } as PatientFullTypeWithObjectId;
+              })
+            }
+            className="px-3 py-1 bg-blue-600 text-white rounded text-xs md:text-sm"
+          >
+            + Add Prescription Entry
+          </button>
 
-          {/* Use */}
-          <div className="flex flex-col w-full md:max-w-md">
-            <label className="font-medium mb-1 text-sm md:text-base">Use</label>
-            <input
-              type="text"
-              list="useOptions"
-              name="glassesPrescription.use"
-              value={formData.glassesPrescription?.use || ""}
-              onChange={(e) =>
-                handleNestedChange("glassesPrescription.use", e.target.value)
-              }
-              placeholder="Select or enter use"
-              className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
-            />
-            <datalist id="useOptions">
-              <option value="Distance" />
-              <option value="Near" />
-              <option value="Bifocal" />
-              <option value="Progressive" />
-            </datalist>
-          </div>
+          {formData.glassesPrescription?.map((entry, index) => (
+            <div
+              key={index}
+              className="space-y-3 border p-2 rounded-lg bg-gray-50"
+            >
+              <div className="flex justify-between items-center">
+                <h4 className="text-sm md:text-base font-semibold text-gray-700">
+                  Prescription Entry #
+                  {(formData.glassesPrescription?.length || 0) - index}
+                </h4>
+                <div className="flex gap-3 items-center">
+                  <input
+                    type="date"
+                    value={entry.updateDate || ""}
+                    onChange={(e) =>
+                      handleNestedChange(
+                        `glassesPrescription.${index}.updateDate`,
+                        e.target.value
+                      )
+                    }
+                    className="border p-1.5 md:p-2 rounded text-xs md:text-sm"
+                  />
+                  <button
+                    onClick={() =>
+                      setFormData((prev) => {
+                        if (!prev) return prev;
+                        return {
+                          ...prev,
+                          glassesPrescription: (
+                            prev.glassesPrescription || []
+                          ).filter((_, i) => i !== index),
+                        } as PatientFullTypeWithObjectId;
+                      })
+                    }
+                    className="text-red-500 text-xs underline"
+                  >
+                    <Delete className="h-8 w-8" />
+                  </button>
+                </div>
+              </div>
 
-          {/* Table Layout */}
-          <div className="overflow-x-auto w-full">
-            <table className="w-full border border-gray-300 rounded-lg overflow-hidden text-xs md:text-sm">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="border px-2 md:px-4 py-1.5 md:py-2 text-left font-medium text-gray-600 w-1/3">
-                    Parameter
-                  </th>
-                  <th className="border px-2 md:px-4 py-1.5 md:py-2 text-center font-medium text-gray-600 w-1/3">
-                    Right Eye
-                  </th>
-                  <th className="border px-2 md:px-4 py-1.5 md:py-2 text-center font-medium text-gray-600 w-1/3">
-                    Left Eye
-                  </th>
-                </tr>
-              </thead>
+              <div className="flex flex-col w-full md:max-w-md">
+                <label className="font-medium mb-1 text-sm md:text-base">
+                  Use
+                </label>
+                <input
+                  type="text"
+                  list="useOptions"
+                  value={entry.use || ""}
+                  onChange={(e) =>
+                    handleNestedChange(
+                      `glassesPrescription.${index}.use`,
+                      e.target.value
+                    )
+                  }
+                  placeholder="Select or enter use"
+                  className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+                />
+              </div>
 
-              <tbody>
-                {[
-                  { label: "SPH", key: "sph" },
-                  { label: "CYL", key: "cyl" },
-                  { label: "Axis", key: "axis" },
-                  { label: "Add", key: "add" },
-                  { label: "Prism", key: "prism" },
-                  { label: "V/A", key: "V_A" },
-                  { label: "N/V", key: "N_V" },
-                ].map(({ label, key }) => (
-                  <tr key={key} className="odd:bg-white even:bg-gray-50">
-                    <td className="border px-2 md:px-4 py-1.5 md:py-2 font-medium text-gray-700 whitespace-nowrap">
-                      {label}
-                    </td>
-
-                    {/* Right Eye */}
-                    <td className="border px-2 md:px-4 py-1.5 md:py-2">
-                      <input
-                        type="text"
-                        list={`${key}Options`}
-                        name={`glassesPrescription.rightEye.${key}`}
-                        value={
-                          (formData.glassesPrescription?.rightEye as any)?.[
-                            key
-                          ] || ""
-                        }
-                        onChange={(e) =>
-                          handleNestedChange(
-                            `glassesPrescription.rightEye.${key}`,
-                            e.target.value
-                          )
-                        }
-                        placeholder="R"
-                        className="border p-1.5 md:p-2 rounded w-full focus:ring-2 focus:ring-blue-400 text-xs md:text-sm"
-                      />
-                    </td>
-
-                    {/* Left Eye */}
-                    <td className="border px-2 md:px-4 py-1.5 md:py-2">
-                      <input
-                        type="text"
-                        list={`${key}Options`}
-                        name={`glassesPrescription.leftEye.${key}`}
-                        value={
-                          (formData.glassesPrescription?.leftEye as any)?.[
-                            key
-                          ] || ""
-                        }
-                        onChange={(e) =>
-                          handleNestedChange(
-                            `glassesPrescription.leftEye.${key}`,
-                            e.target.value
-                          )
-                        }
-                        placeholder="L"
-                        className="border p-1.5 md:p-2 rounded w-full focus:ring-2 focus:ring-blue-400 text-xs md:text-sm"
-                      />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              <div className="overflow-x-auto w-full">
+                <table className="w-full border border-gray-300 rounded-lg overflow-hidden text-xs md:text-sm">
+                  <thead className="bg-gray-100">
+                    <tr>
+                      <th className="border px-2 md:px-4 py-1.5 md:py-2 text-left font-medium text-gray-600 w-1/3">
+                        Parameter
+                      </th>
+                      <th className="border px-2 md:px-4 py-1.5 md:py-2 text-center font-medium text-gray-600 w-1/3">
+                        Right Eye
+                      </th>
+                      <th className="border px-2 md:px-4 py-1.5 md:py-2 text-center font-medium text-gray-600 w-1/3">
+                        Left Eye
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[
+                      { label: "SPH", key: "sph" },
+                      { label: "CYL", key: "cyl" },
+                      { label: "Axis", key: "axis" },
+                      { label: "Add", key: "add" },
+                      { label: "Prism", key: "prism" },
+                      { label: "V/A", key: "V_A" },
+                      { label: "N/V", key: "N_V" },
+                    ].map(({ label, key }) => (
+                      <tr key={key} className="odd:bg-white even:bg-gray-50">
+                        <td className="border px-2 md:px-4 py-1.5 md:py-2 font-medium text-gray-700 whitespace-nowrap">
+                          {label}
+                        </td>
+                        <td className="border px-2 md:px-4 py-1.5 md:py-2">
+                          <input
+                            type="text"
+                            list={`${key}Options`}
+                            value={(entry.rightEye as any)?.[key] || ""}
+                            onChange={(e) =>
+                              handleNestedChange(
+                                `glassesPrescription.${index}.rightEye.${key}`,
+                                e.target.value
+                              )
+                            }
+                            placeholder="R"
+                            className="border p-1.5 md:p-2 rounded w-full focus:ring-2 focus:ring-blue-400 text-xs md:text-sm"
+                          />
+                        </td>
+                        <td className="border px-2 md:px-4 py-1.5 md:py-2">
+                          <input
+                            type="text"
+                            list={`${key}Options`}
+                            value={(entry.leftEye as any)?.[key] || ""}
+                            onChange={(e) =>
+                              handleNestedChange(
+                                `glassesPrescription.${index}.leftEye.${key}`,
+                                e.target.value
+                              )
+                            }
+                            placeholder="L"
+                            className="border p-1.5 md:p-2 rounded w-full focus:ring-2 focus:ring-blue-400 text-xs md:text-sm"
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ))}
 
           {/* Common Datalists */}
+          <datalist id="useOptions">
+            <option value="Distance" />
+            <option value="Near" />
+            <option value="Bifocal" />
+            <option value="Progressive" />
+          </datalist>
           <datalist id="sphOptions">
             {Array.from({ length: 53 }, (_, i) => {
               const numValue = i * 0.25 - 6;
@@ -914,89 +1205,142 @@ if (existingPatient) {
             IOP Pachy CCT
           </h3>
 
-          <div className="overflow-x-auto w-full">
-            <table className="w-full border border-gray-300 rounded-lg overflow-hidden text-xs md:text-sm">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="border px-2 md:px-4 py-1.5 md:py-2 text-left font-medium text-gray-600 w-1/3">
-                    Parameter
-                  </th>
-                  <th className="border px-2 md:px-4 py-1.5 md:py-2 text-center font-medium text-gray-600 w-1/3">
-                    Right
-                  </th>
-                  <th className="border px-2 md:px-4 py-1.5 md:py-2 text-center font-medium text-gray-600 w-1/3">
-                    Left
-                  </th>
-                </tr>
-              </thead>
+          <button
+            onClick={() =>
+              setFormData((prev) => {
+                if (!prev) return prev;
+                const newEntry = {
+                  updateDate: todayDate,
+                  rightEye: { methodTime: "", iop: 0, correctedIop: 0, cct: 0 },
+                  leftEye: { methodTime: "", iop: 0, correctedIop: 0, cct: 0 },
+                };
+                return {
+                  ...prev,
+                  iopPachyCCT: [newEntry, ...(prev.iopPachyCCT || [])],
+                } as PatientFullTypeWithObjectId;
+              })
+            }
+            className="px-3 py-1 bg-blue-600 text-white rounded text-xs md:text-sm"
+          >
+            + Add IOP Entry
+          </button>
 
-              <tbody>
-                {[
-                  { label: "IOP (mmHg)", key: "iop" },
-                  { label: "Corrected IOP (mmHg)", key: "correctedIop" },
-                  { label: "CCT (µm)", key: "cct" },
-                ].map(({ label, key }) => (
-                  <tr key={key} className="odd:bg-white even:bg-gray-50">
-                    <td className="border px-2 md:px-4 py-1.5 md:py-2 font-medium text-gray-700 whitespace-nowrap">
-                      {label}
-                    </td>
+          {formData.iopPachyCCT?.map((entry, index) => (
+            <div
+              key={index}
+              className="space-y-3 border p-2 rounded-lg bg-gray-50"
+            >
+              <div className="flex justify-between items-center">
+                <h4 className="text-sm md:text-base font-semibold text-gray-700">
+                  IOP Entry #{(formData.iopPachyCCT?.length || 0) - index}
+                </h4>
+                <div className="flex gap-3 items-center">
+                  <input
+                    type="date"
+                    value={entry.updateDate || ""}
+                    onChange={(e) =>
+                      handleNestedChange(
+                        `iopPachyCCT.${index}.updateDate`,
+                        e.target.value
+                      )
+                    }
+                    className="border p-1.5 md:p-2 rounded text-xs md:text-sm"
+                  />
+                  <button
+                    onClick={() =>
+                      setFormData((prev) => {
+                        if (!prev) return prev;
+                        return {
+                          ...prev,
+                          iopPachyCCT: (prev.iopPachyCCT || []).filter(
+                            (_, i) => i !== index
+                          ),
+                        } as PatientFullTypeWithObjectId;
+                      })
+                    }
+                    className="text-red-500 text-xs underline"
+                  >
+                    <Delete className="h-8 w-8" />
+                  </button>
+                </div>
+              </div>
 
-                    {/* Right Eye */}
-                    <td className="border px-2 md:px-4 py-1.5 md:py-2">
-                      <input
-                        type="text"
-                        list={
-                          key.includes("cct")
-                            ? "cctOptions"
-                            : key.includes("iop")
-                            ? "iopOptions"
-                            : undefined
-                        }
-                        name={`iopPachyCCT.rightEye.${key}`}
-                        value={
-                          (formData.iopPachyCCT?.rightEye as any)?.[key] || ""
-                        }
-                        onChange={(e) =>
-                          handleNestedChange(
-                            `iopPachyCCT.rightEye.${key}`,
-                            e.target.value
-                          )
-                        }
-                        placeholder="R"
-                        className="border p-1.5 md:p-2 rounded w-full focus:ring-2 focus:ring-blue-400 text-xs md:text-sm"
-                      />
-                    </td>
+              <div className="overflow-x-auto w-full">
+                <table className="w-full border border-gray-300 rounded-lg overflow-hidden text-xs md:text-sm">
+                  <thead className="bg-gray-100">
+                    <tr>
+                      <th className="border px-2 md:px-4 py-1.5 md:py-2 text-left font-medium text-gray-600 w-1/3">
+                        Parameter
+                      </th>
+                      <th className="border px-2 md:px-4 py-1.5 md:py-2 text-center font-medium text-gray-600 w-1/3">
+                        Right
+                      </th>
+                      <th className="border px-2 md:px-4 py-1.5 md:py-2 text-center font-medium text-gray-600 w-1/3">
+                        Left
+                      </th>
+                    </tr>
+                  </thead>
 
-                    {/* Left Eye */}
-                    <td className="border px-2 md:px-4 py-1.5 md:py-2">
-                      <input
-                        type="text"
-                        list={
-                          key.includes("cct")
-                            ? "cctOptions"
-                            : key.includes("iop")
-                            ? "iopOptions"
-                            : undefined
-                        }
-                        name={`iopPachyCCT.leftEye.${key}`}
-                        value={
-                          (formData.iopPachyCCT?.leftEye as any)?.[key] || ""
-                        }
-                        onChange={(e) =>
-                          handleNestedChange(
-                            `iopPachyCCT.leftEye.${key}`,
-                            e.target.value
-                          )
-                        }
-                        placeholder="L"
-                        className="border p-1.5 md:p-2 rounded w-full focus:ring-2 focus:ring-blue-400 text-xs md:text-sm"
-                      />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                  <tbody>
+                    {[
+                      { label: "IOP (mmHg)", key: "iop" },
+                      { label: "Corrected IOP (mmHg)", key: "correctedIop" },
+                      { label: "CCT (µm)", key: "cct" },
+                      { label: "Method/Time", key: "methodTime" },
+                    ].map(({ label, key }) => (
+                      <tr key={key} className="odd:bg-white even:bg-gray-50">
+                        <td className="border px-2 md:px-4 py-1.5 md:py-2 font-medium text-gray-700 whitespace-nowrap">
+                          {label}
+                        </td>
+                        <td className="border px-2 md:px-4 py-1.5 md:py-2">
+                          <input
+                            type="text"
+                            list={
+                              key === "cct"
+                                ? "cctOptions"
+                                : key.includes("iop")
+                                ? "iopOptions"
+                                : undefined
+                            }
+                            value={(entry.rightEye as any)?.[key] ?? ""}
+                            onChange={(e) =>
+                              handleNestedChange(
+                                `iopPachyCCT.${index}.rightEye.${key}`,
+                                e.target.value
+                              )
+                            }
+                            placeholder="R"
+                            className="border p-1.5 md:p-2 rounded w-full focus:ring-2 focus:ring-blue-400 text-xs md:text-sm"
+                          />
+                        </td>
+                        <td className="border px-2 md:px-4 py-1.5 md:py-2">
+                          <input
+                            type="text"
+                            list={
+                              key === "cct"
+                                ? "cctOptions"
+                                : key.includes("iop")
+                                ? "iopOptions"
+                                : undefined
+                            }
+                            value={(entry.leftEye as any)?.[key] ?? ""}
+                            onChange={(e) =>
+                              handleNestedChange(
+                                `iopPachyCCT.${index}.leftEye.${key}`,
+                                e.target.value
+                              )
+                            }
+                            placeholder="L"
+                            className="border p-1.5 md:p-2 rounded w-full focus:ring-2 focus:ring-blue-400 text-xs md:text-sm"
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ))}
 
           {/* Common Datalists */}
           <datalist id="iopOptions">
@@ -1051,7 +1395,9 @@ if (existingPatient) {
                   onChange={(e) => {
                     const newDiagnosis = [...(formData.diagnosis || [])];
                     newDiagnosis[index] = e.target.value;
-                    handleNestedChange("diagnosis", newDiagnosis);
+                    setFormData((prev) =>
+                      prev ? { ...prev, diagnosis: newDiagnosis } : prev
+                    );
                   }}
                   placeholder={`Diagnosis ${index + 1}`}
                   className="border rounded p-2 md:p-3 w-full text-sm md:text-base focus:ring-2 focus:ring-blue-400"
@@ -1074,10 +1420,11 @@ if (existingPatient) {
             <button
               type="button"
               onClick={() =>
-                handleNestedChange("diagnosis", [
-                  ...(formData.diagnosis || []),
-                  "",
-                ])
+                setFormData((prev) =>
+                  prev
+                    ? { ...prev, diagnosis: [...(prev.diagnosis || []), ""] }
+                    : prev
+                )
               }
               className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 text-sm md:text-base"
             >
@@ -1140,7 +1487,7 @@ if (existingPatient) {
               <input
                 type="date"
                 name="orderDate"
-                value={formData.orderDate}
+                value={formData.orderDate || ""}
                 onChange={handleChange}
                 className="border border-gray-300 p-2 md:p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400 focus:outline-none"
               />
@@ -1152,7 +1499,7 @@ if (existingPatient) {
               <input
                 type="date"
                 name="deliveryDate"
-                value={formData.deliveryDate}
+                value={formData.deliveryDate || ""}
                 onChange={handleChange}
                 className="border border-gray-300 p-2 md:p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400 focus:outline-none"
               />
@@ -1239,7 +1586,10 @@ if (existingPatient) {
                   value={
                     (formData.framePrice || 0) +
                     (formData.lensePrice || 0) -
-                    (formData.opticalAdvance || 0)
+                    (formData.opticalPayDetails || []).reduce(
+                      (sum, d) => sum + (Number(d.amount) || 0),
+                      0
+                    )
                   }
                   className="border p-2 md:p-3 rounded w-full bg-gray-100 cursor-not-allowed"
                 />
@@ -1274,42 +1624,115 @@ if (existingPatient) {
       {/* Payment Details */}
       <div className="space-y-2">
         {/* 🧾 Visit & Medicines Section */}
-        <div className="bg-white shadow-md rounded-2xl p-2 border border-gray-100">
-          <h3 className="text-xl font-semibold text-gray-700">
+        <div className="bg-white shadow-md rounded-2xl p-4 border border-gray-100">
+          <h3 className="text-xl font-semibold text-gray-700 mb-4">
             Visit & Medicines
           </h3>
 
-          {/* Visit Price */}
-          <div className="grid grid-cols-1 md:flex gap-1 md:gap-3">
-            <div className="flex flex-col max-w-[200px]">
-              <label className="font-medium text-gray-700 mb-1">
-                Visit Price
+          <div className="flex flex-col md:flex-row w-full gap-6">
+            {/* Visit History */}
+            <div className="flex flex-col md:w-[350px] w-full">
+              <label className="font-medium text-gray-700 mb-2">
+                Visit History
               </label>
-              <input
-                type="number"
-                name="visitPrice"
-                value={formData.visitPrice}
-                onChange={handleChange}
-                className="border px-3 py-1 md:py-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
-              />
+
+              {(formData.visitDetails || []).map((v, index) => (
+                <div
+                  key={index}
+                  className="grid grid-cols-2 gap-2 items-center mb-2 w-full"
+                >
+                  <input
+                    type="date"
+                    value={v.visitDate || ""}
+                    onChange={(e) =>
+                      handleNestedChange(
+                        `visitDetails.${index}.visitDate`,
+                        e.target.value
+                      )
+                    }
+                    className="border px-2 py-1 md:py-3 rounded text-sm w-full"
+                  />
+                  <div className="flex gap-2">
+                    <input
+                      type="number"
+                      value={Number(v.visitPrice) || 0}
+                      onChange={(e) =>
+                        handleNestedChange(
+                          `visitDetails.${index}.visitPrice`,
+                          e.target.value
+                        )
+                      }
+                      className="border px-2 py-1 md:py-3 rounded text-sm w-full"
+                    />
+                    <button
+                      onClick={() =>
+                        setFormData((prev) => {
+                          if (!prev) return prev;
+                          return {
+                            ...prev,
+                            visitDetails: (prev.visitDetails || []).filter(
+                              (_, i) => i !== index
+                            ),
+                          } as PatientFullTypeWithObjectId;
+                        })
+                      }
+                      className="text-red-500 text-sm underline w-full sm:w-auto"
+                    >
+                      <Delete className="w-8 h-8" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+
+              <div className="flex flex-col-2 justify-between">
+                <button
+                  onClick={() =>
+                    setFormData((prev) => {
+                      if (!prev) return prev;
+                      const newEntry = { visitDate: todayDate, visitPrice: 0 };
+                      return {
+                        ...prev,
+                        visitDetails: [newEntry, ...(prev.visitDetails || [])],
+                      } as PatientFullTypeWithObjectId;
+                    })
+                  }
+                  className="mt-2 px-3 py-1 bg-blue-600 text-white rounded text-sm md:text-base"
+                >
+                  + Add Visit
+                </button>
+                {/* Total Visit Amount */}
+                <button className="mt-2 font-medium text-gray-700">
+                  <input
+                    type="number"
+                    readOnly
+                    value={(formData.visitDetails || []).reduce(
+                      (total, v) => total + Number(v.visitPrice || 0),
+                      0
+                    )}
+                    className="border py-1 px-1 md:py-2 rounded-lg bg-gray-100 cursor-not-allowed"
+                  />
+                </button>
+              </div>
             </div>
 
             {/* Medicines */}
-            {formData && (
-              <Medicine
-                formData={formData}
-                setFormData={
-                  setFormData as React.Dispatch<
-                    React.SetStateAction<PatientFullTypeWithObjectId>
-                  >
-                }
-              />
-            )}
+            <div className="flex-1">
+              {formData && (
+                <Medicine
+                  formData={formData}
+                  setFormData={
+                    setFormData as React.Dispatch<
+                      React.SetStateAction<PatientFullTypeWithObjectId>
+                    >
+                  }
+                />
+              )}
+            </div>
           </div>
         </div>
 
         {/* 💰 Grand Totals Section */}
-        <div className="bg-white shadow-md rounded-2xl  p-3 md:p-4 border border-gray-100">
+        <div className="bg-white shadow-md rounded-2xl  p-2 md:p-4 border border-gray-100">
           <h3 className="text-xl font-semibold text-gray-700 mb-1">
             Grand Totals
           </h3>
@@ -1321,10 +1744,16 @@ if (existingPatient) {
                 type="number"
                 readOnly
                 value={
-                  (formData.visitPrice || 0) +
+                  (formData.visitDetails || []).reduce(
+                    (sum, v) => sum + (Number(v.visitPrice) || 0),
+                    0
+                  ) +
                   (formData.framePrice || 0) +
                   (formData.lensePrice || 0) +
-                  (formData.medicinePrice || 0)
+                  (formData.medicines || []).reduce(
+                    (sum, m) => sum + (Number(m.price) || 0),
+                    0
+                  )
                 }
                 className="border py-1 px-3 md:py-3 rounded-lg bg-gray-100 cursor-not-allowed"
               />
@@ -1338,9 +1767,18 @@ if (existingPatient) {
                 type="number"
                 readOnly
                 value={
-                  (formData.opticalAdvance || 0) +
-                  (formData.medicinePrice || 0) +
-                  (formData.visitPrice || 0)
+                  (formData.opticalPayDetails || []).reduce(
+                    (sum, d) => sum + (Number(d.amount) || 0),
+                    0
+                  ) +
+                  (formData.visitDetails || []).reduce(
+                    (sum, v) => sum + (Number(v.visitPrice) || 0),
+                    0
+                  ) +
+                  (formData.medicines || []).reduce(
+                    (sum, m) => sum + (Number(m.price) || 0),
+                    0
+                  )
                 }
                 className="border py-1 px-3 md:py-3 rounded-lg bg-gray-100 cursor-not-allowed"
               />
@@ -1356,7 +1794,10 @@ if (existingPatient) {
                 value={
                   (formData.framePrice || 0) +
                   (formData.lensePrice || 0) -
-                  (formData.opticalAdvance || 0)
+                  (formData.opticalPayDetails || []).reduce(
+                    (sum, d) => sum + (Number(d.amount) || 0),
+                    0
+                  )
                 }
                 className="border py-1 px-3 md:py-3 rounded-lg bg-gray-100 cursor-not-allowed"
               />
@@ -1380,3 +1821,111 @@ if (existingPatient) {
 };
 
 export default EditPage;
+const normalizePatient = (
+  p: PatientFullTypeWithObjectId
+): PatientFullTypeWithObjectId => {
+  const toArray = (val: any, def: any) =>
+    Array.isArray(val) ? val : val ? [val] : [def];
+
+  const examDefault = {
+    updateDate: todayDate,
+    adnexa: { right: "", left: "" },
+    conjunctiva: { right: "", left: "" },
+    cornea: { right: "", left: "" },
+    anteriorChamber: { right: "", left: "" },
+    iris: { right: "", left: "" },
+    lens: { right: "", left: "" },
+    fundus: { right: "", left: "" },
+    orbit: { right: "", left: "" },
+    syringing: { right: "", left: "" },
+    vitreous: { right: "", left: "" },
+  };
+
+  const iopDefault = {
+    updateDate: todayDate,
+    rightEye: { methodTime: "", iop: 0, correctedIop: 0, cct: 0 },
+    leftEye: { methodTime: "", iop: 0, correctedIop: 0, cct: 0 },
+  };
+
+  const gpDefault = {
+    updateDate: todayDate,
+    use: "",
+    rightEye: { sph: "", add: "" },
+    leftEye: { sph: "", add: "" },
+  };
+
+  const visionDefault = {
+    updateDate: todayDate,
+    rightEye: { unaidedDistance: "" },
+    leftEye: { unaidedDistance: "" },
+  };
+
+  const normExam = toArray((p as any).examDetails, examDefault).map(
+    (e: any) => ({
+      ...examDefault,
+      ...e,
+      updateDate: e?.updateDate || todayDate,
+      adnexa: { ...examDefault.adnexa, ...(e?.adnexa || {}) },
+      conjunctiva: { ...examDefault.conjunctiva, ...(e?.conjunctiva || {}) },
+      cornea: { ...examDefault.cornea, ...(e?.cornea || {}) },
+      anteriorChamber: {
+        ...examDefault.anteriorChamber,
+        ...(e?.anteriorChamber || {}),
+      },
+      iris: { ...examDefault.iris, ...(e?.iris || {}) },
+      lens: { ...examDefault.lens, ...(e?.lens || {}) },
+      fundus: { ...examDefault.fundus, ...(e?.fundus || {}) },
+      orbit: { ...examDefault.orbit, ...(e?.orbit || {}) },
+      syringing: { ...examDefault.syringing, ...(e?.syringing || {}) },
+      vitreous: { ...examDefault.vitreous, ...(e?.vitreous || {}) },
+    })
+  );
+
+  const normIop = toArray((p as any).iopPachyCCT, iopDefault).map((e: any) => ({
+    updateDate: e?.updateDate || todayDate,
+    rightEye: { ...iopDefault.rightEye, ...(e?.rightEye || {}) },
+    leftEye: { ...iopDefault.leftEye, ...(e?.leftEye || {}) },
+  }));
+
+  const normGp = toArray((p as any).glassesPrescription, gpDefault).map(
+    (e: any) => ({
+      updateDate: e?.updateDate || todayDate,
+      use: e?.use ?? "",
+      rightEye: { ...gpDefault.rightEye, ...(e?.rightEye || {}) },
+      leftEye: { ...gpDefault.leftEye, ...(e?.leftEye || {}) },
+    })
+  );
+
+  const normVision = toArray((p as any).vision, visionDefault).map(
+    (e: any) => ({
+      updateDate: e?.updateDate || todayDate,
+      rightEye: { ...visionDefault.rightEye, ...(e?.rightEye || {}) },
+      leftEye: { ...visionDefault.leftEye, ...(e?.leftEye || {}) },
+    })
+  );
+
+  const visitDefault = { visitDate: todayDate, visitPrice: 0 };
+  const normVisits = Array.isArray((p as any).visitDetails)
+    ? (p as any).visitDetails.map((e: any) => ({
+        visitDate: e?.visitDate || todayDate,
+        visitPrice: Number(e?.visitPrice) || 0,
+      }))
+    : [
+        {
+          visitDate:
+            typeof (p as any).visitDate === "string"
+              ? (p as any).visitDate
+              : todayDate,
+          visitPrice: Number((p as any).visitPrice) || 0,
+        },
+      ];
+
+  return {
+    ...p,
+    examDetails: normExam,
+    iopPachyCCT: normIop,
+    glassesPrescription: normGp,
+    vision: normVision,
+    visitDetails: normVisits.length ? normVisits : [visitDefault],
+  } as PatientFullTypeWithObjectId;
+};

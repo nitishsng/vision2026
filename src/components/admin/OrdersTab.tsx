@@ -7,7 +7,7 @@ import NewOrder from "../NewOrderMedicine";
 import OpticalPayment from "../OpticalPayment";
 
 export function OrdersTab() {
-  const { patients, fetchData } = useDashboardData();
+  const { patients, fetchData, isLoading } = useDashboardData();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [formData, setFormData] = useState<PatientFullTypeWithObjectId | null>(
     null
@@ -30,6 +30,31 @@ export function OrdersTab() {
     setIsEditPopupOpen(true);
   };
 
+  const handleDeleteClick = async (order: PatientFullTypeWithObjectId) => {
+    try {
+      if (!order?._id) {
+        toast.error("Missing order ID");
+        return;
+      }
+      const confirmed = window.confirm("Delete this order record?");
+      if (!confirmed) return;
+
+      const res = await fetch(`/api/patient?id=${order._id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        toast.error("Failed to delete");
+        return;
+      }
+      localStorage.setItem("activeTab", "orders");
+      toast.success("Deleted successfully");
+      fetchData();
+    } catch (err) {
+      console.error("Delete failed:", err);
+      toast.error("Failed to delete");
+    }
+  };
+
   const handleClosePopup = () => {
     setIsPopupOpen(false);
     setFormData(null);
@@ -48,19 +73,36 @@ export function OrdersTab() {
     const { name, value } = e.target;
     if (setFormData) {
       if (name.startsWith("glassesPrescription.")) {
-        const [_, eye, field] = name.split(".");
-        setFormData((prev) => ({
-          ...prev!,
-          glassesPrescription: {
-            ...prev!.glassesPrescription,
-            [eye]: {
-              ...(prev!.glassesPrescription[
-                eye as "leftEye" | "rightEye"
-              ] as Record<string, any>),
-              [field]: value,
-            },
-          },
-        }));
+        const parts = name.split(".");
+        const key1 = parts[1];
+        const key2 = parts[2];
+        setFormData((prev) => {
+          if (!prev) return prev!;
+          const arr = Array.isArray(prev.glassesPrescription)
+            ? [...prev.glassesPrescription]
+            : [];
+          const current = arr[0] || {
+            updateDate: new Date().toISOString().split("T")[0],
+            use: "",
+            rightEye: {},
+            leftEye: {},
+          };
+          if (key1 === "use") {
+            arr[0] = { ...current, use: value } as any;
+          } else {
+            const eye = key1 as "rightEye" | "leftEye";
+            const field = key2 as string;
+            const isNumeric = field === "axis";
+            arr[0] = {
+              ...current,
+              [eye]: {
+                ...(current as any)[eye],
+                [field]: isNumeric ? Number(value) : value,
+              },
+            } as any;
+          }
+          return { ...prev, glassesPrescription: arr } as PatientFullTypeWithObjectId;
+        });
       } else if (
         name.includes("total") ||
         name.includes("Price") ||
@@ -81,35 +123,7 @@ export function OrdersTab() {
       setSaving(true);
       const updatedFormData = {
         ...formData,
-        orderOnly: formData?.orderOnly || true,
         updatedAt: new Date().toISOString(),
-
-        // Optical Price
-        opticalaPrice:
-          (formData?.framePrice ?? 0) + (formData?.lensePrice ?? 0),
-        opticalDue:
-          (formData?.framePrice ?? 0) +
-          (formData?.lensePrice ?? 0) -
-          (formData?.opticalAdvance ?? 0),
-
-        // Total Amount
-        totalAmount:
-          (formData?.visitPrice ?? 0) +
-          (formData?.medicinePrice ?? 0) +
-          (formData?.framePrice ?? 0) +
-          (formData?.lensePrice ?? 0),
-
-        // Total Advance
-        totalAdvance:
-          (formData?.visitPrice ?? 0) +
-          (formData?.medicinePrice ?? 0) +
-          (formData?.opticalAdvance ?? 0),
-
-        // Total Due
-        totalDue:
-          (formData?.framePrice ?? 0) +
-          (formData?.lensePrice ?? 0) -
-          (formData?.opticalAdvance ?? 0),
       };
 
       if (!id) throw new Error("Missing patient ID");
@@ -169,7 +183,7 @@ export function OrdersTab() {
       filterByDeliveryStatus &&
       matchesDate &&
       patient.billNo &&
-      (patient.opticalPayDetails?.length > 0 || patient.opticalAdvance > 0)
+      ((patient.opticalPayDetails?.length || 0) > 0 || ((patient.framePrice || 0) + (patient.lensePrice || 0) > 0))
     );
   });
 
@@ -220,13 +234,14 @@ export function OrdersTab() {
     lines.push("");
 
     // Glasses Prescription
-    const { glassesPrescription } = formData;
-    if (glassesPrescription) {
+    const gp = Array.isArray(formData.glassesPrescription)
+      ? formData.glassesPrescription[0]
+      : undefined;
+    if (gp) {
       lines.push("👓 Glasses Prescription:");
-      if (glassesPrescription.use)
-        lines.push(`Use: ${glassesPrescription.use}`);
+      if (gp.use) lines.push(`Use: ${gp.use}`);
 
-      const { rightEye, leftEye } = glassesPrescription;
+      const { rightEye, leftEye } = gp;
 
       if (rightEye) {
         const rightParts = [
@@ -272,19 +287,18 @@ export function OrdersTab() {
       lines.push("");
     }
 
-    // Financials
-    if (formData.totalAmount || formData.totalAdvance) {
-      lines.push("💰 Payment Details:");
-      if (formData.totalAmount)
-        lines.push(`Total Amount: ₹${formData.totalAmount}`);
-      if (formData.totalAdvance)
-        lines.push(`Total Advance Paid: ₹${formData.totalAdvance}`);
-
-      const due = (formData.totalAmount || 0) - (formData.totalAdvance || 0);
-      if (due > 0)
-        lines.push(`Amount Due: ₹${due} ⚠️ Please pay the remaining amount.`);
-      else lines.push("✅ Payment Complete. Thank you!");
-    }
+    // Financials (derived)
+    const visitSum = (Array.isArray(formData.visitDetails)
+      ? formData.visitDetails.reduce((sum, v) => sum + (Number(v.visitPrice) || 0), 0)
+      : 0);
+    const totalAmount = visitSum + (Number(formData.framePrice) || 0) + (Number(formData.lensePrice) || 0) + (Array.isArray(formData.medicines) ? formData.medicines.reduce((sum, m) => sum + (Number(m.price) || 0), 0) : 0);
+    const advance = (Array.isArray(formData.opticalPayDetails) ? formData.opticalPayDetails.reduce((sum, d) => sum + (Number(d.amount) || 0), 0) : 0) + visitSum + (Array.isArray(formData.medicines) ? formData.medicines.reduce((sum, m) => sum + (Number(m.price) || 0), 0) : 0);
+    const due = (Number(formData.framePrice) || 0) + (Number(formData.lensePrice) || 0) - (Array.isArray(formData.opticalPayDetails) ? formData.opticalPayDetails.reduce((sum, d) => sum + (Number(d.amount) || 0), 0) : 0);
+    lines.push("💰 Payment Details:");
+    lines.push(`Total Amount: ₹${totalAmount}`);
+    lines.push(`Total Advance Paid: ₹${advance}`);
+    if (due > 0) lines.push(`Amount Due: ₹${due} ⚠️ Please pay the remaining amount.`);
+    else lines.push("✅ Payment Complete. Thank you!");
 
     lines.push("\nThank you for choosing us! 🙏");
 
@@ -294,6 +308,13 @@ export function OrdersTab() {
   };
 
   return (
+
+        <div>
+  {isLoading ? (
+        <div className="flex items-center justify-center py-6">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500"></div>
+        </div>
+      ):(
     <div className="p-2">
       <div className="flex justify-between items-center">
         <div>
@@ -385,143 +406,174 @@ export function OrdersTab() {
         </div>
       </div>
 
-      <div className="bg-white shadow-md rounded-lg overflow-hidden">
-        {/* Responsive Wrapper */}
-        <div className="overflow-x-auto">
-          <table className="min-w-[560px] md:min-w-full leading-normal w-full">
-            <thead>
-              <tr>
-                <th className="px-2 md:px-4 py-2 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Bill No
-                </th>
-                <th className="px-2 md:px-4 py-2 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Pt-Name
-                </th>
-                <th className="px-2 md:px-4 py-2 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Phone No
-                </th>
-                <th className="px-2 md:px-4 py-2 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  {/* Delivary-Date */}
-                  Order-Date
-                </th>
-                <th className="px-2 md:px-4 py-2 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Due
-                </th>
-                <th className="px-2 md:px-4 py-2 border-b-2 border-gray-200 bg-gray-100 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
 
-            <tbody>
-              {orders.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={5}
-                    className="text-center px-2 md:px-4 text-gray-500 py-4"
+<div className="bg-white shadow-md rounded-lg overflow-hidden">
+  <div className="overflow-x-auto">
+    <table className="min-w-[560px] md:min-w-full leading-normal w-full">
+      <thead>
+        <tr>
+          <th className="px-2 md:px-4 py-2 border-b-2 border-gray-200 bg-gray-100 
+                         text-left text-xs font-semibold text-gray-600 uppercase tracking-wider 
+                         whitespace-nowrap">
+            Bill No
+          </th>
+
+          <th className="px-2 md:px-4 py-2 border-b-2 border-gray-200 bg-gray-100 
+                         text-left text-xs font-semibold text-gray-600 uppercase tracking-wider 
+                         whitespace-nowrap">
+            Pt-Name
+          </th>
+
+          <th className="px-2 md:px-4 py-2 border-b-2 border-gray-200 bg-gray-100 
+                         text-left text-xs font-semibold text-gray-600 uppercase tracking-wider 
+                         whitespace-nowrap">
+            Phone No
+          </th>
+
+          <th className="px-2 md:px-4 py-2 border-b-2 border-gray-200 bg-gray-100 
+                         text-left text-xs font-semibold text-gray-600 uppercase tracking-wider 
+                         whitespace-nowrap">
+            Order-Date
+          </th>
+
+          <th className="px-2 md:px-4 py-2 border-b-2 border-gray-200 bg-gray-100 
+                         text-left text-xs font-semibold text-gray-600 uppercase tracking-wider 
+                         whitespace-nowrap">
+            Due
+          </th>
+
+          <th className="px-2 md:px-4 py-2 border-b-2 border-gray-200 bg-gray-100 
+                         text-center text-xs font-semibold text-gray-600 uppercase tracking-wider 
+                         whitespace-nowrap">
+            Actions
+          </th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {orders.length === 0 ? (
+          <tr>
+            <td colSpan={5} className="text-center px-2 md:px-4 text-gray-500 py-4 whitespace-nowrap">
+              No orders found.
+            </td>
+          </tr>
+        ) : (
+          orders.map((order) => (
+            <tr
+              key={order.billNo}
+              className={`transition-colors ${
+                ((order.framePrice || 0) +
+                  (order.lensePrice || 0) -
+                  (order.opticalPayDetails || []).reduce(
+                    (sum, d) => sum + (Number(d.amount) || 0),
+                    0
+                  )) > 0
+                  ? "bg-red-50"
+                  : "bg-white text-gray-800"
+              } hover:bg-gray-50`}
+            >
+              {/* Bill No */}
+              <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm font-medium whitespace-nowrap flex items-center gap-1">
+
+                {/* DOTS */}
+                <div className="flex flex-col justify-center items-center">
+                  {order.repeated && <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-green-600" />}
+                  {(order.framePrice + order.lensePrice > 0) && (
+                    <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-orange-500" />
+                  )}
+                  {order.medicines.length > 0 && (
+                    <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-blue-800" />
+                  )}
+                  {!(
+                    order.repeated ||
+                    (order.framePrice + order.lensePrice > 0) ||
+                    order.medicines.length > 0
+                  ) && (
+                    <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-transparent" />
+                  )}
+                </div>
+
+                {order.billNo}
+              </td>
+
+              {/* Name */}
+              <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm whitespace-nowrap">
+                {order.ptName}
+              </td>
+
+              {/* Phone */}
+              <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm whitespace-nowrap">
+                {order.phoneNo ? (
+                  <a href={`tel:${order.phoneNo}`} className="hover:underline">
+                    {order.phoneNo}
+                  </a>
+                ) : (
+                  "N/A"
+                )}
+              </td>
+
+              {/* Date → full DD-MM-YYYY */}
+              <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm font-semibold whitespace-nowrap">
+                {order.orderDate
+                  ? new Date(order.orderDate).toLocaleDateString("en-GB") // DD/MM/YYYY
+                  : "N/A"}
+              </td>
+
+              {/* Due */}
+              <td
+                className={`px-2 md:px-4 py-2 border-b border-gray-200 text-sm font-semibold whitespace-nowrap ${
+                  ((order.framePrice || 0) +
+                    (order.lensePrice || 0) -
+                    (order.opticalPayDetails || []).reduce(
+                      (sum, d) => sum + (Number(d.amount) || 0),
+                      0
+                    )) > 0
+                    ? "text-red-600"
+                    : "text-green-600"
+                }`}
+              >
+                ₹
+                {(order.framePrice || 0) +
+                  (order.lensePrice || 0) -
+                  (order.opticalPayDetails || []).reduce(
+                    (sum, d) => sum + (Number(d.amount) || 0),
+                    0
+                  )}
+              </td>
+
+              {/* Actions */}
+              <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm text-center whitespace-nowrap">
+                <div className="flex justify-center items-center space-x-3">
+                  <button
+                    onClick={() => handleViewClick(order)}
+                    className="text-teal-600 hover:text-teal-900"
                   >
-                    No orders found.
-                  </td>
-                </tr>
-              ) : (
-                orders.map((order) => (
-                  <tr
-                    key={order.billNo}
-                    className={`transition-colors ${
-                      order.totalDue > 0
-                        ? "bg-red-50"
-                        : "bg-white text-gray-800"
-                    } hover:bg-gray-50`}
+                    <Eye className="h-5 w-5" />
+                  </button>
+
+                  <button
+                    onClick={() => handleEditClick(order)}
+                    className="text-blue-600 hover:text-blue-900"
                   >
-                    <td className="px-2 gap-1 flex items-center md:px-4 py-2 border-b border-gray-200 text-sm font-medium">
-                      {/* Dot column (vertically centered) */}
-                      <div className="flex flex-col justify-center items-center">
-                        {/* REPEATED */}
-                        {order.repeated && (
-                          <span className="w-2 h-2 mb-[2px] rounded-full bg-green-600"></span>
-                        )}
+                    <Edit className="h-5 w-5" />
+                  </button>
 
-                        {/* OPTICAL PRICE */}
-                        {order.opticalaPrice > 0 && (
-                          <span className="w-2 h-2 mb-[2px] rounded-full bg-orange-500"></span>
-                        )}
+                  <button
+                    onClick={() => handleDeleteClick(order)}
+                    className="text-red-600 hover:text-red-800"
+                  >
+                    <Delete className="h-5 w-5" />
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))
+        )}
+      </tbody>
+    </table>
+  </div>
+</div>
 
-                        {/* MEDICINES */}
-                        {order.medicines.length > 0 && (
-                          <span className="w-2 h-2 mb-[2px] rounded-full bg-blue-800"></span>
-                        )}
-
-                        {/* NONE TRUE */}
-                        {!(
-                          order.repeated ||
-                          order.opticalaPrice > 0 ||
-                          order.medicines.length > 0
-                        ) && (
-                          <span className="w-2 h-2 mb-[2px] rounded-full bg-transparent"></span>
-                        )}
-                      </div>
-
-                      {/* Text */}
-                      {order.billNo}
-                    </td>
-
-                    <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm">
-                      {order.ptName}
-                    </td>
-                    <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm">
-                      {order.phoneNo ? (
-                        <a
-                          href={`tel:${order.phoneNo}`}
-                          className="hover:underline"
-                        >
-                          {order.phoneNo}
-                        </a>
-                      ) : (
-                        "N/A"
-                      )}
-                    </td>
-                    <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm font-semibold">
-                      {order.orderDate
-                        ? `${String(
-                            new Date(order.orderDate).getDate()
-                          ).padStart(2, "0")}-${String(
-                            new Date(order.orderDate).getMonth() + 1
-                          ).padStart(2, "0")}-${new Date(
-                            order.orderDate
-                          ).getFullYear()}`
-                        : "N/A"}
-                    </td>
-
-                    <td
-                      className={`px-2 md:px-4 py-2 border-b border-gray-200 text-sm font-semibold ${
-                        order.totalDue > 0 ? "text-red-600" : "text-green-600"
-                      }`}
-                    >
-                      ₹{order.totalDue}
-                    </td>
-                    <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm text-center">
-                      <div className="flex justify-center items-center space-x-3">
-                        <button
-                          onClick={() => handleViewClick(order)}
-                          className="text-teal-600 hover:text-teal-900 focus:outline-none"
-                        >
-                          <Eye className="h-5 w-5" />
-                        </button>
-                        <button
-                          onClick={() => handleEditClick(order)}
-                          className="text-blue-600 hover:text-blue-900 focus:outline-none"
-                        >
-                          <Edit className="h-5 w-5" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
 
       {/* View Popup/Modal for Order Details */}
       {isPopupOpen && formData && (
@@ -576,65 +628,65 @@ export function OrdersTab() {
               <div>
                 <h4 className="font-semibold mt-2">Glasses Prescription:</h4>
                 <p>
-                  <strong>Use:</strong> {formData.glassesPrescription.use}
+                  <strong>Use:</strong> {(Array.isArray(formData.glassesPrescription) && formData.glassesPrescription[0]?.use) || "N/A"}
                 </p>
 
                 <p>
                   <strong>Right Eye SPH:</strong>{" "}
-                  {formData.glassesPrescription.rightEye.sph}
+                  {(Array.isArray(formData.glassesPrescription) && formData.glassesPrescription[0]?.rightEye.sph) || "N/A"}
                 </p>
                 <p>
                   <strong>Right Eye CYL:</strong>{" "}
-                  {formData.glassesPrescription.rightEye.cyl || "N/A"}
+                  {(Array.isArray(formData.glassesPrescription) && formData.glassesPrescription[0]?.rightEye.cyl) || "N/A"}
                 </p>
                 <p>
                   <strong>Right Eye AXIS:</strong>{" "}
-                  {formData.glassesPrescription.rightEye.axis || "N/A"}
+                  {(Array.isArray(formData.glassesPrescription) && formData.glassesPrescription[0]?.rightEye.axis) || "N/A"}
                 </p>
                 <p>
                   <strong>Right Eye Addition:</strong>{" "}
-                  {formData.glassesPrescription.rightEye.add || "N/A"}
+                  {(Array.isArray(formData.glassesPrescription) && formData.glassesPrescription[0]?.rightEye.add) || "N/A"}
                 </p>
                 <p>
                   <strong>Right Eye Prism:</strong>{" "}
-                  {formData.glassesPrescription.rightEye.prism || "N/A"}
+                  {(Array.isArray(formData.glassesPrescription) && formData.glassesPrescription[0]?.rightEye.prism) || "N/A"}
                 </p>
                 <p>
                   <strong>Right Eye V.A:</strong>{" "}
-                  {formData.glassesPrescription.rightEye.V_A || "N/A"}
+                  {(Array.isArray(formData.glassesPrescription) && formData.glassesPrescription[0]?.rightEye.V_A) || "N/A"}
                 </p>
                 <p>
                   <strong>Right Eye N.V:</strong>{" "}
-                  {formData.glassesPrescription.rightEye.N_V || "N/A"}
+                  {(Array.isArray(formData.glassesPrescription) && formData.glassesPrescription[0]?.rightEye.N_V) || "N/A"}
                 </p>
 
                 <p>
                   <strong>Left Eye SPH:</strong>{" "}
-                  {formData.glassesPrescription.leftEye.sph}
+                  {(Array.isArray(formData.glassesPrescription) && formData.glassesPrescription[0]?.leftEye.sph) || "N/A"}
                 </p>
                 <p>
                   <strong>Left Eye CYL:</strong>{" "}
-                  {formData.glassesPrescription.leftEye.cyl || "N/A"}
+                  {(Array.isArray(formData.glassesPrescription) && formData.glassesPrescription[0]?.leftEye.cyl) || "N/A"}
                 </p>
                 <p>
                   <strong>Left Eye AXIS:</strong>{" "}
-                  {formData.glassesPrescription.leftEye.axis || "N/A"}
+                  {(Array.isArray(formData.glassesPrescription) && formData.glassesPrescription[0]?.leftEye.axis) || "N/A"}
                 </p>
                 <p>
                   <strong>Left Eye Addition:</strong>{" "}
-                  {formData.glassesPrescription.leftEye.add || "N/A"}
+                  {(Array.isArray(formData.glassesPrescription) && formData.glassesPrescription[0]?.leftEye.add) || "N/A"}
                 </p>
                 <p>
                   <strong>Left Eye Prism:</strong>{" "}
-                  {formData.glassesPrescription.leftEye.prism || "N/A"}
+                  {(Array.isArray(formData.glassesPrescription) && formData.glassesPrescription[0]?.leftEye.prism) || "N/A"}
                 </p>
                 <p>
                   <strong>Left Eye V.A:</strong>{" "}
-                  {formData.glassesPrescription.leftEye.V_A || "N/A"}
+                  {(Array.isArray(formData.glassesPrescription) && formData.glassesPrescription[0]?.leftEye.V_A) || "N/A"}
                 </p>
                 <p>
                   <strong>Left Eye N.V:</strong>{" "}
-                  {formData.glassesPrescription.leftEye.N_V || "N/A"}
+                  {(Array.isArray(formData.glassesPrescription) && formData.glassesPrescription[0]?.leftEye.N_V) || "N/A"}
                 </p>
               </div>
 
@@ -708,14 +760,37 @@ export function OrdersTab() {
               <div>
                 <h4 className="font-semibold mt-2">Financial Summary:</h4>
                 <p>
-                  <strong>Total Amount:</strong> ₹{formData.totalAmount}
+                  <strong>Total Amount:</strong> ₹{
+                    (Array.isArray(formData.visitDetails)
+                      ? formData.visitDetails.reduce((sum, v) => sum + (Number(v.visitPrice) || 0), 0)
+                      : 0) +
+                    (Number(formData.framePrice) || 0) +
+                    (Number(formData.lensePrice) || 0) +
+                    (Array.isArray(formData.medicines)
+                      ? formData.medicines.reduce((sum, m) => sum + (Number(m.price) || 0), 0)
+                      : 0)
+                  }
                 </p>
                 <p>
-                  <strong>Total Advance:</strong> ₹{formData.totalAdvance}
+                  <strong>Total Advance:</strong> ₹{
+                    (Array.isArray(formData.opticalPayDetails)
+                      ? formData.opticalPayDetails.reduce((sum, d) => sum + (Number(d.amount) || 0), 0)
+                      : 0) +
+                    (Array.isArray(formData.visitDetails)
+                      ? formData.visitDetails.reduce((sum, v) => sum + (Number(v.visitPrice) || 0), 0)
+                      : 0) +
+                    (Array.isArray(formData.medicines)
+                      ? formData.medicines.reduce((sum, m) => sum + (Number(m.price) || 0), 0)
+                      : 0)
+                  }
                 </p>
                 <p>
-                  <strong>Total Due:</strong> ₹
-                  {formData.totalAmount - formData.totalAdvance}
+                  <strong>Total Due:</strong> ₹{
+                    (Number(formData.framePrice) || 0) + (Number(formData.lensePrice) || 0) -
+                    (Array.isArray(formData.opticalPayDetails)
+                      ? formData.opticalPayDetails.reduce((sum, d) => sum + (Number(d.amount) || 0), 0)
+                      : 0)
+                  }
                 </p>
               </div>
             </div>
@@ -864,7 +939,6 @@ export function OrdersTab() {
                     </label>
                     <input
                       type="number"
-                      name="opticalaPrice"
                       value={formData.lensePrice + formData.framePrice || 0}
                       readOnly
                       className="border p-2 md:p-3 rounded w-full bg-gray-100 cursor-not-allowed text-sm md:text-base"
@@ -897,10 +971,16 @@ export function OrdersTab() {
                       type="number"
                       readOnly
                       value={
-                        (formData.visitPrice || 0) +
+                        (formData.visitDetails || []).reduce(
+                          (sum, v) => sum + (Number(v.visitPrice) || 0),
+                          0
+                        ) +
                         (formData.framePrice || 0) +
                         (formData.lensePrice || 0) +
-                        (formData.medicinePrice || 0)
+                        (formData.medicines || []).reduce(
+                          (sum, m) => sum + (Number(m.price) || 0),
+                          0
+                        )
                       }
                       className="border p-2 md:p-3 rounded-lg bg-gray-100 cursor-not-allowed text-sm md:text-base"
                     />
@@ -914,9 +994,18 @@ export function OrdersTab() {
                       type="number"
                       readOnly
                       value={
-                        (formData.opticalAdvance || 0) +
-                        (formData.medicinePrice || 0) +
-                        (formData.visitPrice || 0)
+                        ((formData.opticalPayDetails || []).reduce(
+                          (sum, d) => sum + (Number(d.amount) || 0),
+                          0
+                        )) +
+                        (formData.visitDetails || []).reduce(
+                          (sum, v) => sum + (Number(v.visitPrice) || 0),
+                          0
+                        ) +
+                        (formData.medicines || []).reduce(
+                          (sum, m) => sum + (Number(m.price) || 0),
+                          0
+                        )
                       }
                       className="border p-2 md:p-3 rounded-lg bg-gray-100 cursor-not-allowed text-sm md:text-base"
                     />
@@ -932,7 +1021,10 @@ export function OrdersTab() {
                       value={
                         (formData.framePrice || 0) +
                         (formData.lensePrice || 0) -
-                        (formData.opticalAdvance || 0)
+                        (formData.opticalPayDetails || []).reduce(
+                          (sum, d) => sum + (Number(d.amount) || 0),
+                          0
+                        )
                       }
                       className="border p-2 md:p-3 rounded-lg bg-gray-100 cursor-not-allowed text-sm md:text-base"
                     />
@@ -969,5 +1061,6 @@ export function OrdersTab() {
         </div>
       )}
     </div>
+      )}</div>
   );
 }

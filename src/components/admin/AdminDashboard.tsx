@@ -12,6 +12,7 @@ import { ReportsTab } from './ReportsTab';
 import { ScheduleTab } from '../operator/ScheduleTab';
 import { OrdersTab } from './OrdersTab';
 import { MedicinesTab } from './MedicinesTab';
+import { AnalysisTab } from './AnalysisTab';
 
 
 export function AdminDashboard() {
@@ -36,6 +37,8 @@ export function AdminDashboard() {
         return <AppointmentsTab />;
       case 'patients':
         return <PatientsTab />;
+      case 'analysis':
+        return <AnalysisTab />;
       case 'operators':
         return <OperatorsTab />;
       case 'services':

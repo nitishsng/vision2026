@@ -34,11 +34,11 @@ export default function PatientDetailsModal({ open, onClose, data }: Props) {
     if (data.address) lines.push(`Address: ${data.address}`);
     lines.push("");
 
-    // Visit Info
-    if (data.visitDate || data.visitPrice) {
+    if (Array.isArray(data.visitDetails) && data.visitDetails.length) {
       lines.push(`🏥 Visit Details:`);
-      if (data.visitDate) lines.push(`Date: ${formatDate(data.visitDate)}`);
-      if (data.visitPrice) lines.push(`Price: ₹${data.visitPrice}`);
+      data.visitDetails.forEach((v) => {
+        lines.push(`${formatDate(v.visitDate)} - ₹${v.visitPrice}`);
+      });
       lines.push("");
     }
 
@@ -51,12 +51,13 @@ export default function PatientDetailsModal({ open, onClose, data }: Props) {
     lines.push("");
 
     // Glasses Prescription
-    lines.push(`👓 Glasses Prescription (Use: ${data.glassesPrescription.use}):`);
+    const gp = Array.isArray(data.glassesPrescription) ? data.glassesPrescription[0] : undefined;
+    lines.push(`👓 Glasses Prescription${gp?.use ? ` (Use: ${gp.use})` : ":"}`);
     lines.push(
-      `Right Eye: SPH ${data.glassesPrescription.rightEye.sph} | CYL ${data.glassesPrescription.rightEye.cyl || "N/A"} | AXIS ${data.glassesPrescription.rightEye.axis || "N/A"} | ADD ${data.glassesPrescription.rightEye.add || "N/A"}`
+      `Right Eye: SPH ${gp?.rightEye?.sph || ""} | CYL ${gp?.rightEye?.cyl || "N/A"} | AXIS ${gp?.rightEye?.axis || "N/A"} | ADD ${gp?.rightEye?.add || "N/A"}`
     );
     lines.push(
-      `Left Eye: SPH ${data.glassesPrescription.leftEye.sph} | CYL ${data.glassesPrescription.leftEye.cyl || "N/A"} | AXIS ${data.glassesPrescription.leftEye.axis || "N/A"} | ADD ${data.glassesPrescription.leftEye.add || "N/A"}`
+      `Left Eye: SPH ${gp?.leftEye?.sph || ""} | CYL ${gp?.leftEye?.cyl || "N/A"} | AXIS ${gp?.leftEye?.axis || "N/A"} | ADD ${gp?.leftEye?.add || "N/A"}`
     );
     lines.push("");
 
@@ -78,15 +79,18 @@ export default function PatientDetailsModal({ open, onClose, data }: Props) {
       lines.push("");
     }
 
-    // Payment Summary
-    if (data.totalAmount || data.totalAdvance) {
-      lines.push(`💰 Payment Details:`);
-      if (data.totalAmount) lines.push(`Total Amount: ₹${data.totalAmount}`);
-      if (data.totalAdvance) lines.push(`Total Advance Paid: ₹${data.totalAdvance}`);
-      const due = (data.totalAmount || 0) - (data.totalAdvance || 0);
-      if (due > 0) lines.push(`Amount Due: ₹${due} ⚠️ Please pay the remaining amount.`);
-      else lines.push("✅ Payment Complete. Thank you!");
-    }
+    // Payment Summary (derived)
+    const visitSumMsg = (Array.isArray(data.visitDetails)
+      ? data.visitDetails.reduce((sum, v) => sum + (Number(v.visitPrice) || 0), 0)
+      : 0);
+    const totalAmountMsg = visitSumMsg + (Number(data.framePrice) || 0) + (Number(data.lensePrice) || 0) + (Array.isArray(data.medicines) ? data.medicines.reduce((sum, m) => sum + (Number(m.price) || 0), 0) : 0);
+    const advanceMsg = (Array.isArray(data.opticalPayDetails) ? data.opticalPayDetails.reduce((sum, d) => sum + (Number(d.amount) || 0), 0) : 0) + visitSumMsg + (Array.isArray(data.medicines) ? data.medicines.reduce((sum, m) => sum + (Number(m.price) || 0), 0) : 0);
+    const dueMsg = (Number(data.framePrice) || 0) + (Number(data.lensePrice) || 0) - (Array.isArray(data.opticalPayDetails) ? data.opticalPayDetails.reduce((sum, d) => sum + (Number(d.amount) || 0), 0) : 0);
+    lines.push(`💰 Payment Details:`);
+    lines.push(`Total Amount: ₹${totalAmountMsg}`);
+    lines.push(`Total Advance Paid: ₹${advanceMsg}`);
+    if (dueMsg > 0) lines.push(`Amount Due: ₹${dueMsg} ⚠️ Please pay the remaining amount.`);
+    else lines.push("✅ Payment Complete. Thank you!");
 
     lines.push("\n🙏 Thank you for choosing us!");
 
@@ -96,6 +100,7 @@ export default function PatientDetailsModal({ open, onClose, data }: Props) {
   };
 
   return (
+    
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-start pt-10 md:pt-16">
       <div className="relative p-6 md:p-8 border w-[95%] md:max-w-3xl lg:max-w-4xl shadow-lg rounded-md bg-white mt-10">
 
@@ -137,19 +142,19 @@ export default function PatientDetailsModal({ open, onClose, data }: Props) {
           {/* GLASSES PRESCRIPTION */}
           <div>
             <h4 className="font-semibold text-gray-800 mb-1 border-b pb-1">Glasses Prescription</h4>
-            <p><strong>Use:</strong> {data.glassesPrescription.use}</p>
+            <p><strong>Use:</strong> {(Array.isArray(data.glassesPrescription) && data.glassesPrescription[0]?.use) || ""}</p>
 
             <h5 className="font-semibold mt-2">Right Eye</h5>
-            <p><strong>SPH:</strong> {data.glassesPrescription.rightEye.sph}</p>
-            <p><strong>CYL:</strong> {data.glassesPrescription.rightEye.cyl || "N/A"}</p>
-            <p><strong>AXIS:</strong> {data.glassesPrescription.rightEye.axis || "N/A"}</p>
-            <p><strong>ADD:</strong> {data.glassesPrescription.rightEye.add || "N/A"}</p>
+            <p><strong>SPH:</strong> {(Array.isArray(data.glassesPrescription) && data.glassesPrescription[0]?.rightEye?.sph) || ""}</p>
+            <p><strong>CYL:</strong> {(Array.isArray(data.glassesPrescription) && data.glassesPrescription[0]?.rightEye?.cyl) || "N/A"}</p>
+            <p><strong>AXIS:</strong> {(Array.isArray(data.glassesPrescription) && data.glassesPrescription[0]?.rightEye?.axis) || "N/A"}</p>
+            <p><strong>ADD:</strong> {(Array.isArray(data.glassesPrescription) && data.glassesPrescription[0]?.rightEye?.add) || "N/A"}</p>
 
             <h5 className="font-semibold mt-3">Left Eye</h5>
-            <p><strong>SPH:</strong> {data.glassesPrescription.leftEye.sph}</p>
-            <p><strong>CYL:</strong> {data.glassesPrescription.leftEye.cyl || "N/A"}</p>
-            <p><strong>AXIS:</strong> {data.glassesPrescription.leftEye.axis || "N/A"}</p>
-            <p><strong>ADD:</strong> {data.glassesPrescription.leftEye.add || "N/A"}</p>
+            <p><strong>SPH:</strong> {(Array.isArray(data.glassesPrescription) && data.glassesPrescription[0]?.leftEye?.sph) || ""}</p>
+            <p><strong>CYL:</strong> {(Array.isArray(data.glassesPrescription) && data.glassesPrescription[0]?.leftEye?.cyl) || "N/A"}</p>
+            <p><strong>AXIS:</strong> {(Array.isArray(data.glassesPrescription) && data.glassesPrescription[0]?.leftEye?.axis) || "N/A"}</p>
+            <p><strong>ADD:</strong> {(Array.isArray(data.glassesPrescription) && data.glassesPrescription[0]?.leftEye?.add) || "N/A"}</p>
           </div>
 
           {/* ORDER & VISIT INFO */}
@@ -161,8 +166,22 @@ export default function PatientDetailsModal({ open, onClose, data }: Props) {
             </div>
 
             <h5 className="font-semibold text-blue-700 mt-3">Visit</h5>
-            <p><strong>Visit Date:</strong> {formatDate(data.visitDate)}</p>
-            <p><strong>Visit Price:</strong> ₹{data.visitPrice}</p>
+            <p><strong>Total Visit Paid:</strong> ₹{
+              (Array.isArray(data.visitDetails)
+                ? data.visitDetails.reduce((sum, v) => sum + (Number(v.visitPrice) || 0), 0)
+                : 0)
+            }</p>
+            {Array.isArray(data.visitDetails) && data.visitDetails.length > 0 ? (
+              <div className="mt-2 space-y-1">
+                {data.visitDetails.map((v, i) => (
+                  <div key={i} className="text-sm">
+                    {formatDate(v.visitDate)} - ₹{v.visitPrice}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p>No visit details recorded.</p>
+            )}
 
             <h5 className="font-semibold text-blue-700 mt-3">Frame</h5>
             <p><strong>ID:</strong> {data.frameId}</p>
@@ -176,9 +195,9 @@ export default function PatientDetailsModal({ open, onClose, data }: Props) {
           {/* MEDICINES */}
           <div className="md:col-span-2">
             <h4 className="font-semibold mt-3 text-gray-800 border-b pb-1">Medicine Details</h4>
-            {data.medicines?.length > 0 ? (
+            {(data.medicines?.length || 0) > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-                {data.medicines.map((m, i) => (
+                {(data.medicines || []).map((m, i) => (
                   <div key={i} className="border rounded p-2">
                     <p><strong>Date:</strong> {formatDate(m.date)}</p>
                     <p><strong>Name:</strong> {m.medicinename}</p>
@@ -194,9 +213,9 @@ export default function PatientDetailsModal({ open, onClose, data }: Props) {
           {/* OPTICAL PAYMENTS */}
           <div className="md:col-span-2">
             <h4 className="font-semibold mt-3 text-gray-800 border-b pb-1">Optical Payment Details</h4>
-            {data.opticalPayDetails?.length > 0 ? (
+            {(data.opticalPayDetails?.length || 0) > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
-                {data.opticalPayDetails.map((p, i) => (
+                {(data.opticalPayDetails || []).map((p, i) => (
                   <div key={i} className="border rounded p-2">
                     <p><strong>Date:</strong> {formatDate(p.date)}</p>
                     <p><strong>Amount:</strong> ₹{p.amount}</p>
@@ -212,9 +231,39 @@ export default function PatientDetailsModal({ open, onClose, data }: Props) {
           {/* FINANCIAL SUMMARY */}
           <div className="md:col-span-2">
             <h4 className="font-semibold mt-3">Financial Summary</h4>
-            <p><strong>Total Amount:</strong> ₹{data.totalAmount}</p>
-            <p><strong>Total Advance:</strong> ₹{data.totalAdvance}</p>
-            <p><strong>Total Due:</strong> ₹{data.totalDue}</p>
+            <p>
+              <strong>Total Amount:</strong> ₹{
+                (Array.isArray(data.visitDetails)
+                  ? data.visitDetails.reduce((sum, v) => sum + (Number(v.visitPrice) || 0), 0)
+                  : 0) +
+                (Number(data.framePrice) || 0) +
+                (Number(data.lensePrice) || 0) +
+                (Array.isArray(data.medicines)
+                  ? data.medicines.reduce((sum, m) => sum + (Number(m.price) || 0), 0)
+                  : 0)
+              }
+            </p>
+            <p>
+              <strong>Total Advance:</strong> ₹{
+                (Array.isArray(data.opticalPayDetails)
+                  ? data.opticalPayDetails.reduce((sum, d) => sum + (Number(d.amount) || 0), 0)
+                  : 0) +
+                (Array.isArray(data.visitDetails)
+                  ? data.visitDetails.reduce((sum, v) => sum + (Number(v.visitPrice) || 0), 0)
+                  : 0) +
+                (Array.isArray(data.medicines)
+                  ? data.medicines.reduce((sum, m) => sum + (Number(m.price) || 0), 0)
+                  : 0)
+              }
+            </p>
+            <p>
+              <strong>Total Due:</strong> ₹{
+                (Number(data.framePrice) || 0) + (Number(data.lensePrice) || 0) -
+                (Array.isArray(data.opticalPayDetails)
+                  ? data.opticalPayDetails.reduce((sum, d) => sum + (Number(d.amount) || 0), 0)
+                  : 0)
+              }
+            </p>
           </div>
         </div>
 

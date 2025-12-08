@@ -79,8 +79,22 @@ export async function POST(req: Request) {
       ],
     });
 
-    // Check if they have a totalAmount > 0
-    const isExistingAndHasAmount = existingPatient && existingPatient.totalAmount > 0;
+    // Check if they have any financial activity (derived total > 0)
+    const visitSum = existingPatient && Array.isArray(existingPatient.visitDetails)
+      ? existingPatient.visitDetails.reduce((sum, v) => sum + (Number(v.visitPrice) || 0), 0)
+      : 0;
+    const computedTotalAmount = existingPatient
+      ? visitSum +
+        (Number(existingPatient.framePrice) || 0) +
+        (Number(existingPatient.lensePrice) || 0) +
+        (Array.isArray(existingPatient.medicines)
+          ? existingPatient.medicines.reduce(
+              (sum, m) => sum + (Number(m.price) || 0),
+              0
+            )
+          : 0)
+      : 0;
+    const isExistingAndHasAmount = Boolean(existingPatient && computedTotalAmount > 0);
 
     const now = new Date().toISOString();
 

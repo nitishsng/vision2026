@@ -3,7 +3,7 @@
 import React from 'react';
 import { 
   Calendar, Users, UserPlus, Settings, BarChart3, 
-  Eye, FileText, Clock, Shield, ShoppingCart, Pill 
+  Eye, FileText, Clock, Shield, ShoppingCart, Pill, TrendingUp 
 } from 'lucide-react';
 import { useAuth } from '@/src/contexts/AuthContext';
 
@@ -46,10 +46,11 @@ export function Sidebar({ onTabChange, isOpen, onClose }: SidebarProps) {
     { id: 'patients', label: 'Patients', icon: Users },
     { id: 'orders', label: 'Orders', icon: ShoppingCart },
     { id: 'medicines', label: 'Medicines', icon: Pill },
-    { id: 'reports', label: 'Reports', icon: FileText },
+    { id: 'analysis', label: 'Analysis', icon: TrendingUp },
+    // { id: 'reports', label: 'Reports', icon: FileText },
     { id: 'operators', label: 'Operators', icon: UserPlus },
     { id: 'services', label: 'Services', icon: Eye },
-    { id: 'settings', label: 'Settings', icon: Settings },
+    // { id: 'settings', label: 'Settings', icon: Settings },
   ];
   
   const operatorMenuItems = [
@@ -59,7 +60,8 @@ export function Sidebar({ onTabChange, isOpen, onClose }: SidebarProps) {
     { id: 'patients', label: 'Patients', icon: Users },
     { id: 'orders', label: 'Orders', icon: ShoppingCart },
     { id: 'medicines', label: 'Medicines', icon: Pill },
-    { id: 'reports', label: 'Reports', icon: FileText },
+    { id: 'analysis', label: 'Analysis', icon: TrendingUp },
+    // { id: 'reports', label: 'Reports', icon: FileText },
   ];
 
   const menuItems = user?.role === 'admin' ? adminMenuItems : operatorMenuItems;

@@ -15,9 +15,9 @@ import { staffWithId } from "../../contexts/type";
 import { initialStaff } from "../../contexts/type";
 import { useDashboardData } from "@/src/contexts/dataCollection";
 import toast from "react-hot-toast";
-import bcrypt from 'bcryptjs';
+import bcrypt from "bcryptjs";
 export function OperatorsTab() {
-  const { staffs, fetchData } = useDashboardData();
+  const { staffs, fetchData ,isLoading} = useDashboardData();
   const [searchTerm, setSearchTerm] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
   const [saveSuccessfully, setSaveSuccessfully] = useState(false);
@@ -71,31 +71,39 @@ export function OperatorsTab() {
       console.error(err);
     }
   };
-const deleteOperator = async (id: string) => {
-  const confirmDelete = window.confirm("Are you sure you want to delete this service? This action cannot be undone.");
+  const deleteOperator = async (id: string) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this service? This action cannot be undone."
+    );
 
-  if (!confirmDelete) {
-    toast("Deletion cancelled.");
-    return;
-  }
+    if (!confirmDelete) {
+      toast("Deletion cancelled.");
+      return;
+    }
 
-  try {
-    const res = await fetch("/api/staff", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id }),
-    });
+    try {
+      const res = await fetch("/api/staff", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
 
-    if (!res.ok) throw new Error("Failed to delete service");
-    toast.success("Service deleted successfully!");
-    fetchData();
-  } catch (error) {
-    console.error("Error deleting service:", error);
-    toast.error("Failed to delete service.");
-  }
-};
+      if (!res.ok) throw new Error("Failed to delete service");
+      toast.success("Service deleted successfully!");
+      fetchData();
+    } catch (error) {
+      console.error("Error deleting service:", error);
+      toast.error("Failed to delete service.");
+    }
+  };
 
   return (
+        <div>
+  {isLoading ? (
+        <div className="flex items-center justify-center py-6">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500"></div>
+        </div>
+      ):(
     <div className="space-y-3 md:space-y-4">
       <div className="flex justify-between items-center">
         <div>
@@ -126,29 +134,28 @@ const deleteOperator = async (id: string) => {
         </div>
       )}
 
-{/* Search */}
-<div className="bg-white flex items-center justify-between w-full rounded-lg p-4 border border-gray-200">
-  {/* Search Input */}
-  <div className="relative flex-1">
-    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-    <input
-      type="text"
-      placeholder="Search by name, email, or phone..."
-      value={searchTerm}
-      onChange={(e) => setSearchTerm(e.target.value)}
-      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-    />
-  </div>
+      {/* Search */}
+      <div className="bg-white flex items-center justify-between w-full rounded-lg p-4 border border-gray-200">
+        {/* Search Input */}
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <input
+            type="text"
+            placeholder="Search by name, email, or phone..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+          />
+        </div>
 
-  {/* Clear Button */}
-  <button
-    onClick={() => setSearchTerm("")}
-    className="ml-4 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors whitespace-nowrap"
-  >
-    Clear Filters
-  </button>
-</div>
-
+        {/* Clear Button */}
+        <button
+          onClick={() => setSearchTerm("")}
+          className="ml-4 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors whitespace-nowrap"
+        >
+          Clear Filters
+        </button>
+      </div>
 
       {/* Operators Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4">
@@ -177,8 +184,6 @@ const deleteOperator = async (id: string) => {
             </div>
 
             <div className="space-y-2">
-
-             
               <div className="flex items-center space-x-2 text-sm text-gray-600">
                 <IdCard className="h-4 w-4" />
                 <span>{operator.id}</span>
@@ -198,21 +203,20 @@ const deleteOperator = async (id: string) => {
                   )}
                 </div>
               )}
-               <div className="flex items-center space-x-2 text-sm text-gray-600">
+              <div className="flex items-center space-x-2 text-sm text-gray-600">
                 <Mail className="h-4 w-4" />
                 <span>{operator.email}</span>
               </div>
             </div>
 
-<div className="flex justify-end items-center">
-  <button
-    onClick={() => operator._id && deleteOperator(operator._id)}
-    className="px-3 py-1.5 text-red-600 hover:text-white hover:bg-red-600 border border-red-600 rounded-lg text-sm font-medium transition-all duration-200"
-  >
-    Delete
-  </button>
-</div>
-
+            <div className="flex justify-end items-center">
+              <button
+                onClick={() => operator._id && deleteOperator(operator._id)}
+                className="px-3 py-1.5 text-red-600 hover:text-white hover:bg-red-600 border border-red-600 rounded-lg text-sm font-medium transition-all duration-200"
+              >
+                Delete
+              </button>
+            </div>
           </div>
         ))}
       </div>
@@ -343,5 +347,6 @@ const deleteOperator = async (id: string) => {
         </div>
       )}
     </div>
+      )}</div>
   );
 }

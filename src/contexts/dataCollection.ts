@@ -11,9 +11,11 @@ export function useDashboardData() {
   const [staffs, setStaffs] = useState<staffWithId[]>([]);
   const [services, setServices] = useState<serviceWithId[]>([]);
   const [patients, setPatients] = useState<PatientFullTypeWithObjectId[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const fetchData = async () => {
+    setIsLoading(true);
     try {
       // 1️⃣ Get user from localStorage
       const user = JSON.parse(localStorage.getItem("user") || "null");
@@ -46,6 +48,8 @@ export function useDashboardData() {
       setPatients(data.patients || []);
     } catch (err) {
       console.error("Error fetching dashboard data:", err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -53,5 +57,5 @@ export function useDashboardData() {
     fetchData();
   }, []);
 
-  return { staffs, services, patients, fetchData };
+  return { staffs, services, patients, fetchData, isLoading };
 }

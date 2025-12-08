@@ -72,3 +72,36 @@ export async function PUT(req: Request) {
     return NextResponse.json({ success: false, error: message }, { status: 500 });
   }
 }
+
+// ✅ Delete existing patient
+export async function DELETE(req: Request) {
+  try {
+    const url = new URL(req.url);
+    const id = url.searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json(
+        { success: false, error: "Missing document ID" },
+        { status: 400 }
+      );
+    }
+
+    const collection = await getCollection<PatientFullType>("patients");
+    const objectId = new ObjectId(id);
+
+    const result = await collection.deleteOne({ _id: objectId });
+
+    if (result.deletedCount === 0) {
+      return NextResponse.json(
+        { success: false, error: "Patient not found" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error: unknown) {
+    console.error("Error in DELETE:", error);
+    const message = error instanceof Error ? error.message : "Internal server error";
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
+  }
+}

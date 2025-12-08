@@ -4,11 +4,13 @@ import toast from "react-hot-toast";
 interface PatientFormProps {
   setShowBookingForm: React.Dispatch<React.SetStateAction<boolean>>;
   setBookingSuccess: React.Dispatch<React.SetStateAction<boolean>>;
+  setFrom:string;
 }
 
 export const appointmentForm: React.FC<PatientFormProps> = ({
   setShowBookingForm,
   setBookingSuccess,
+  setFrom,
 }) => {
   const [formValues, setFormValues] =
     useState<PatientFullTypeWithObjectId>(initialPatient);
@@ -40,6 +42,9 @@ export const appointmentForm: React.FC<PatientFormProps> = ({
   const handleBookAppointment = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     formValues.id = generateAppointmentId();
+    if(setFrom=="patient"){
+      formValues.status="pending"
+    }
     setLoading(true);
     try {
       const res = await fetch("/api/appointment", {

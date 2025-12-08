@@ -1,6 +1,6 @@
 import React from "react";
 import { PatientFullTypeWithObjectId, todayDate } from "@/src/contexts/type";
-import { Delete } from "lucide-react";
+import { Trash } from "lucide-react";
 
 type MedicineProps = {
   formData: PatientFullTypeWithObjectId;
@@ -49,11 +49,7 @@ const Medicine: React.FC<MedicineProps> = ({ formData, setFormData }) => {
   const removeMedicineField = (index: number) => {
     setFormData((prev) => {
       const updatedMedicines = prev.medicines.filter((_, i) => i !== index);
-      const totalPrice = updatedMedicines.reduce(
-        (sum, med) => sum + (Number(med.price) || 0),
-        0
-      );
-      return { ...prev, medicines: updatedMedicines, medicinePrice: totalPrice };
+      return { ...prev, medicines: updatedMedicines };
     });
   };
 
@@ -73,15 +69,9 @@ const Medicine: React.FC<MedicineProps> = ({ formData, setFormData }) => {
     const newMedicines = [...formData.medicines];
     newMedicines[index].price = Number(value);
 
-    const totalPrice = newMedicines.reduce(
-      (sum, med) => sum + (Number(med.price) || 0),
-      0
-    );
-
     setFormData((prev) => ({
       ...prev,
       medicines: newMedicines,
-      medicinePrice: totalPrice,
     }));
   };
 
@@ -98,24 +88,18 @@ const Medicine: React.FC<MedicineProps> = ({ formData, setFormData }) => {
       newMedicines[index].price = medicineList[cleanName];
     }
 
-    const totalPrice = newMedicines.reduce(
-      (sum, med) => sum + (Number(med.price) || 0),
-      0
-    );
-
     setFormData((prev) => ({
       ...prev,
       medicines: newMedicines,
-      medicinePrice: totalPrice,
     }));
   };
 
   return (
-    <div className="flex bg-gray-50 flex-col w-full">
+    <div className="flex flex-col gap-2 w-full">
       {/* Header */}
       <div className="grid grid-cols-3 w-full">
         <label className="font-medium px-3 text-gray-700">Date</label>
-        <label className="font-medium px-3 text-gray-700">Medicine Name</label>
+        <label className="font-medium px-3 text-gray-700">M-Name</label>
         <label className="font-medium px-3 text-gray-700">Price</label>
       </div>
 
@@ -123,7 +107,7 @@ const Medicine: React.FC<MedicineProps> = ({ formData, setFormData }) => {
       {formData.medicines.map((med, index) => (
         <div
           key={index}
-          className="grid grid-cols-3 gap-1 items-end bg-gray-50 p-1 md:p-2"
+          className="grid grid-cols-3 gap-1 items-end bg-gray-50 "
         >
           {/* Date */}
           <div className="flex flex-col">
@@ -145,7 +129,7 @@ const Medicine: React.FC<MedicineProps> = ({ formData, setFormData }) => {
               value={med.medicinename}
               onChange={(e) => handleMedicineSelect(e, index)}
               placeholder="Enter or select Medicine Name"
-              className="border py-1 px-3 md:py-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
+              className="border py-1 px-1 md:py-2 rounded-lg w-full focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
             />
           </div>
 
@@ -158,7 +142,7 @@ const Medicine: React.FC<MedicineProps> = ({ formData, setFormData }) => {
                 value={med.price}
                 onChange={(e) => handleMedicineChange(e, index)}
                 placeholder="Enter Price"
-                className="border py-1 px-3 md:py-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
+                className="border py-1 px-1 md:py-2 rounded-lg w-full focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
               />
               <div className="flex justify-end items-center ml-2">
                 <button
@@ -166,7 +150,7 @@ const Medicine: React.FC<MedicineProps> = ({ formData, setFormData }) => {
                   onClick={() => removeMedicineField(index)}
                   className="bg-red-500 text-white rounded-lg px-4 py-2 hover:bg-red-600 transition"
                 >
-                  <Delete className="w-4 h-4" />
+                  <Trash className="w-3 h-4" />
                 </button>
               </div>
             </div>
@@ -182,18 +166,18 @@ const Medicine: React.FC<MedicineProps> = ({ formData, setFormData }) => {
       </datalist>
 
       {/* Add + Total */}
-      <div className="grid grid-cols-2 justify-between px-3 mt-2 w-full">
+      <div className="grid grid-cols-2 justify-between px-3  w-full">
         <button
           type="button"
           onClick={addMedicineField}
-          className="bg-blue-500 text-white rounded-lg px-2 md:px-3 py-2 w-fit hover:bg-blue-600 transition"
+          className="mt-2 px-3 py-1 bg-blue-600 text-white rounded text-sm md:text-base"
         >
           + Add Medicine
         </button>
         <div className="flex justify-end">
           <input
             type="number"
-            value={formData.medicinePrice}
+            value={formData.medicines.reduce((sum, m) => sum + (Number(m.price) || 0), 0)}
             readOnly
             className="border py-1 md:p-3 min-w-[100px] rounded-lg bg-gray-100 text-gray-700 text-center"
           />

@@ -7,7 +7,6 @@ import {
   Mail,
   MapPin,
   Eye,
-  CheckCircle,
   Stethoscope,
   Shield,
   Award,
@@ -50,54 +49,60 @@ useEffect(() => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-teal-600 to-blue-600 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
-          <div className="text-center">
-            <div className="flex justify-center mb-6">
-              <div className="w-16 h-16 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center">
-                <Eye className="h-8 w-8 text-white" />
-              </div>
-            </div>
-            <h1 className="text-3xl md:text-5xl font-bold mb-4">
-              Kachakali Vision Care
-            </h1>
-            <p className="text-lg md:text-xl text-teal-100 mb-8 max-w-2xl mx-auto">
-              Your trusted partner for comprehensive eye care services.
-              Experience excellence in vision care with our state-of-the-art
-              facilities and expert team.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button
-                onClick={() => setShowBookingForm(true)}
-                className="bg-white text-teal-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-lg"
-              >
-                Book Appointment
-              </button>
-              <Link href={"/login"}>
-              <button
-               
-                className="px-8 py-3 bg-transparent border-2 border-white text-white rounded-lg hover:bg-white hover:text-teal-600 transition-colors font-semibold"
-              >
-                Staff Login
-              </button>
-              </Link>
-            </div>
-          </div>
+<div className="bg-gradient-to-br from-teal-600 to-blue-600 text-white">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
+    <div className="text-center">
+      <div className="flex justify-center mb-6">
+        <div className="w-16 h-16 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center">
+          <Eye className="h-8 w-8 text-white" />
         </div>
       </div>
 
-      {/* Success Message */}
-      {bookingSuccess && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center space-x-3">
-            <CheckCircle className="h-5 w-5 text-green-600" />
-            <span className="text-green-800">
-              Appointment booked successfully! We'll contact you soon to
-              confirm.
-            </span>
-          </div>
-        </div>
-      )}
+      <h1 className="text-3xl md:text-5xl font-bold mb-4">
+        Kachakali Vision Care
+      </h1>
+
+      <p className="text-lg md:text-xl text-teal-100 mb-8 max-w-2xl mx-auto">
+        Your trusted partner for comprehensive eye care services.
+        Experience excellence in vision care with our state-of-the-art
+        facilities and expert team.
+      </p>
+
+      <div className="flex flex-col sm:flex-row gap-4 justify-center flex-wrap">
+        
+        <Link href="/products" className="w-full sm:w-auto">
+          <button className="bg-white text-teal-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-lg w-full sm:w-auto">
+            Glass
+          </button>
+        </Link>
+        <button
+          onClick={() => setShowBookingForm(true)}
+          className="bg-white text-teal-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-lg"
+        >
+          Book Appointment
+        </button>
+
+
+        <Link href="/docs" className="w-full sm:w-auto">
+          <button className="bg-white text-teal-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-lg w-full sm:w-auto">
+            Documentation
+          </button>
+        </Link>
+
+        <Link href="/login" className="w-full sm:w-auto">
+          <button className="px-8 py-3 bg-transparent border-2 border-white text-white rounded-lg hover:bg-white hover:text-teal-600 transition-colors font-semibold w-full sm:w-auto">
+            Staff Login
+          </button>
+        </Link>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+      
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Features */}
@@ -270,6 +275,7 @@ useEffect(() => {
           <PatientForms
             setShowBookingForm={setShowBookingForm}
             setBookingSuccess={setBookingSuccess}
+            setFrom={"patient"}
           />
         </div>
       )}

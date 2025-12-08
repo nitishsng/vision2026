@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Eye, Edit, Search, Plus } from "lucide-react";
+import { Eye, Edit, Search, Plus, Delete } from "lucide-react";
 import { PatientFullTypeWithObjectId } from "@/src/contexts/type";
 import { useDashboardData } from "@/src/contexts/dataCollection";
 import toast from "react-hot-toast";
@@ -7,7 +7,7 @@ import NewOrder from "../NewOrderMedicine";
 import Medicine from "../Medicine";
 
 export function MedicinesTab() {
-  const { patients, fetchData } = useDashboardData();
+  const { patients, fetchData, isLoading } = useDashboardData();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
   const [formData, setFormData] = useState<PatientFullTypeWithObjectId | null>(
@@ -35,11 +35,10 @@ export function MedicinesTab() {
     const matchesSearch =
       patient.ptName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       patient.phoneNo.includes(searchTerm) ||
-      patient.billNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      patient.billNo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       patient.email?.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const hasMedicines =
-      (patient.medicines?.length || 0) > 0 || (patient.medicinePrice || 0) > 0;
+    const hasMedicines = (patient.medicines?.length || 0) > 0;
 
     const matchesDate =
       !dateFilter ||
@@ -59,6 +58,29 @@ export function MedicinesTab() {
     setIsEditPopupOpen(true);
   };
 
+  const handleDeleteClick = async (p: PatientFullTypeWithObjectId) => {
+    try {
+      if (!p?._id) {
+        toast.error("Missing patient ID");
+        return;
+      }
+      const confirmed = window.confirm("Delete this medicines record?");
+      if (!confirmed) return;
+
+      const res = await fetch(`/api/patient?id=${p._id}`, { method: "DELETE" });
+      if (!res.ok) {
+        toast.error("Failed to delete");
+        return;
+      }
+      localStorage.setItem("activeTab", "medicines");
+      toast.success("Deleted successfully");
+      fetchData();
+    } catch (err) {
+      console.error("Delete failed:", err);
+      toast.error("Failed to delete");
+    }
+  };
+
   const handleClosePopup = () => {
     setIsPopupOpen(false);
     setFormData(null);
@@ -75,30 +97,9 @@ export function MedicinesTab() {
     try {
       setSaving(true);
 
-      const computedMedicinePrice = (formData?.medicines || []).reduce(
-        (sum, m) => sum + (Number(m.price) || 0),
-        0
-      );
-
       const updatedFormData = {
         ...formData,
         updatedAt: new Date().toISOString(),
-        medicinePrice: computedMedicinePrice,
-
-        // Totals similar to OrdersTab
-        totalAmount:
-          (formData?.visitPrice ?? 0) +
-          computedMedicinePrice +
-          (formData?.framePrice ?? 0) +
-          (formData?.lensePrice ?? 0),
-        totalAdvance:
-          (formData?.visitPrice ?? 0) +
-          computedMedicinePrice +
-          (formData?.opticalAdvance ?? 0),
-        totalDue:
-          (formData?.framePrice ?? 0) +
-          (formData?.lensePrice ?? 0) -
-          (formData?.opticalAdvance ?? 0),
       };
 
       if (!id) throw new Error("Missing patient ID");
@@ -125,6 +126,13 @@ export function MedicinesTab() {
   };
 
   return (
+
+        <div>
+  {isLoading ? (
+        <div className="flex items-center justify-center py-6">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500"></div>
+        </div>
+      ):(
     <div className="p-2">
       <div className="flex justify-between items-center">
         <div>
@@ -173,6 +181,7 @@ export function MedicinesTab() {
         </div>
       </div>
 
+
       <div className="bg-white shadow-md rounded-lg overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-[560px] md:min-w-full leading-normal w-full">
@@ -211,36 +220,35 @@ export function MedicinesTab() {
                   <tr
                     key={index}
                     className={`transition-colors ${
-                      p.totalDue > 0 ? "bg-red-50" : "bg-white text-gray-800"
+                      ((p.framePrice || 0) + (p.lensePrice || 0) - (p.opticalPayDetails || []).reduce((sum, d) => sum + (Number(d.amount) || 0), 0)) > 0 ? "bg-red-50" : "bg-white text-gray-800"
                     } hover:bg-gray-50`}
                   >
 <td className="px-2 gap-1 flex items-center md:px-4 py-2 border-b border-gray-200 text-sm">
+<div className="flex flex-col items-center justify-center">
+  {/* REPEATED */}
+  {p.repeated && (
+    <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-green-600"></span>
+  )}
 
-  <div className="flex flex-col items-center justify-center">
-    {/* REPEATED */}
-    {p.repeated && (
-      <span className="w-2 h-2 mb-[2px] rounded-full bg-green-600"></span>
-    )}
+  {/* OPTICAL PRICE */}
+  {((p.framePrice || 0) + (p.lensePrice || 0) > 0) && (
+    <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-orange-500"></span>
+  )}
 
-    {/* OPTICAL PRICE */}
-    {p.opticalaPrice > 0 && (
-      <span className="w-2 h-2 mb-[2px] rounded-full bg-orange-500"></span>
-    )}
+  {/* MEDICINES */}
+  {(p.medicines?.length || 0) > 0 && (
+    <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-blue-800"></span>
+  )}
 
-    {/* MEDICINES */}
-    {p.medicines.length > 0 && (
-      <span className="w-2 h-2 mb-[2px] rounded-full bg-blue-800"></span>
-    )}
-
-    {/* NONE TRUE */}
-    {!(
-      p.repeated ||
-      p.opticalaPrice > 0 ||
-      p.medicines.length > 0
-    ) && (
-      <span className="w-2 h-2 mb-[2px] rounded-full bg-transparent"></span>
-    )}
-  </div>
+  {/* NONE TRUE */}
+  {!(
+    p.repeated ||
+    ((p.framePrice || 0) + (p.lensePrice || 0) > 0) ||
+    (p.medicines?.length || 0) > 0
+  ) && (
+    <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-transparent"></span>
+  )}
+</div>
 
   {p.ptName}
 </td>
@@ -258,15 +266,15 @@ export function MedicinesTab() {
                       )}
                     </td>
                     <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm font-semibold">
-                      {p.medicines[0]?.date
+                      {p.medicines?.[0]?.date
                         ? new Date(p.medicines[0].date)
-                            .toLocaleDateString("en-GB") // dd/mm/yyyy
-                            .replace(/\//g, "-") // convert to dd-mm-yyyy
+                            .toLocaleDateString("en-GB")
+                            .replace(/\//g, "-")
                         : ""}
                     </td>
 
                     <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm font-semibold">
-                      ₹{p.medicinePrice || 0}
+                      ₹{(p.medicines || []).reduce((sum, m) => sum + (Number(m.price) || 0), 0)}
                     </td>
                     <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm text-center">
                       <div className="flex justify-center items-center space-x-3">
@@ -281,6 +289,12 @@ export function MedicinesTab() {
                           className="text-blue-600 hover:text-blue-900 focus:outline-none"
                         >
                           <Edit className="h-5 w-5" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteClick(p)}
+                          className="text-red-600 hover:text-red-800 focus:outline-none"
+                        >
+                          <Delete className="h-5 w-5" />
                         </button>
                       </div>
                     </td>
@@ -347,7 +361,7 @@ export function MedicinesTab() {
                   ))}
                 </div>
                 <div className="mt-2">
-                  <strong>Total:</strong> ₹{formData.medicinePrice || 0}
+                  <strong>Total:</strong> ₹{(formData.medicines || []).reduce((sum, m) => sum + (Number(m.price) || 0), 0)}
                 </div>
               </div>
             </div>
@@ -391,10 +405,16 @@ export function MedicinesTab() {
                       type="number"
                       readOnly
                       value={
-                        (formData.visitPrice || 0) +
+                        (formData.visitDetails || []).reduce(
+                          (sum, v) => sum + (Number(v.visitPrice) || 0),
+                          0
+                        ) +
                         (formData.framePrice || 0) +
                         (formData.lensePrice || 0) +
-                        (formData.medicinePrice || 0)
+                        (formData.medicines || []).reduce(
+                          (sum, m) => sum + (Number(m.price) || 0),
+                          0
+                        )
                       }
                       className="border p-2 md:p-3 rounded-lg bg-gray-100 cursor-not-allowed text-sm md:text-base"
                     />
@@ -407,9 +427,18 @@ export function MedicinesTab() {
                       type="number"
                       readOnly
                       value={
-                        (formData.opticalAdvance || 0) +
-                        (formData.medicinePrice || 0) +
-                        (formData.visitPrice || 0)
+                        ((formData.opticalPayDetails || []).reduce(
+                          (sum, d) => sum + (Number(d.amount) || 0),
+                          0
+                        )) +
+                        (formData.visitDetails || []).reduce(
+                          (sum, v) => sum + (Number(v.visitPrice) || 0),
+                          0
+                        ) +
+                        (formData.medicines || []).reduce(
+                          (sum, m) => sum + (Number(m.price) || 0),
+                          0
+                        )
                       }
                       className="border p-2 md:p-3 rounded-lg bg-gray-100 cursor-not-allowed text-sm md:text-base"
                     />
@@ -424,7 +453,10 @@ export function MedicinesTab() {
                       value={
                         (formData.framePrice || 0) +
                         (formData.lensePrice || 0) -
-                        (formData.opticalAdvance || 0)
+                        (formData.opticalPayDetails || []).reduce(
+                          (sum, d) => sum + (Number(d.amount) || 0),
+                          0
+                        )
                       }
                       className="border p-2 md:p-3 rounded-lg bg-gray-100 cursor-not-allowed text-sm md:text-base"
                     />
@@ -453,5 +485,7 @@ export function MedicinesTab() {
         </div>
       )}
     </div>
+      )}
+      </div>
   );
 }

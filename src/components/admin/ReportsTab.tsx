@@ -4,7 +4,7 @@ import React from "react";
 import { BarChart3, TrendingUp, Calendar, Users, Download } from "lucide-react";
 import { useDashboardData } from "@/src/contexts/dataCollection";
 export function ReportsTab() {
-  const {patients } = useDashboardData();
+  const {patients, isLoading } = useDashboardData();
  const appointments = patients.filter(
   (a) => a.status === "confirmed" || a.status === "completed"
 );
@@ -39,6 +39,12 @@ export function ReportsTab() {
       : 0;
 
   return (
+        <div>
+  {isLoading ? (
+        <div className="flex items-center justify-center py-6">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500"></div>
+        </div>
+      ):(
     <div className="space-y-4 md:space-y-6">
       <div className="flex justify-between items-center">
         <div>
@@ -54,6 +60,8 @@ export function ReportsTab() {
           <span>Export</span>
         </button> */}
       </div>
+
+
 
       {/* Key Metrics */}
       <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-6">
@@ -248,5 +256,6 @@ export function ReportsTab() {
         </div>
       </div>
     </div>
+      )}</div>
   );
 }

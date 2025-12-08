@@ -22,14 +22,21 @@ function isInRange(dateStr, startStr, endStr) {
 }
 
 function sumVisit(patients, startStr, endStr) {
-  if (!Array.isArray(patients) || patients.length === 0) return 0
+  if (!Array.isArray(patients) || patients.length === 0) return 0;
+  const noRange = !startStr && !endStr;
   return patients.reduce((sum, p) => {
-    const vd = p && p.visitDate ? p.visitDate : null
-    if (isInRange(vd, startStr, endStr)) {
-      sum += Number(p.visitPrice || 0)
+    const visits = Array.isArray(p?.visitDetails) ? p.visitDetails : [];
+    for (const v of visits) {
+      const price = Number(v?.visitPrice || 0);
+      const date = v?.visitDate;
+      if (date == null) {
+        if (noRange) sum += price;
+      } else {
+        if (isInRange(date, startStr, endStr)) sum += price;
+      }
     }
-    return sum
-  }, 0)
+    return sum;
+  }, 0);
 }
 
 function sumMedicines(patients, startStr, endStr) {
@@ -61,27 +68,15 @@ function sumMedicines(patients, startStr, endStr) {
 function sumOpticalPayments(patients, startStr, endStr) {
   if (!Array.isArray(patients) || patients.length === 0) return 0;
 
-  const noRange = !startStr && !endStr;
-
   return patients.reduce((sum, p) => {
     const pay = Array.isArray(p?.opticalPayDetails) ? p.opticalPayDetails : [];
-
-    // Rule: if opticalPayDetails is empty & no date filter → add totalAdvance
-    if (pay.length === 0 && noRange) {
-      sum += Number(p?.opticalAdvance || 0);
-      return sum;
-    }
-
-    // Existing logic (only when there *are* details OR when date filter exists)
     for (const d of pay) {
       const date = d?.date;
       const amount = Number(d?.amount || 0);
-
       if (isInRange(date, startStr, endStr)) {
         sum += amount;
       }
     }
-
     return sum;
   }, 0);
 }
@@ -107,4 +102,3 @@ module.exports = {
   sumOpticalPayments,
   computeTotals,
 }
-

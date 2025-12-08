@@ -27,7 +27,7 @@ const {
   computeTotals,
 } = require("@/src/utils/dateFilters.js");
 export function DashboardOverview() {
-  const { staffs, patients } = useDashboardData();
+  const { staffs, patients, isLoading } = useDashboardData();
 
   // --- Date range filter states ---
   const [startDate, setStartDate] = useState("");
@@ -52,7 +52,7 @@ const filteredPatients = patients.filter((p) => {
 
   // --- Totals ---
   const totalPatients = filteredPatients.filter((p) =>
-    ["confirmed", "completed"].includes(p.status)
+    ["confirmed", "completed"].includes((p.status ?? "") as string)
   ).length;
 
   const start = startDate ? new Date(startDate) : null;
@@ -71,23 +71,14 @@ const totals = computeTotals(patients, startDate, endDate);
 const totalAdvance = totals.totalAdvance;
 const opticalAdvance = totals.opticalTotal;
 
-  const {
-    totalDue,
-    opticalaPrice,
-    opticalDue,
-  } = filteredPatients.reduce(
-    (acc, patient) => {
-      acc.totalDue += patient.totalDue ?? 0;
-      acc.opticalaPrice += patient.opticalaPrice ?? 0;
-      acc.opticalDue += patient.opticalDue ?? 0;
-      return acc;
-    },
-    {
-      totalDue: 0,
-      opticalaPrice: 0,
-      opticalDue: 0,
-    }
-  );
+// Derived aggregates over filtered range
+const opticalaPrice = filteredPatients.reduce((sum, p) => sum + ((Number(p.framePrice) || 0) + (Number(p.lensePrice) || 0)), 0);
+const opticalDue = filteredPatients.reduce((sum, p) => {
+  const paid = Array.isArray(p.opticalPayDetails) ? p.opticalPayDetails.reduce((s, d) => s + (Number(d.amount) || 0), 0) : 0;
+  const due = (Number(p.framePrice) || 0) + (Number(p.lensePrice) || 0) - paid;
+  return sum + due;
+}, 0);
+const totalDue = opticalDue;
 
   const totalVisitAmount = sumVisit(patients, startDate, endDate);
   const medicinAmount = sumMedicines(patients, startDate, endDate);
@@ -97,10 +88,11 @@ const opticalAdvance = totals.opticalTotal;
     totalOperators: staffs.length,
     todayAppointments: filteredPatients.filter(
       (apt) =>
+        apt.preferredDate &&
         new Date(apt.preferredDate).toDateString() === new Date().toDateString()
     ).length,
     pendingAppointments: filteredPatients.filter(
-      (apt) => apt.status === "pending" && !apt.orderOnly
+      (apt) => apt.status === "pending"
     ).length,
     confirmedAppointments: filteredPatients.filter(
       (apt) => apt.status === "confirmed"
@@ -119,6 +111,13 @@ const recentAppointments = cleanedPatients.slice(0, 5);
 
 
   return (
+    <div>
+  {isLoading ? (
+        <div className="flex items-center justify-center py-6">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500"></div>
+        </div>
+      ):(
+
     <div className="space-y-3 md:space-y-4">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
         {/* Left side: Title */}
@@ -155,183 +154,125 @@ const recentAppointments = cleanedPatients.slice(0, 5);
         </div>
       </div>
 
+    
+
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 md:gap-4 gap-2">
         {/* 💸 Total Amount */}
 
         {/* 💳 Total Collection */}
-        <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-100 shadow-sm hover:shadow-md transition">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">
-                Total Collection
-              </p>
-              <p className="text-2xl font-bold text-green-700">
-                {totalAdvance}
-              </p>
-            </div>
-            <div className="w-10 h-10 flex bg-green-100 rounded-lg items-center justify-center">
-              <CreditCard className="h-6 w-6 text-green-600" />
-            </div>
-          </div>
-        </div>
-        {/* 💼 Total Visit Amount */}
-        <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-100 shadow-sm hover:shadow-md transition">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">
-                Total Visit Amount
-              </p>
-              <p className="text-2xl font-bold text-purple-700">
-                {totalVisitAmount}
-              </p>
-            </div>
-            <div className="w-10 h-10 flex bg-purple-100 rounded-lg items-center justify-center">
-              <TrendingUp className="h-6 w-6 text-purple-500" />
-            </div>
-          </div>
-        </div>
-        {/* medicine */}
-        <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-100 shadow-sm hover:shadow-md transition">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">
-                Mediccine Amount
-              </p>
-              <p className="text-2xl font-bold text-blue-700">
-                {medicinAmount}
-              </p>
-            </div>
-            <div className="w-10 h-10 flex bg-blue-100 rounded-lg items-center justify-center">
-              <IndianRupee className="h-6 w-6 text-blue-600" />
-            </div>
-          </div>
-        </div>
-        {/* 💵 Optical Collection */}
-        <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-100 shadow-sm hover:shadow-md transition">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">
-                Optical Collection
-              </p>
-              <p className="text-2xl font-bold text-green-700">
-                {opticalAdvance}
-              </p>
-            </div>
-            <div className="w-10 h-10 flex bg-green-100 rounded-lg items-center justify-center">
-              <CreditCard className="h-6 w-6 text-green-500" />
-            </div>
-          </div>
-        </div>
+<div className="bg-white rounded-xl p-2 md:p-4 border border-gray-100 shadow-sm hover:shadow-md transition">
+  <div className="items-center justify-between">
+    <div>
+      <p className="text-sm font-medium text-gray-600">
+        Total Collection
+      </p>
+    </div>
 
-        {/* 💰 Total Due */}
-        {/* <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-100 shadow-sm hover:shadow-md transition">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Total Due</p>
-              <p className="text-2xl font-bold text-red-700">{totalDue}</p>
-            </div>
-            <div className="w-10 h-10 flex bg-red-100 rounded-lg items-center justify-center">
-              <Wallet className="h-6 w-6 text-red-500" />
-            </div>
-          </div>
-        </div> */}
+    <div className="flex rounded-lg items-center justify-between gap-2">
+      <p className="text-2xl font-bold text-green-700">
+        {totalAdvance}
+      </p>
 
-        {/* 👓 Total Optical */}
-        <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-100 shadow-sm hover:shadow-md transition">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Total Optical</p>
-              <p className="text-2xl font-bold text-indigo-700">
-                {opticalaPrice}
-              </p>
-            </div>
-            <div className="w-10 h-10 flex bg-indigo-100 rounded-lg items-center justify-center">
-              <BarChart3 className="h-6 w-6 text-indigo-500" />
-            </div>
-          </div>
-        </div>
+      {/* Responsive Icon Size */}
+      <CreditCard className="h-6 w-6 md:h-8 md:w-8 text-green-600" />
+    </div>
+  </div>
+</div>
 
-        {/* 🧾 Optical Due */}
-        <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-100 shadow-sm hover:shadow-md transition">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Optical Due</p>
-              <p className="text-2xl font-bold text-orange-700">{opticalDue}</p>
-            </div>
-            <div className="w-10 h-10 flex bg-orange-100 rounded-lg items-center justify-center">
-              <PiggyBank className="h-6 w-6 text-orange-500" />
-            </div>
-          </div>
-        </div>
+{/* 💼 Total Visit Amount */}
+<div className="bg-white rounded-xl p-2 md:p-4 border border-gray-100 shadow-sm hover:shadow-md transition">
+  <div className="">
+    <p className="text-sm font-medium text-gray-600">Total Visit Amount</p>
 
-        {/* 🧍 Total Patients */}
-        <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-100 shadow-sm hover:shadow-md transition">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">
-                Total Patients
-              </p>
-              <p className="text-2xl font-bold text-blue-700">
-                {totalPatients}
-              </p>
-            </div>
-            <div className="w-10 h-10 flex bg-blue-100 rounded-lg items-center justify-center">
-              <Users className="h-6 w-6 text-blue-500" />
-            </div>
-          </div>
-        </div>
+    <div className="flex items-center justify-between gap-2 mt-1">
+      <p className="text-2xl font-bold text-purple-700">{totalVisitAmount}</p>
+      <TrendingUp className="h-6 w-6 md:h-8 md:w-8 text-purple-500" />
+    </div>
+  </div>
+</div>
 
-        {/* 👩‍⚕️ Total Staff */}
-        {/* <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-100 shadow-sm hover:shadow-md transition">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Total Staff</p>
-              <p className="text-2xl font-bold text-teal-700">
-                {staffs.length}
-              </p>
-            </div>
-            <div className="w-10 h-10 flex bg-teal-100 rounded-lg items-center justify-center">
-              <ShieldCheck className="h-6 w-6 text-teal-500" />
-            </div>
-          </div>
-        </div> */}
 
-        {/* 📅 Total Appointments */}
-        {/* <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-100 shadow-sm hover:shadow-md transition">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">
-                Total Appointments
-              </p>
-              <p className="text-2xl font-bold text-blue-700">
-                {patients.filter((p) => p.orderOnly === false).length}
-              </p>
-            </div>
-            <div className="w-10 h-10 flex bg-cyan-100 rounded-lg items-center justify-center">
-              <Calendar className="h-6 w-6 text-cyan-500" />
-            </div>
-          </div>
-        </div> */}
+{/* 💊 Medicine */}
+<div className="bg-white rounded-xl p-2 md:p-4 border border-gray-100 shadow-sm hover:shadow-md transition">
+  <div>
+    <p className="text-sm font-medium text-gray-600">Medicine Amount</p>
 
-  
-        {/* 🧾 Total Orders */}
-        <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-100 shadow-sm hover:shadow-md transition">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-600">Total Orders</p>
-              <p className="text-2xl font-bold text-purple-700">
-                {
-                  patients.filter((p) => p.billNo && p.billNo.trim() !== "")
-                    .length
-                }
-              </p>
-            </div>
-            <div className="w-10 h-10 flex bg-purple-100 rounded-lg items-center justify-center">
-              <Receipt className="h-6 w-6 text-purple-500" />
-            </div>
-          </div>
-        </div>
+    <div className="flex items-center justify-between gap-2 mt-1">
+      <p className="text-2xl font-bold text-blue-700">{medicinAmount}</p>
+      <IndianRupee className="h-6 w-6 md:h-8 md:w-8 text-blue-600" />
+    </div>
+  </div>
+</div>
+
+
+{/* 💵 Optical Collection */}
+<div className="bg-white rounded-xl p-2 md:p-4 border border-gray-100 shadow-sm hover:shadow-md transition">
+  <div>
+    <p className="text-sm font-medium text-gray-600">Optical Collection</p>
+
+    <div className="flex items-center justify-between gap-2 mt-1">
+      <p className="text-2xl font-bold text-green-700">{opticalAdvance}</p>
+      <CreditCard className="h-6 w-6 md:h-8 md:w-8 text-green-500" />
+    </div>
+  </div>
+</div>
+
+
+{/* 👓 Total Optical */}
+<div className="bg-white rounded-xl p-2 md:p-4 border border-gray-100 shadow-sm hover:shadow-md transition">
+  <div>
+    <p className="text-sm font-medium text-gray-600">Total Optical</p>
+
+    <div className="flex items-center justify-between gap-2 mt-1">
+      <p className="text-2xl font-bold text-indigo-700">{opticalaPrice}</p>
+      <BarChart3 className="h-6 w-6 md:h-8 md:w-8 text-indigo-500" />
+    </div>
+  </div>
+</div>
+
+
+{/* 🧾 Optical Due */}
+<div className="bg-white rounded-xl p-2 md:p-4 border border-gray-100 shadow-sm hover:shadow-md transition">
+  <div>
+    <p className="text-sm font-medium text-gray-600">Optical Due</p>
+
+    <div className="flex items-center justify-between gap-2 mt-1">
+      <p className="text-2xl font-bold text-orange-700">{opticalDue}</p>
+      <PiggyBank className="h-6 w-6 md:h-8 md:w-8 text-orange-500" />
+    </div>
+  </div>
+</div>
+
+
+{/* 🧍 Total Patients */}
+<div className="bg-white rounded-xl p-2 md:p-4 border border-gray-100 shadow-sm hover:shadow-md transition">
+  <div>
+    <p className="text-sm font-medium text-gray-600">Total Patients</p>
+
+    <div className="flex items-center justify-between gap-2 mt-1">
+      <p className="text-2xl font-bold text-blue-700">{totalPatients}</p>
+      <Users className="h-6 w-6 md:h-8 md:w-8 text-blue-500" />
+    </div>
+  </div>
+</div>
+
+
+{/* 🧾 Total Orders */}
+<div className="bg-white rounded-xl p-2 md:p-4 border border-gray-100 shadow-sm hover:shadow-md transition">
+  <div>
+    <p className="text-sm font-medium text-gray-600">Total Orders</p>
+
+    <div className="flex items-center justify-between gap-2 mt-1">
+      <p className="text-2xl font-bold text-purple-700">
+        {patients.filter((p) => p.billNo && p.billNo.trim() !== "").length}
+      </p>
+      <Receipt className="h-6 w-6 md:h-8 md:w-8 text-purple-500" />
+    </div>
+  </div>
+</div>
+
+
       </div>
       {/* Appointment Status Summary */}
       <div className="grid grid-cols-1 lg:grid-cols-2 md:gap-4 gap-3">
@@ -416,6 +357,11 @@ const recentAppointments = cleanedPatients.slice(0, 5);
           </div>
         </div>
       </div>
+    </div>
+
+      )
+      }
+
     </div>
   );
 }

@@ -75,6 +75,7 @@ export type EyeDetail = {
 
 export type PatientFullType = {
   id: string;
+  catagory:string;
   ptName: string;
   age: number; 
   phoneNo: string;
@@ -91,19 +92,13 @@ export type PatientFullType = {
   gender?: "";
 
   // Billing / Order Info
-  visitDate?: Date | null;
   billNo: string;
-
-  // Visit
-  visitPrice: number;
-  visitAdvance:number;
+  visitDate?: Date | null;
+  visitDetails?: { visitDate: string; visitPrice: number }[];
   // Optical
 
   // Order
   opticalPayDetails: {date:string,amount:number,transectionId:string}[];
-  opticalAdvance: number;
-  opticalDue: number;
-  opticalaPrice: number;
 
   orderDate: string;
 
@@ -116,18 +111,12 @@ export type PatientFullType = {
 
   // Medicine
   medicines: {date:string,medicinename:string,price:number}[];
-  medicinePrice: number;
-
-
-  // Totals
-  totalAmount: number;
-  totalAdvance: number;
-  totalDue: number;
   
   // Medical Info
   primaryWorkupBy: string;
   presentComplaints: string[];
   iopPachyCCT: {
+    updateDate: string;
     rightEye: {
       methodTime: string;
       iop: number;
@@ -140,8 +129,9 @@ export type PatientFullType = {
       correctedIop?: number;
       cct?: number;
     };
-  };
+  }[];
   vision: {
+    updateDate: string,
     rightEye: {
       unaidedDistance: string;
       unaidedNear?: string;
@@ -154,26 +144,27 @@ export type PatientFullType = {
       bestCorrectedDistance?: string;
       bestCorrectedNear?: string;
     };
-  };
+  }[];
   examinedBy: string;
   examDetails: {
-  adnexa: EyeDetail;
-  conjunctiva: EyeDetail;
-  cornea: EyeDetail;
-  anteriorChamber: EyeDetail;
-  iris: EyeDetail;
-  lens: EyeDetail;
-  fundus: EyeDetail;
-  orbit: EyeDetail;
-  syringing: EyeDetail;
-  vitreous: EyeDetail;
-};
-  orderOnly:boolean;
+    updateDate: string;
+    adnexa: EyeDetail;
+    conjunctiva: EyeDetail;
+    cornea: EyeDetail;
+    anteriorChamber: EyeDetail;
+    iris: EyeDetail;
+    lens: EyeDetail;
+    fundus: EyeDetail;
+    orbit: EyeDetail;
+    syringing: EyeDetail;
+    vitreous: EyeDetail;
+  }[];
   diagnosis: string[];
   prescription: string;
   nextReview: string;
   doctorRemarks: string;
   glassesPrescription: {
+    updateDate: string;
     rightEye: {
       sph: string;
       cyl?: string;
@@ -193,7 +184,7 @@ export type PatientFullType = {
       add?: string;
     };
     use: string;
-  };
+  }[];
 };
 
 
@@ -202,6 +193,7 @@ const defaultEyeDetail: EyeDetail = { right: "Normal", left: "Normal" };
 export const todayDate = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
 
 export const initialPatient:PatientFullTypeWithObjectId={
+  catagory:"patient",
   id: "",
   ptName: "",
   age: 0,
@@ -211,17 +203,21 @@ export const initialPatient:PatientFullTypeWithObjectId={
   preferredDate: "",
   preferredTime: "",
   purpose: "consultation",
-  status: "pending",
+  status: "confirmed",
   notes: "",
   createdAt: new Date(),
   visitDate: new Date(),
   updatedAt: "",
   gender: "",
   repeated: false,
- // Billing Info
+  // Billing Info
   billNo: "",
-  visitPrice: 0,
-  visitAdvance:0,
+  visitDetails: [
+    {
+      visitDate: todayDate,
+      visitPrice: 0,
+    },
+  ],
   //order
 
   // frame
@@ -234,55 +230,61 @@ export const initialPatient:PatientFullTypeWithObjectId={
   lensePrice: 0,
   deliveryDate: "",
   opticalPayDetails: [],
-  opticalAdvance: 0,
-  opticalDue: 0,
-  opticalaPrice:0,
 
 
 
   //madicine
   medicines: [],
-  medicinePrice: 0,
-
-
-  totalAmount: 0,
-  totalAdvance: 0,
-  totalDue: 0,
 
   // Medical Info (empty/default values)
-  orderOnly:false,
   primaryWorkupBy: "",
   presentComplaints: [],
-  iopPachyCCT: {
-    rightEye: { methodTime: "", iop: 0 },
-    leftEye: { methodTime: "", iop: 0 },
-  },
-  vision: {
-    rightEye: { unaidedDistance: "" },
-    leftEye: { unaidedDistance: "" },
-  },
+  iopPachyCCT: [
+    {
+      updateDate: todayDate,
+      rightEye: { methodTime: "", iop: 0 },
+      leftEye: { methodTime: "", iop: 0 },
+    },
+  ],
+  vision: [
+  {
+    updateDate: new Date().toISOString().split("T")[0], 
+    rightEye: {
+      unaidedDistance: ""
+    },
+    leftEye: {
+      unaidedDistance: ""
+    }
+  }
+],
   examinedBy: "",
-  examDetails: {
+  examDetails: [
+    {
+      updateDate: todayDate,
       adnexa: { ...defaultEyeDetail },
-  conjunctiva: { ...defaultEyeDetail },
-  cornea: { ...defaultEyeDetail },
-  anteriorChamber: { ...defaultEyeDetail },
-  iris: { ...defaultEyeDetail },
-  lens: { ...defaultEyeDetail },
-  fundus: { ...defaultEyeDetail },
-  orbit: { ...defaultEyeDetail },
-  syringing: { ...defaultEyeDetail },
-  vitreous: { ...defaultEyeDetail },
-  },
+      conjunctiva: { ...defaultEyeDetail },
+      cornea: { ...defaultEyeDetail },
+      anteriorChamber: { ...defaultEyeDetail },
+      iris: { ...defaultEyeDetail },
+      lens: { ...defaultEyeDetail },
+      fundus: { ...defaultEyeDetail },
+      orbit: { ...defaultEyeDetail },
+      syringing: { ...defaultEyeDetail },
+      vitreous: { ...defaultEyeDetail },
+    },
+  ],
   diagnosis: [],
   prescription: "",
   nextReview: "",
   doctorRemarks: "",
-  glassesPrescription: {
-    rightEye: { sph: "", add: "" },
-    leftEye: { sph: "", add: "" },
-    use: "",
-  },
+  glassesPrescription: [
+    {
+      updateDate: todayDate,
+      rightEye: { sph: "", add: "" },
+      leftEye: { sph: "", add: "" },
+      use: "",
+    },
+  ],
 }
 
 
