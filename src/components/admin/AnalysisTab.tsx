@@ -1,5 +1,5 @@
 "use client";
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useDashboardData } from "@/src/contexts/dataCollection";
 import {
   ResponsiveContainer,
@@ -40,9 +40,11 @@ const COLORS = [
   "#10b981",
 ];
 
+
+
 export function AnalysisTab() {
   const { patients, isLoading } = useDashboardData();
-  const [mode, setMode] = useState<Mode>("yearly");
+  const [mode, setMode] = useState<Mode>("monthly");
 
   const now = new Date();
   const [month, setMonth] = useState<number>(now.getMonth());
@@ -55,9 +57,15 @@ export function AnalysisTab() {
 
   const cacheRef = useRef<Map<string, any>>(new Map());
 
+  useEffect(() => {
+    cacheRef.current.clear();
+  }, [patients]);
+
   // ---------------------
   // RANGE LOGIC
   // ---------------------
+ 
+
   const range = useMemo(() => {
     if (mode === "monthly") {
       return {
@@ -106,109 +114,167 @@ export function AnalysisTab() {
   const data = useMemo(() => {
     const key = range.key;
     if (cacheRef.current.has(key)) return cacheRef.current.get(key);
-
-    const filtered = patients.filter((p: any) =>
-      df.isInRange(p.visitDate, range.start, range.end)
-    );
-
     const byDayMap = new Map<string, DayAgg>();
 
-    filtered.forEach((p: any) => {
-      const d = df.normalizeYYYYMMDD(p.visitDate);
-      if (!d) return;
+    patients.forEach((p: any) => {
+      const visits = Array.isArray(p.visitDetails) ? p.visitDetails : [];
+      visits
+        .filter((e: any) => df.isInRange(e.visitDate, range.start, range.end))
+        .forEach((e: any) => {
+          const d = df.normalizeYYYYMMDD(e.visitDate);
+          if (!d) return;
+          const prev =
+            byDayMap.get(d) || {
+              date: d,
+              appointments: 0,
+              visit: 0,
+              medicines: 0,
+              optical: 0,
+              total: 0,
+            };
+          const visitAmt = Number(e.visitPrice || 0);
+          byDayMap.set(d, {
+            date: d,
+            appointments: prev.appointments + 1,
+            visit: prev.visit + visitAmt,
+            medicines: prev.medicines,
+            optical: prev.optical,
+            total: prev.total + visitAmt,
+          });
+        });
 
-      const meds = Array.isArray(p.medicines)
-        ? p.medicines.filter((m: any) =>
-            df.isInRange(m.date, range.start, range.end)
-          )
-        : [];
+      const meds = Array.isArray(p.medicines) ? p.medicines : [];
+      meds
+        .filter((m: any) => df.isInRange(m.date, range.start, range.end))
+        .forEach((m: any) => {
+          const d = df.normalizeYYYYMMDD(m.date);
+          if (!d) return;
+          const prev =
+            byDayMap.get(d) || {
+              date: d,
+              appointments: 0,
+              visit: 0,
+              medicines: 0,
+              optical: 0,
+              total: 0,
+            };
+          const medAmt = Number(m.price || 0);
+          byDayMap.set(d, {
+            date: d,
+            appointments: prev.appointments,
+            visit: prev.visit,
+            medicines: prev.medicines + medAmt,
+            optical: prev.optical,
+            total: prev.total + medAmt,
+          });
+        });
 
-      const opticalPay = Array.isArray(p.opticalPayDetails)
-        ? p.opticalPayDetails.filter((o: any) =>
-            df.isInRange(o.date, range.start, range.end)
-          )
-        : [];
-
-      const visitAmt = Array.isArray(p.visitDetails)
-        ? p.visitDetails
-            .filter((e: any) => df.isInRange(e.visitDate, range.start, range.end))
-            .reduce((s: number, e: any) => s + Number(e.visitPrice || 0), 0)
-        : 0;
-      const medAmt = meds.reduce((s: any, m: any) => s + Number(m.price || 0), 0);
-      const opticalAmt = opticalPay.reduce(
-        (s: any, o: any) => s + Number(o.amount || 0),
-        0
-      );
-
-      const prev =
-        byDayMap.get(d) || {
-          date: d,
-          appointments: 0,
-          visit: 0,
-          medicines: 0,
-          optical: 0,
-          total: 0,
-        };
-
-      byDayMap.set(d, {
-        date: d,
-        appointments: prev.appointments + 1,
-        visit: prev.visit + visitAmt,
-        medicines: prev.medicines + medAmt,
-        optical: prev.optical + opticalAmt,
-        total: prev.total + visitAmt + medAmt + opticalAmt,
-      });
+      const optical = Array.isArray(p.opticalPayDetails) ? p.opticalPayDetails : [];
+      optical
+        .filter((o: any) => df.isInRange(o.date, range.start, range.end))
+        .forEach((o: any) => {
+          const d = df.normalizeYYYYMMDD(o.date);
+          if (!d) return;
+          const prev =
+            byDayMap.get(d) || {
+              date: d,
+              appointments: 0,
+              visit: 0,
+              medicines: 0,
+              optical: 0,
+              total: 0,
+            };
+          const amt = Number(o.amount || 0);
+          byDayMap.set(d, {
+            date: d,
+            appointments: prev.appointments,
+            visit: prev.visit,
+            medicines: prev.medicines,
+            optical: prev.optical + amt,
+            total: prev.total + amt,
+          });
+        });
     });
 
     const byDay = Array.from(byDayMap.values()).sort((a, b) =>
       a.date.localeCompare(b.date)
     );
 
-    const totals = df.computeTotals(filtered, range.start, range.end);
+    const totals = df.computeTotals(patients, range.start, range.end);
 
-    const statusCounts = filtered.reduce((acc: any, p: any) => {
-      const s = p.status || "unknown";
-      acc[s] = (acc[s] || 0) + 1;
-      return acc;
-    }, {});
+    const statusCounts = patients
+      .filter((p: any) => df.isInRange(p.visitDate, range.start, range.end))
+      .reduce((acc: any, p: any) => {
+        const s = p.status || "unknown";
+        acc[s] = (acc[s] || 0) + 1;
+        return acc;
+      }, {});
 
     const monthsMap = new Map<string, MonthAgg>();
 
-    filtered.forEach((p: any) => {
-      const d = p.visitDate ? new Date(p.visitDate) : null;
-      if (!d) return;
+    patients.forEach((p: any) => {
+      const visits = Array.isArray(p.visitDetails) ? p.visitDetails : [];
+      visits
+        .filter((e: any) => df.isInRange(e.visitDate, range.start, range.end))
+        .forEach((e: any) => {
+          const d = df.normalizeYYYYMMDD(e.visitDate);
+          if (!d) return;
+          const [yy, mm] = d.split("-");
+          const keyMonth = `${yy}-${mm}`;
+          const prev = monthsMap.get(keyMonth) || {
+            month: keyMonth,
+            total: 0,
+            appointments: 0,
+          };
+          const visitAmt = Number(e.visitPrice || 0);
+          monthsMap.set(keyMonth, {
+            month: keyMonth,
+            total: prev.total + visitAmt,
+            appointments: prev.appointments + 1,
+          });
+        });
 
-      const keyMonth = `${d.getFullYear()}-${String(
-        d.getMonth() + 1
-      ).padStart(2, "0")}`;
+      const meds = Array.isArray(p.medicines) ? p.medicines : [];
+      meds
+        .filter((m: any) => df.isInRange(m.date, range.start, range.end))
+        .forEach((m: any) => {
+          const d = df.normalizeYYYYMMDD(m.date);
+          if (!d) return;
+          const [yy, mm] = d.split("-");
+          const keyMonth = `${yy}-${mm}`;
+          const prev = monthsMap.get(keyMonth) || {
+            month: keyMonth,
+            total: 0,
+            appointments: 0,
+          };
+          const medAmt = Number(m.price || 0);
+          monthsMap.set(keyMonth, {
+            month: keyMonth,
+            total: prev.total + medAmt,
+            appointments: prev.appointments,
+          });
+        });
 
-      const meds = Array.isArray(p.medicines)
-        ? p.medicines.reduce((s: any, m: any) => s + Number(m.price || 0), 0)
-        : 0;
-
-      const opticalPay = Array.isArray(p.opticalPayDetails)
-        ? p.opticalPayDetails.reduce(
-            (s: any, o: any) => s + Number(o.amount || 0),
-            0
-          )
-        : 0;
-
-      const visitSumTotal = Array.isArray(p.visitDetails)
-        ? p.visitDetails.reduce((s: number, e: any) => s + Number(e.visitPrice || 0), 0)
-        : 0;
-      const total = visitSumTotal + Number(meds) + Number(opticalPay);
-
-      const prev = monthsMap.get(keyMonth) || {
-        month: keyMonth,
-        total: 0,
-        appointments: 0,
-      };
-
-      monthsMap.set(keyMonth, {
-        month: keyMonth,
-        total: prev.total + total,
-        appointments: prev.appointments + 1,
-      });
+      const optical = Array.isArray(p.opticalPayDetails) ? p.opticalPayDetails : [];
+      optical
+        .filter((o: any) => df.isInRange(o.date, range.start, range.end))
+        .forEach((o: any) => {
+          const d = df.normalizeYYYYMMDD(o.date);
+          if (!d) return;
+          const [yy, mm] = d.split("-");
+          const keyMonth = `${yy}-${mm}`;
+          const prev = monthsMap.get(keyMonth) || {
+            month: keyMonth,
+            total: 0,
+            appointments: 0,
+          };
+          const amt = Number(o.amount || 0);
+          monthsMap.set(keyMonth, {
+            month: keyMonth,
+            total: prev.total + amt,
+            appointments: prev.appointments,
+          });
+        });
     });
 
     const byMonth = Array.from(monthsMap.values()).sort((a, b) =>
@@ -242,13 +308,16 @@ export function AnalysisTab() {
   // UI
   // --------------------------------------------------------------------------
   return (
+
     <div>
-         {isLoading ? (
+      
+
+      {isLoading ? (
         <div className="flex items-center justify-center py-6">
           <div className="animate-spin h-8 w-8 border-b-2 border-teal-500 rounded-full"></div>
         </div>
       ):(
-            <div className="space-y-4 md:space-y-6 pb-8">
+   <div className="space-y-4 md:space-y-6 pb-8">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-xl md:text-2xl font-bold text-gray-900">
@@ -391,8 +460,6 @@ export function AnalysisTab() {
         </div>
       </div>
 
-      {/* LOADING INDICATOR */}
-   
 
       {/* -----------------------
         CHARTS GRID
@@ -492,6 +559,6 @@ export function AnalysisTab() {
     </div>
       )}
     </div>
-
+ 
   );
 }
