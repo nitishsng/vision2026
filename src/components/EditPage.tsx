@@ -9,7 +9,9 @@ import { useRouter } from "next/navigation";
 import { Delete } from "lucide-react";
 import Medicine from "./Medicine";
 import OpticalPayment from "./OpticalPayment";
+import useEligibility from "./elegibleForfeatures";
 const EditPage = () => {
+  const eligibleForFeatures = useEligibility();
   const navigate = useRouter();
   const { patients, fetchData } = useDashboardData();
   const params = useParams();

@@ -5,8 +5,10 @@ import { useDashboardData } from "@/src/contexts/dataCollection";
 import toast from "react-hot-toast";
 import NewOrder from "../NewOrderMedicine";
 import OpticalPayment from "../OpticalPayment";
-
+import useEligibility from "../elegibleForfeatures";
 export function OrdersTab() {
+  const eligibleForFeatures = useEligibility();
+
   const { patients, fetchData, isLoading } = useDashboardData();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [formData, setFormData] = useState<PatientFullTypeWithObjectId | null>(
@@ -101,7 +103,10 @@ export function OrdersTab() {
               },
             } as any;
           }
-          return { ...prev, glassesPrescription: arr } as PatientFullTypeWithObjectId;
+          return {
+            ...prev,
+            glassesPrescription: arr,
+          } as PatientFullTypeWithObjectId;
         });
       } else if (
         name.includes("total") ||
@@ -183,7 +188,8 @@ export function OrdersTab() {
       filterByDeliveryStatus &&
       matchesDate &&
       patient.billNo &&
-      ((patient.opticalPayDetails?.length || 0) > 0 || ((patient.framePrice || 0) + (patient.lensePrice || 0) > 0))
+      ((patient.opticalPayDetails?.length || 0) > 0 ||
+        (patient.framePrice || 0) + (patient.lensePrice || 0) > 0)
     );
   });
 
@@ -288,16 +294,44 @@ export function OrdersTab() {
     }
 
     // Financials (derived)
-    const visitSum = (Array.isArray(formData.visitDetails)
-      ? formData.visitDetails.reduce((sum, v) => sum + (Number(v.visitPrice) || 0), 0)
-      : 0);
-    const totalAmount = visitSum + (Number(formData.framePrice) || 0) + (Number(formData.lensePrice) || 0) + (Array.isArray(formData.medicines) ? formData.medicines.reduce((sum, m) => sum + (Number(m.price) || 0), 0) : 0);
-    const advance = (Array.isArray(formData.opticalPayDetails) ? formData.opticalPayDetails.reduce((sum, d) => sum + (Number(d.amount) || 0), 0) : 0) + visitSum + (Array.isArray(formData.medicines) ? formData.medicines.reduce((sum, m) => sum + (Number(m.price) || 0), 0) : 0);
-    const due = (Number(formData.framePrice) || 0) + (Number(formData.lensePrice) || 0) - (Array.isArray(formData.opticalPayDetails) ? formData.opticalPayDetails.reduce((sum, d) => sum + (Number(d.amount) || 0), 0) : 0);
+    const visitSum = Array.isArray(formData.visitDetails)
+      ? formData.visitDetails.reduce(
+          (sum, v) => sum + (Number(v.visitPrice) || 0),
+          0
+        )
+      : 0;
+    const totalAmount =
+      visitSum +
+      (Number(formData.framePrice) || 0) +
+      (Number(formData.lensePrice) || 0) +
+      (Array.isArray(formData.medicines)
+        ? formData.medicines.reduce((sum, m) => sum + (Number(m.price) || 0), 0)
+        : 0);
+    const advance =
+      (Array.isArray(formData.opticalPayDetails)
+        ? formData.opticalPayDetails.reduce(
+            (sum, d) => sum + (Number(d.amount) || 0),
+            0
+          )
+        : 0) +
+      visitSum +
+      (Array.isArray(formData.medicines)
+        ? formData.medicines.reduce((sum, m) => sum + (Number(m.price) || 0), 0)
+        : 0);
+    const due =
+      (Number(formData.framePrice) || 0) +
+      (Number(formData.lensePrice) || 0) -
+      (Array.isArray(formData.opticalPayDetails)
+        ? formData.opticalPayDetails.reduce(
+            (sum, d) => sum + (Number(d.amount) || 0),
+            0
+          )
+        : 0);
     lines.push("💰 Payment Details:");
     lines.push(`Total Amount: ₹${totalAmount}`);
     lines.push(`Total Advance Paid: ₹${advance}`);
-    if (due > 0) lines.push(`Amount Due: ₹${due} ⚠️ Please pay the remaining amount.`);
+    if (due > 0)
+      lines.push(`Amount Due: ₹${due} ⚠️ Please pay the remaining amount.`);
     else lines.push("✅ Payment Complete. Thank you!");
 
     lines.push("\nThank you for choosing us! 🙏");
@@ -308,759 +342,866 @@ export function OrdersTab() {
   };
 
   return (
-
-        <div>
-  {isLoading ? (
+    <div>
+      {isLoading ? (
         <div className="flex items-center justify-center py-6">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500"></div>
         </div>
-      ):(
-    <div className="p-2">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-[20px] md:text-2xl font-bold text-gray-900">
-            Orders Management
-          </h1>
-          <p className="text-gray-600 hidden lg:flex ">
-            View and manage all Orders
-          </p>
-        </div>
-        <button
-          onClick={() => setNewOrderForm(true)}
-          className="bg-teal-500 hover:bg-teal-600 text-white px-2 py-1 md:px-4 d:py-4 rounded-lg font-medium flex items-center space-x-2 transition-colors"
-        >
-          <Plus className="h-4 w-4" />
-          <span>New Order</span>
-        </button>
-      </div>
-
-      {newOrderForm && (
-        <NewOrder
-          setNewOrderForm={setNewOrderForm}
-          setorderSuccess={setorderSuccess}
-          catagory={"order"}
-        />
-      )}
-
-      <div className="bg-white rounded-lg p-2 md:p-5 border border-gray-200">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
-          <div>
-            <label className="hidden md:block text-sm font-medium text-gray-700 mb-1">
-              Search
-            </label>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <input
-                type="text"
-                placeholder="Search by name, phone, bill number, or email..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-1">
+      ) : (
+        <div className="p-2">
+          <div className="flex justify-between items-center">
             <div>
-              <label className="hidden md:block text-sm font-medium text-gray-700 mb-1">
-                Delivery Status
-              </label>
-              <select
-                name="deliveryStatus"
-                value={deliveryStatusFilter}
-                onChange={(e) => setDeliveryStatusFilter(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-              >
-                <option value="">All</option>
-                <option value="pending">Pending</option>
-                <option value="inProgress">In Progress</option>
-                <option value="readyToDeliver">Ready to Deliver</option>
-                <option value="delivered">Delivered</option>
-              </select>
+              <h1 className="text-[20px] md:text-2xl font-bold text-gray-900">
+                Orders Management
+              </h1>
+              <p className="text-gray-600 hidden lg:flex ">
+                View and manage all Orders
+              </p>
             </div>
 
-            <div>
-              <label className="hidden md:block text-sm font-medium text-gray-700 mb-1">
-                Date
-              </label>
-              <input
-                type="date"
-                value={dateFilter}
-                onChange={(e) => setDateFilter(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-              />
-            </div>
-            <div className="hidden md:flex items-end ">
+            <div className="relative group inline-block">
               <button
-                onClick={() => {
-                  setSearchTerm("");
-                  setDeliveryStatusFilter("");
-                  setDateFilter("");
-                }}
-                className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                disabled={!eligibleForFeatures(4)}
+                onClick={() => setNewOrderForm(true)}
+                className="bg-teal-500 hover:bg-teal-600 text-white px-2 py-1 md:px-4 md:py-2 rounded-lg font-medium flex items-center space-x-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Clear Filters
+                <Plus className="h-4 w-4" />
+                <span>New Order</span>
               </button>
+
+              {!eligibleForFeatures(4) && (
+                <span className="absolute left-1/2 -translate-x-1/2 top-full mt-1 bg-black text-white text-xs px-2 py-1 rounded hidden group-hover:block whitespace-nowrap z-10">
+                  You are not eligible
+                </span>
+              )}
             </div>
           </div>
-        </div>
-      </div>
 
+          {newOrderForm && (
+            <NewOrder
+              setNewOrderForm={setNewOrderForm}
+              setorderSuccess={setorderSuccess}
+              catagory={"order"}
+            />
+          )}
 
-<div className="bg-white shadow-md rounded-lg overflow-hidden">
-  <div className="overflow-x-auto">
-    <table className="min-w-[560px] md:min-w-full leading-normal w-full">
-      <thead>
-        <tr>
-          <th className="px-2 md:px-4 py-2 border-b-2 border-gray-200 bg-gray-100 
-                         text-left text-xs font-semibold text-gray-600 uppercase tracking-wider 
-                         whitespace-nowrap">
-            Bill No
-          </th>
-
-          <th className="px-2 md:px-4 py-2 border-b-2 border-gray-200 bg-gray-100 
-                         text-left text-xs font-semibold text-gray-600 uppercase tracking-wider 
-                         whitespace-nowrap">
-            Pt-Name
-          </th>
-
-          <th className="px-2 md:px-4 py-2 border-b-2 border-gray-200 bg-gray-100 
-                         text-left text-xs font-semibold text-gray-600 uppercase tracking-wider 
-                         whitespace-nowrap">
-            Phone No
-          </th>
-
-          <th className="px-2 md:px-4 py-2 border-b-2 border-gray-200 bg-gray-100 
-                         text-left text-xs font-semibold text-gray-600 uppercase tracking-wider 
-                         whitespace-nowrap">
-            Order-Date
-          </th>
-
-          <th className="px-2 md:px-4 py-2 border-b-2 border-gray-200 bg-gray-100 
-                         text-left text-xs font-semibold text-gray-600 uppercase tracking-wider 
-                         whitespace-nowrap">
-            Due
-          </th>
-
-          <th className="px-2 md:px-4 py-2 border-b-2 border-gray-200 bg-gray-100 
-                         text-center text-xs font-semibold text-gray-600 uppercase tracking-wider 
-                         whitespace-nowrap">
-            Actions
-          </th>
-        </tr>
-      </thead>
-
-      <tbody>
-        {orders.length === 0 ? (
-          <tr>
-            <td colSpan={5} className="text-center px-2 md:px-4 text-gray-500 py-4 whitespace-nowrap">
-              No orders found.
-            </td>
-          </tr>
-        ) : (
-          orders.map((order) => (
-            <tr
-              key={order.billNo}
-              className={`transition-colors ${
-                ((order.framePrice || 0) +
-                  (order.lensePrice || 0) -
-                  (order.opticalPayDetails || []).reduce(
-                    (sum, d) => sum + (Number(d.amount) || 0),
-                    0
-                  )) > 0
-                  ? "bg-red-50"
-                  : "bg-white text-gray-800"
-              } hover:bg-gray-50`}
-            >
-              {/* Bill No */}
-              <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm font-medium whitespace-nowrap flex items-center gap-1">
-
-                {/* DOTS */}
-                <div className="flex flex-col justify-center items-center">
-                  {order.repeated && <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-green-600" />}
-                  {(order.framePrice + order.lensePrice > 0) && (
-                    <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-orange-500" />
-                  )}
-                  {order.medicines.length > 0 && (
-                    <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-blue-800" />
-                  )}
-                  {!(
-                    order.repeated ||
-                    (order.framePrice + order.lensePrice > 0) ||
-                    order.medicines.length > 0
-                  ) && (
-                    <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-transparent" />
-                  )}
-                </div>
-
-                {order.billNo}
-              </td>
-
-              {/* Name */}
-              <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm whitespace-nowrap">
-                {order.ptName}
-              </td>
-
-              {/* Phone */}
-              <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm whitespace-nowrap">
-                {order.phoneNo ? (
-                  <a href={`tel:${order.phoneNo}`} className="hover:underline">
-                    {order.phoneNo}
-                  </a>
-                ) : (
-                  "N/A"
-                )}
-              </td>
-
-              {/* Date → full DD-MM-YYYY */}
-              <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm font-semibold whitespace-nowrap">
-                {order.orderDate
-                  ? new Date(order.orderDate).toLocaleDateString("en-GB") // DD/MM/YYYY
-                  : "N/A"}
-              </td>
-
-              {/* Due */}
-              <td
-                className={`px-2 md:px-4 py-2 border-b border-gray-200 text-sm font-semibold whitespace-nowrap ${
-                  ((order.framePrice || 0) +
-                    (order.lensePrice || 0) -
-                    (order.opticalPayDetails || []).reduce(
-                      (sum, d) => sum + (Number(d.amount) || 0),
-                      0
-                    )) > 0
-                    ? "text-red-600"
-                    : "text-green-600"
-                }`}
-              >
-                ₹
-                {(order.framePrice || 0) +
-                  (order.lensePrice || 0) -
-                  (order.opticalPayDetails || []).reduce(
-                    (sum, d) => sum + (Number(d.amount) || 0),
-                    0
-                  )}
-              </td>
-
-              {/* Actions */}
-              <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm text-center whitespace-nowrap">
-                <div className="flex justify-center items-center space-x-3">
-                  <button
-                    onClick={() => handleViewClick(order)}
-                    className="text-teal-600 hover:text-teal-900"
-                  >
-                    <Eye className="h-5 w-5" />
-                  </button>
-
-                  <button
-                    onClick={() => handleEditClick(order)}
-                    className="text-blue-600 hover:text-blue-900"
-                  >
-                    <Edit className="h-5 w-5" />
-                  </button>
-
-                  <button
-                    onClick={() => handleDeleteClick(order)}
-                    className="text-red-600 hover:text-red-800"
-                  >
-                    <Delete className="h-5 w-5" />
-                  </button>
-                </div>
-              </td>
-            </tr>
-          ))
-        )}
-      </tbody>
-    </table>
-  </div>
-</div>
-
-
-      {/* View Popup/Modal for Order Details */}
-      {isPopupOpen && formData && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
-          <div className="relative p-8 border w-full max-w-2xl md:max-w-3xl lg:max-w-4xl shadow-lg rounded-md bg-white">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">
-              Order Details (Bill No: {formData.billNo})
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
-              {/* Patient Info */}
+          <div className="bg-white rounded-lg p-2 md:p-5 border border-gray-200">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
               <div>
-                <p>
-                  <strong>Patient Name:</strong> {formData.ptName}
-                </p>
-                <p>
-                  <strong>Phone No:</strong>{" "}
-                  {formData.phoneNo ? (
-                    <a
-                      href={`tel:${formData.phoneNo}`}
-                      className="text-blue-600 hover:underline"
-                    >
-                      {formData.phoneNo}
-                    </a>
-                  ) : (
-                    "N/A"
-                  )}
-                </p>
-
-                <p>
-                  <strong>Email Id:</strong>{" "}
-                  {formData.email ? (
-                    <a
-                      href={`mailto:${formData.email}`}
-                      className="text-blue-600 hover:underline"
-                    >
-                      {formData.email}
-                    </a>
-                  ) : (
-                    "N/A"
-                  )}
-                </p>
-
-                <p>
-                  <strong>Age:</strong> {formData.age || "N/A"}
-                </p>
-                <p>
-                  <strong>Gender:</strong> {formData.gender || "N/A"}
-                </p>
-              </div>
-
-              {/* Glasses Prescription */}
-              <div>
-                <h4 className="font-semibold mt-2">Glasses Prescription:</h4>
-                <p>
-                  <strong>Use:</strong> {(Array.isArray(formData.glassesPrescription) && formData.glassesPrescription[0]?.use) || "N/A"}
-                </p>
-
-                <p>
-                  <strong>Right Eye SPH:</strong>{" "}
-                  {(Array.isArray(formData.glassesPrescription) && formData.glassesPrescription[0]?.rightEye.sph) || "N/A"}
-                </p>
-                <p>
-                  <strong>Right Eye CYL:</strong>{" "}
-                  {(Array.isArray(formData.glassesPrescription) && formData.glassesPrescription[0]?.rightEye.cyl) || "N/A"}
-                </p>
-                <p>
-                  <strong>Right Eye AXIS:</strong>{" "}
-                  {(Array.isArray(formData.glassesPrescription) && formData.glassesPrescription[0]?.rightEye.axis) || "N/A"}
-                </p>
-                <p>
-                  <strong>Right Eye Addition:</strong>{" "}
-                  {(Array.isArray(formData.glassesPrescription) && formData.glassesPrescription[0]?.rightEye.add) || "N/A"}
-                </p>
-                <p>
-                  <strong>Right Eye Prism:</strong>{" "}
-                  {(Array.isArray(formData.glassesPrescription) && formData.glassesPrescription[0]?.rightEye.prism) || "N/A"}
-                </p>
-                <p>
-                  <strong>Right Eye V.A:</strong>{" "}
-                  {(Array.isArray(formData.glassesPrescription) && formData.glassesPrescription[0]?.rightEye.V_A) || "N/A"}
-                </p>
-                <p>
-                  <strong>Right Eye N.V:</strong>{" "}
-                  {(Array.isArray(formData.glassesPrescription) && formData.glassesPrescription[0]?.rightEye.N_V) || "N/A"}
-                </p>
-
-                <p>
-                  <strong>Left Eye SPH:</strong>{" "}
-                  {(Array.isArray(formData.glassesPrescription) && formData.glassesPrescription[0]?.leftEye.sph) || "N/A"}
-                </p>
-                <p>
-                  <strong>Left Eye CYL:</strong>{" "}
-                  {(Array.isArray(formData.glassesPrescription) && formData.glassesPrescription[0]?.leftEye.cyl) || "N/A"}
-                </p>
-                <p>
-                  <strong>Left Eye AXIS:</strong>{" "}
-                  {(Array.isArray(formData.glassesPrescription) && formData.glassesPrescription[0]?.leftEye.axis) || "N/A"}
-                </p>
-                <p>
-                  <strong>Left Eye Addition:</strong>{" "}
-                  {(Array.isArray(formData.glassesPrescription) && formData.glassesPrescription[0]?.leftEye.add) || "N/A"}
-                </p>
-                <p>
-                  <strong>Left Eye Prism:</strong>{" "}
-                  {(Array.isArray(formData.glassesPrescription) && formData.glassesPrescription[0]?.leftEye.prism) || "N/A"}
-                </p>
-                <p>
-                  <strong>Left Eye V.A:</strong>{" "}
-                  {(Array.isArray(formData.glassesPrescription) && formData.glassesPrescription[0]?.leftEye.V_A) || "N/A"}
-                </p>
-                <p>
-                  <strong>Left Eye N.V:</strong>{" "}
-                  {(Array.isArray(formData.glassesPrescription) && formData.glassesPrescription[0]?.leftEye.N_V) || "N/A"}
-                </p>
-              </div>
-
-              {/* Order Details */}
-              <div>
-                <h4 className="font-semibold mt-3 text-gray-800 border-b pb-1">
-                  Order Information
-                </h4>
-
-                {/* Dates */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2 text-sm text-gray-700">
-                  <p>
-                    <strong>Order Date:</strong>{" "}
-                    {formData.orderDate
-                      ? new Date(formData.orderDate).toLocaleDateString(
-                          "en-GB",
-                          {
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "2-digit",
-                          }
-                        )
-                      : "N/A"}
-                  </p>
-
-                  <p>
-                    <strong>Delivery Date:</strong>{" "}
-                    {formData.deliveryDate
-                      ? new Date(formData.deliveryDate).toLocaleDateString(
-                          "en-GB",
-                          {
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "2-digit",
-                          }
-                        )
-                      : "N/A"}
-                  </p>
-                </div>
-
-                {/* Frame Details */}
-                <div className="mt-3">
-                  <h5 className="font-semibold text-blue-700">
-                    Frame Details:
-                  </h5>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 text-sm text-gray-700">
-                    <p>
-                      <strong>Frame ID:</strong> {formData.frameId || "N/A"}
-                    </p>
-                    <p>
-                      <strong>Frame Price:</strong> ₹{formData.framePrice || 0}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Lens Details */}
-                <div className="mt-3">
-                  <h5 className="font-semibold text-blue-700">Lens Details:</h5>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 text-sm text-gray-700">
-                    <p>
-                      <strong>Lens ID:</strong> {formData.lenseType || "N/A"}
-                    </p>
-                    <p>
-                      <strong>Lens Price:</strong> ₹{formData.lensePrice || 0}
-                    </p>
-                  </div>
+                <label className="hidden md:block text-sm font-medium text-gray-700 mb-1">
+                  Search
+                </label>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <input
+                    type="text"
+                    placeholder="Search by name, phone, bill number, or email..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  />
                 </div>
               </div>
 
-              {/* Financials */}
-              <div>
-                <h4 className="font-semibold mt-2">Financial Summary:</h4>
-                <p>
-                  <strong>Total Amount:</strong> ₹{
-                    (Array.isArray(formData.visitDetails)
-                      ? formData.visitDetails.reduce((sum, v) => sum + (Number(v.visitPrice) || 0), 0)
-                      : 0) +
-                    (Number(formData.framePrice) || 0) +
-                    (Number(formData.lensePrice) || 0) +
-                    (Array.isArray(formData.medicines)
-                      ? formData.medicines.reduce((sum, m) => sum + (Number(m.price) || 0), 0)
-                      : 0)
-                  }
-                </p>
-                <p>
-                  <strong>Total Advance:</strong> ₹{
-                    (Array.isArray(formData.opticalPayDetails)
-                      ? formData.opticalPayDetails.reduce((sum, d) => sum + (Number(d.amount) || 0), 0)
-                      : 0) +
-                    (Array.isArray(formData.visitDetails)
-                      ? formData.visitDetails.reduce((sum, v) => sum + (Number(v.visitPrice) || 0), 0)
-                      : 0) +
-                    (Array.isArray(formData.medicines)
-                      ? formData.medicines.reduce((sum, m) => sum + (Number(m.price) || 0), 0)
-                      : 0)
-                  }
-                </p>
-                <p>
-                  <strong>Total Due:</strong> ₹{
-                    (Number(formData.framePrice) || 0) + (Number(formData.lensePrice) || 0) -
-                    (Array.isArray(formData.opticalPayDetails)
-                      ? formData.opticalPayDetails.reduce((sum, d) => sum + (Number(d.amount) || 0), 0)
-                      : 0)
-                  }
-                </p>
-              </div>
-            </div>
-            <div className="flex justify-end mt-6">
-              <button
-                onClick={handleClosePopup}
-                className="px-4 py-2 bg-teal-600 text-white text-base font-medium rounded-md shadow-sm hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
-              >
-                Close
-              </button>
-              <button
-                onClick={() => sendToWhatsApp(formData)}
-                className="ml-2 pformDatax-4 px-4 py-2 bg-green-600 text-white text-base font-medium rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-              >
-                Send
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Edit Popup/Modal for Order Details */}
-      {isEditPopupOpen && formData && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
-          <div className="relative p-2 md:p-4 border w-full max-w-2xl md:max-w-3xl lg:max-w-4xl shadow-lg rounded-xl bg-white overflow-y-auto max-h-[95vh]">
-            <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-              Edit Order (Bill No: {formData.billNo})
-            </h3>
-
-            <div className="space-y-2">
-              {/* 🛒 Order Information */}
-              <section className="space-y-2">
-                <h3 className="flex justify-between border-b pb-2 items-center">
-                  <span className="text-lg md:text-xl font-semibold text-gray-700">
-                    Order Information
-                  </span>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-1">
+                <div>
+                  <label className="hidden md:block text-sm font-medium text-gray-700 mb-1">
+                    Delivery Status
+                  </label>
                   <select
                     name="deliveryStatus"
-                    value={formData.deliveryStatus}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        deliveryStatus: e.target.value,
-                      })
-                    }
-                    className="text-sm px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    value={deliveryStatusFilter}
+                    onChange={(e) => setDeliveryStatusFilter(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
                   >
+                    <option value="">All</option>
                     <option value="pending">Pending</option>
                     <option value="inProgress">In Progress</option>
                     <option value="readyToDeliver">Ready to Deliver</option>
                     <option value="delivered">Delivered</option>
                   </select>
-                </h3>
-
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div>
-                    <label className="font-medium mb-1 block text-sm md:text-base">
-                      Order Date
-                    </label>
-                    <input
-                      type="date"
-                      name="orderDate"
-                      value={formData.orderDate.split("T")[0]}
-                      onChange={handleInputChange}
-                      className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="font-medium mb-1 block text-sm md:text-base">
-                      Delivery Date
-                    </label>
-                    <input
-                      type="date"
-                      name="deliveryDate"
-                      value={formData.deliveryDate?.split("T")[0] || ""}
-                      onChange={handleInputChange}
-                      className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="font-medium mb-1 block text-sm md:text-base">
-                      Frame ID
-                    </label>
-                    <input
-                      type="text"
-                      name="frameId"
-                      value={formData.frameId}
-                      onChange={handleInputChange}
-                      className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="font-medium mb-1 block text-sm md:text-base">
-                      Frame Price
-                    </label>
-                    <input
-                      type="number"
-                      name="framePrice"
-                      value={formData.framePrice || 0}
-                      onChange={handleInputChange}
-                      className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="font-medium mb-1 block text-sm md:text-base">
-                      Lens Type
-                    </label>
-                    <input
-                      type="text"
-                      list="lensTypeOptions"
-                      name="lenseType"
-                      value={formData.lenseType || ""}
-                      onChange={handleInputChange}
-                      placeholder="Select or enter lens type"
-                      className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
-                    />
-                    <datalist id="lensTypeOptions">
-                      <option value="Progressive" />
-                      <option value="Single Vision" />
-                      <option value="Bifocal" />
-                      <option value="Trifocal" />
-                      <option value="Reading" />
-                    </datalist>
-                  </div>
-
-                  <div>
-                    <label className="font-medium mb-1 block text-sm md:text-base">
-                      Lens Price
-                    </label>
-                    <input
-                      type="number"
-                      name="lensePrice"
-                      value={formData.lensePrice || 0}
-                      onChange={handleInputChange}
-                      className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="font-medium mb-1 block text-sm md:text-base">
-                      Optical Price
-                    </label>
-                    <input
-                      type="number"
-                      value={formData.lensePrice + formData.framePrice || 0}
-                      readOnly
-                      className="border p-2 md:p-3 rounded w-full bg-gray-100 cursor-not-allowed text-sm md:text-base"
-                    />
-                  </div>
                 </div>
 
-                {/* Payment Details */}
-
-                {formData && (
-                  <OpticalPayment
-                    formData={formData}
-                    setFormData={
-                      setFormData as React.Dispatch<
-                        React.SetStateAction<PatientFullTypeWithObjectId>
-                      >
-                    }
+                <div>
+                  <label className="hidden md:block text-sm font-medium text-gray-700 mb-1">
+                    Date
+                  </label>
+                  <input
+                    type="date"
+                    value={dateFilter}
+                    onChange={(e) => setDateFilter(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
                   />
-                )}
-              </section>
-
-              {/* 💰 Grand Totals Section */}
-              <div className="bg-white shadow-md rounded-2xl p-3 md:p-4 border border-gray-100">
-                <div className="grid grid-cols-3 gap-1 md:gap-6">
-                  <div className="flex flex-col">
-                    <label className="font-medium text-gray-700 mb-1 text-sm md:text-base">
-                      T-Amount
-                    </label>
-                    <input
-                      type="number"
-                      readOnly
-                      value={
-                        (formData.visitDetails || []).reduce(
-                          (sum, v) => sum + (Number(v.visitPrice) || 0),
-                          0
-                        ) +
-                        (formData.framePrice || 0) +
-                        (formData.lensePrice || 0) +
-                        (formData.medicines || []).reduce(
-                          (sum, m) => sum + (Number(m.price) || 0),
-                          0
-                        )
-                      }
-                      className="border p-2 md:p-3 rounded-lg bg-gray-100 cursor-not-allowed text-sm md:text-base"
-                    />
-                  </div>
-
-                  <div className="flex flex-col">
-                    <label className="font-medium text-gray-700 mb-1 text-sm md:text-base">
-                      T-Advance
-                    </label>
-                    <input
-                      type="number"
-                      readOnly
-                      value={
-                        ((formData.opticalPayDetails || []).reduce(
-                          (sum, d) => sum + (Number(d.amount) || 0),
-                          0
-                        )) +
-                        (formData.visitDetails || []).reduce(
-                          (sum, v) => sum + (Number(v.visitPrice) || 0),
-                          0
-                        ) +
-                        (formData.medicines || []).reduce(
-                          (sum, m) => sum + (Number(m.price) || 0),
-                          0
-                        )
-                      }
-                      className="border p-2 md:p-3 rounded-lg bg-gray-100 cursor-not-allowed text-sm md:text-base"
-                    />
-                  </div>
-
-                  <div className="flex flex-col">
-                    <label className="font-medium text-gray-700 mb-1 text-sm md:text-base">
-                      Total Due
-                    </label>
-                    <input
-                      type="number"
-                      readOnly
-                      value={
-                        (formData.framePrice || 0) +
-                        (formData.lensePrice || 0) -
-                        (formData.opticalPayDetails || []).reduce(
-                          (sum, d) => sum + (Number(d.amount) || 0),
-                          0
-                        )
-                      }
-                      className="border p-2 md:p-3 rounded-lg bg-gray-100 cursor-not-allowed text-sm md:text-base"
-                    />
-                  </div>
+                </div>
+                <div className="hidden md:flex items-end ">
+                  <button
+                    onClick={() => {
+                      setSearchTerm("");
+                      setDeliveryStatusFilter("");
+                      setDateFilter("");
+                    }}
+                    className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                  >
+                    Clear Filters
+                  </button>
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* Buttons */}
-            <div className="flex justify-end mt-8 space-x-4">
-              <button
-                onClick={handleCloseEditPopup}
-                className="px-4 py-2 bg-gray-300 text-gray-800 font-medium rounded-md hover:bg-gray-400"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={saving}
-                onClick={handleSaveEdit}
-                className="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700"
-              >
-                {saving ? (
-                  <div className="flex items-center space-x-2">
-                    <span className="spin"></span>
-                    <span>saveing...</span>
-                  </div>
-                ) : (
-                  "Save Changes"
-                )}
-              </button>
+          <div className="bg-white shadow-md rounded-lg overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="min-w-[560px] md:min-w-full leading-normal w-full">
+                <thead>
+                  <tr>
+                    <th
+                      className="px-2 md:px-4 py-2 border-b-2 border-gray-200 bg-gray-100 
+                         text-left text-xs font-semibold text-gray-600 uppercase tracking-wider 
+                         whitespace-nowrap"
+                    >
+                      Bill No
+                    </th>
+
+                    <th
+                      className="px-2 md:px-4 py-2 border-b-2 border-gray-200 bg-gray-100 
+                         text-left text-xs font-semibold text-gray-600 uppercase tracking-wider 
+                         whitespace-nowrap"
+                    >
+                      Pt-Name
+                    </th>
+
+                    <th
+                      className="px-2 md:px-4 py-2 border-b-2 border-gray-200 bg-gray-100 
+                         text-left text-xs font-semibold text-gray-600 uppercase tracking-wider 
+                         whitespace-nowrap"
+                    >
+                      Phone No
+                    </th>
+
+                    <th
+                      className="px-2 md:px-4 py-2 border-b-2 border-gray-200 bg-gray-100 
+                         text-left text-xs font-semibold text-gray-600 uppercase tracking-wider 
+                         whitespace-nowrap"
+                    >
+                      Order-Date
+                    </th>
+
+                    <th
+                      className="px-2 md:px-4 py-2 border-b-2 border-gray-200 bg-gray-100 
+                         text-left text-xs font-semibold text-gray-600 uppercase tracking-wider 
+                         whitespace-nowrap"
+                    >
+                      Due
+                    </th>
+
+                    <th
+                      className="px-2 md:px-4 py-2 border-b-2 border-gray-200 bg-gray-100 
+                         text-center text-xs font-semibold text-gray-600 uppercase tracking-wider 
+                         whitespace-nowrap"
+                    >
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {orders.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan={5}
+                        className="text-center px-2 md:px-4 text-gray-500 py-4 whitespace-nowrap"
+                      >
+                        No orders found.
+                      </td>
+                    </tr>
+                  ) : (
+                    orders.map((order, index) => (
+                      <tr
+                        key={index}
+                        className={`transition-colors ${
+                          (order.framePrice || 0) +
+                            (order.lensePrice || 0) -
+                            (order.opticalPayDetails || []).reduce(
+                              (sum, d) => sum + (Number(d.amount) || 0),
+                              0
+                            ) >
+                          0
+                            ? "bg-red-50"
+                            : "bg-white text-gray-800"
+                        } hover:bg-gray-50`}
+                      >
+                        {/* Bill No */}
+                        <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm font-medium whitespace-nowrap flex items-center gap-1">
+                          {/* DOTS */}
+                          <div className="flex flex-col justify-center items-center">
+                            {order.repeated && (
+                              <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-green-600" />
+                            )}
+                            {order.framePrice + order.lensePrice > 0 && (
+                              <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-orange-500" />
+                            )}
+                            {order.medicines.length > 0 && (
+                              <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-blue-800" />
+                            )}
+                            {!(
+                              order.repeated ||
+                              order.framePrice + order.lensePrice > 0 ||
+                              order.medicines.length > 0
+                            ) && (
+                              <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-transparent" />
+                            )}
+                          </div>
+
+                          {order.billNo}
+                        </td>
+
+                        {/* Name */}
+                        <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm whitespace-nowrap">
+                          {order.ptName}
+                        </td>
+
+                        {/* Phone */}
+                        <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm whitespace-nowrap">
+                          {order.phoneNo ? (
+                            <a
+                              href={`tel:${order.phoneNo}`}
+                              className="hover:underline"
+                            >
+                              {order.phoneNo}
+                            </a>
+                          ) : (
+                            "N/A"
+                          )}
+                        </td>
+
+                        {/* Date → full DD-MM-YYYY */}
+                        <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm font-semibold whitespace-nowrap">
+                          {order.orderDate
+                            ? new Date(order.orderDate).toLocaleDateString(
+                                "en-GB"
+                              ) // DD/MM/YYYY
+                            : "N/A"}
+                        </td>
+
+                        {/* Due */}
+                        <td
+                          className={`px-2 md:px-4 py-2 border-b border-gray-200 text-sm font-semibold whitespace-nowrap ${
+                            (order.framePrice || 0) +
+                              (order.lensePrice || 0) -
+                              (order.opticalPayDetails || []).reduce(
+                                (sum, d) => sum + (Number(d.amount) || 0),
+                                0
+                              ) >
+                            0
+                              ? "text-red-600"
+                              : "text-green-600"
+                          }`}
+                        >
+                          ₹
+                          {(order.framePrice || 0) +
+                            (order.lensePrice || 0) -
+                            (order.opticalPayDetails || []).reduce(
+                              (sum, d) => sum + (Number(d.amount) || 0),
+                              0
+                            )}
+                        </td>
+
+                        {/* Actions */}
+                        <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm text-center whitespace-nowrap">
+                          <div className="flex justify-center items-center space-x-3">
+                            <button
+                              onClick={() => handleViewClick(order)}
+                              className="text-teal-600 hover:text-teal-900"
+                            >
+                              <Eye className="h-5 w-5" />
+                            </button>
+
+                            <div className="flex items-center space-x-2">
+                              {/* Edit Button */}
+                              <div className="relative group inline-block">
+                                <button
+                                  disabled={!eligibleForFeatures(3)}
+                                  onClick={() => handleEditClick(order)}
+                                  className="text-blue-600 hover:text-blue-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                  <Edit className="h-5 w-5" />
+                                </button>
+                                {!eligibleForFeatures(3) && (
+                                  <span className="absolute left-1/2 -translate-x-1/2 top-full mt-1 bg-black text-white text-xs px-2 py-1 rounded hidden group-hover:block whitespace-nowrap z-10">
+                                    You are not eligible
+                                  </span>
+                                )}
+                              </div>
+
+                              {/* Delete Button */}
+                              <div className="relative group inline-block">
+                                <button
+                                  disabled={!eligibleForFeatures(4)}
+                                  onClick={() => handleDeleteClick(order)}
+                                  className="text-red-600 hover:text-red-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                  <Delete className="h-5 w-5" />
+                                </button>
+                                {!eligibleForFeatures(4) && (
+                                  <span className="absolute left-1/2 -translate-x-1/2 top-full mt-1 bg-black text-white text-xs px-2 py-1 rounded hidden group-hover:block whitespace-nowrap z-10">
+                                    You are not eligible
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
+
+          {/* View Popup/Modal for Order Details */}
+          {isPopupOpen && formData && (
+            <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
+              <div className="relative p-8 border w-full max-w-2xl md:max-w-3xl lg:max-w-4xl shadow-lg rounded-md bg-white">
+                <h3 className="text-xl font-bold text-gray-900 mb-4">
+                  Order Details (Bill No: {formData.billNo})
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
+                  {/* Patient Info */}
+                  <div>
+                    <p>
+                      <strong>Patient Name:</strong> {formData.ptName}
+                    </p>
+                    <p>
+                      <strong>Phone No:</strong>{" "}
+                      {formData.phoneNo ? (
+                        <a
+                          href={`tel:${formData.phoneNo}`}
+                          className="text-blue-600 hover:underline"
+                        >
+                          {formData.phoneNo}
+                        </a>
+                      ) : (
+                        "N/A"
+                      )}
+                    </p>
+
+                    <p>
+                      <strong>Email Id:</strong>{" "}
+                      {formData.email ? (
+                        <a
+                          href={`mailto:${formData.email}`}
+                          className="text-blue-600 hover:underline"
+                        >
+                          {formData.email}
+                        </a>
+                      ) : (
+                        "N/A"
+                      )}
+                    </p>
+
+                    <p>
+                      <strong>Age:</strong> {formData.age || "N/A"}
+                    </p>
+                    <p>
+                      <strong>Gender:</strong> {formData.gender || "N/A"}
+                    </p>
+                  </div>
+
+                  {/* Glasses Prescription */}
+                  <div>
+                    <h4 className="font-semibold mt-2">
+                      Glasses Prescription:
+                    </h4>
+                    <p>
+                      <strong>Use:</strong>{" "}
+                      {(Array.isArray(formData.glassesPrescription) &&
+                        formData.glassesPrescription[0]?.use) ||
+                        "N/A"}
+                    </p>
+
+                    <p>
+                      <strong>Right Eye SPH:</strong>{" "}
+                      {(Array.isArray(formData.glassesPrescription) &&
+                        formData.glassesPrescription[0]?.rightEye.sph) ||
+                        "N/A"}
+                    </p>
+                    <p>
+                      <strong>Right Eye CYL:</strong>{" "}
+                      {(Array.isArray(formData.glassesPrescription) &&
+                        formData.glassesPrescription[0]?.rightEye.cyl) ||
+                        "N/A"}
+                    </p>
+                    <p>
+                      <strong>Right Eye AXIS:</strong>{" "}
+                      {(Array.isArray(formData.glassesPrescription) &&
+                        formData.glassesPrescription[0]?.rightEye.axis) ||
+                        "N/A"}
+                    </p>
+                    <p>
+                      <strong>Right Eye Addition:</strong>{" "}
+                      {(Array.isArray(formData.glassesPrescription) &&
+                        formData.glassesPrescription[0]?.rightEye.add) ||
+                        "N/A"}
+                    </p>
+                    <p>
+                      <strong>Right Eye Prism:</strong>{" "}
+                      {(Array.isArray(formData.glassesPrescription) &&
+                        formData.glassesPrescription[0]?.rightEye.prism) ||
+                        "N/A"}
+                    </p>
+                    <p>
+                      <strong>Right Eye V.A:</strong>{" "}
+                      {(Array.isArray(formData.glassesPrescription) &&
+                        formData.glassesPrescription[0]?.rightEye.V_A) ||
+                        "N/A"}
+                    </p>
+                    <p>
+                      <strong>Right Eye N.V:</strong>{" "}
+                      {(Array.isArray(formData.glassesPrescription) &&
+                        formData.glassesPrescription[0]?.rightEye.N_V) ||
+                        "N/A"}
+                    </p>
+
+                    <p>
+                      <strong>Left Eye SPH:</strong>{" "}
+                      {(Array.isArray(formData.glassesPrescription) &&
+                        formData.glassesPrescription[0]?.leftEye.sph) ||
+                        "N/A"}
+                    </p>
+                    <p>
+                      <strong>Left Eye CYL:</strong>{" "}
+                      {(Array.isArray(formData.glassesPrescription) &&
+                        formData.glassesPrescription[0]?.leftEye.cyl) ||
+                        "N/A"}
+                    </p>
+                    <p>
+                      <strong>Left Eye AXIS:</strong>{" "}
+                      {(Array.isArray(formData.glassesPrescription) &&
+                        formData.glassesPrescription[0]?.leftEye.axis) ||
+                        "N/A"}
+                    </p>
+                    <p>
+                      <strong>Left Eye Addition:</strong>{" "}
+                      {(Array.isArray(formData.glassesPrescription) &&
+                        formData.glassesPrescription[0]?.leftEye.add) ||
+                        "N/A"}
+                    </p>
+                    <p>
+                      <strong>Left Eye Prism:</strong>{" "}
+                      {(Array.isArray(formData.glassesPrescription) &&
+                        formData.glassesPrescription[0]?.leftEye.prism) ||
+                        "N/A"}
+                    </p>
+                    <p>
+                      <strong>Left Eye V.A:</strong>{" "}
+                      {(Array.isArray(formData.glassesPrescription) &&
+                        formData.glassesPrescription[0]?.leftEye.V_A) ||
+                        "N/A"}
+                    </p>
+                    <p>
+                      <strong>Left Eye N.V:</strong>{" "}
+                      {(Array.isArray(formData.glassesPrescription) &&
+                        formData.glassesPrescription[0]?.leftEye.N_V) ||
+                        "N/A"}
+                    </p>
+                  </div>
+
+                  {/* Order Details */}
+                  <div>
+                    <h4 className="font-semibold mt-3 text-gray-800 border-b pb-1">
+                      Order Information
+                    </h4>
+
+                    {/* Dates */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2 text-sm text-gray-700">
+                      <p>
+                        <strong>Order Date:</strong>{" "}
+                        {formData.orderDate
+                          ? new Date(formData.orderDate).toLocaleDateString(
+                              "en-GB",
+                              {
+                                day: "2-digit",
+                                month: "2-digit",
+                                year: "2-digit",
+                              }
+                            )
+                          : "N/A"}
+                      </p>
+
+                      <p>
+                        <strong>Delivery Date:</strong>{" "}
+                        {formData.deliveryDate
+                          ? new Date(formData.deliveryDate).toLocaleDateString(
+                              "en-GB",
+                              {
+                                day: "2-digit",
+                                month: "2-digit",
+                                year: "2-digit",
+                              }
+                            )
+                          : "N/A"}
+                      </p>
+                    </div>
+
+                    {/* Frame Details */}
+                    <div className="mt-3">
+                      <h5 className="font-semibold text-blue-700">
+                        Frame Details:
+                      </h5>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 text-sm text-gray-700">
+                        <p>
+                          <strong>Frame ID:</strong> {formData.frameId || "N/A"}
+                        </p>
+                        <p>
+                          <strong>Frame Price:</strong> ₹
+                          {formData.framePrice || 0}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Lens Details */}
+                    <div className="mt-3">
+                      <h5 className="font-semibold text-blue-700">
+                        Lens Details:
+                      </h5>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 text-sm text-gray-700">
+                        <p>
+                          <strong>Lens ID:</strong>{" "}
+                          {formData.lenseType || "N/A"}
+                        </p>
+                        <p>
+                          <strong>Lens Price:</strong> ₹
+                          {formData.lensePrice || 0}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Financials */}
+                  <div>
+                    <h4 className="font-semibold mt-2">Financial Summary:</h4>
+                    <p>
+                      <strong>Total Amount:</strong> ₹
+                      {(Array.isArray(formData.visitDetails)
+                        ? formData.visitDetails.reduce(
+                            (sum, v) => sum + (Number(v.visitPrice) || 0),
+                            0
+                          )
+                        : 0) +
+                        (Number(formData.framePrice) || 0) +
+                        (Number(formData.lensePrice) || 0) +
+                        (Array.isArray(formData.medicines)
+                          ? formData.medicines.reduce(
+                              (sum, m) => sum + (Number(m.price) || 0),
+                              0
+                            )
+                          : 0)}
+                    </p>
+                    <p>
+                      <strong>Total Advance:</strong> ₹
+                      {(Array.isArray(formData.opticalPayDetails)
+                        ? formData.opticalPayDetails.reduce(
+                            (sum, d) => sum + (Number(d.amount) || 0),
+                            0
+                          )
+                        : 0) +
+                        (Array.isArray(formData.visitDetails)
+                          ? formData.visitDetails.reduce(
+                              (sum, v) => sum + (Number(v.visitPrice) || 0),
+                              0
+                            )
+                          : 0) +
+                        (Array.isArray(formData.medicines)
+                          ? formData.medicines.reduce(
+                              (sum, m) => sum + (Number(m.price) || 0),
+                              0
+                            )
+                          : 0)}
+                    </p>
+                    <p>
+                      <strong>Total Due:</strong> ₹
+                      {(Number(formData.framePrice) || 0) +
+                        (Number(formData.lensePrice) || 0) -
+                        (Array.isArray(formData.opticalPayDetails)
+                          ? formData.opticalPayDetails.reduce(
+                              (sum, d) => sum + (Number(d.amount) || 0),
+                              0
+                            )
+                          : 0)}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex justify-end mt-6">
+                  <button
+                    onClick={handleClosePopup}
+                    className="px-4 py-2 bg-teal-600 text-white text-base font-medium rounded-md shadow-sm hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
+                  >
+                    Close
+                  </button>
+                  <button
+                    onClick={() => sendToWhatsApp(formData)}
+                    className="ml-2 pformDatax-4 px-4 py-2 bg-green-600 text-white text-base font-medium rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                  >
+                    Send
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Edit Popup/Modal for Order Details */}
+          {isEditPopupOpen && formData && (
+            <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
+              <div className="relative p-2 md:p-4 border w-full max-w-2xl md:max-w-3xl lg:max-w-4xl shadow-lg rounded-xl bg-white overflow-y-auto max-h-[95vh]">
+                <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+                  Edit Order (Bill No: {formData.billNo})
+                </h3>
+
+                <div className="space-y-2">
+                  {/* 🛒 Order Information */}
+                  <section className="space-y-2">
+                    <h3 className="flex justify-between border-b pb-2 items-center">
+                      <span className="text-lg md:text-xl font-semibold text-gray-700">
+                        Order Information
+                      </span>
+                      <select
+                        name="deliveryStatus"
+                        value={formData.deliveryStatus}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            deliveryStatus: e.target.value,
+                          })
+                        }
+                        className="text-sm px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      >
+                        <option value="pending">Pending</option>
+                        <option value="inProgress">In Progress</option>
+                        <option value="readyToDeliver">Ready to Deliver</option>
+                        <option value="delivered">Delivered</option>
+                      </select>
+                    </h3>
+
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                      <div>
+                        <label className="font-medium mb-1 block text-sm md:text-base">
+                          Order Date
+                        </label>
+                        <input
+                          type="date"
+                          name="orderDate"
+                          value={formData.orderDate.split("T")[0]}
+                          onChange={handleInputChange}
+                          className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="font-medium mb-1 block text-sm md:text-base">
+                          Delivery Date
+                        </label>
+                        <input
+                          type="date"
+                          name="deliveryDate"
+                          value={formData.deliveryDate?.split("T")[0] || ""}
+                          onChange={handleInputChange}
+                          className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="font-medium mb-1 block text-sm md:text-base">
+                          Frame ID
+                        </label>
+                        <input
+                          type="text"
+                          name="frameId"
+                          value={formData.frameId}
+                          onChange={handleInputChange}
+                          className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="font-medium mb-1 block text-sm md:text-base">
+                          Frame Price
+                        </label>
+                        <input
+                          type="number"
+                          name="framePrice"
+                           disabled={!eligibleForFeatures(4)}
+                          value={formData.framePrice || 0}
+                          onChange={handleInputChange}
+                          className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="font-medium mb-1 block text-sm md:text-base">
+                          Lens Type
+                        </label>
+                        <input
+                          type="text"
+                          list="lensTypeOptions"
+                          name="lenseType"
+                          value={formData.lenseType || ""}
+                          onChange={handleInputChange}
+                          placeholder="Select or enter lens type"
+                          className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+                        />
+                        <datalist id="lensTypeOptions">
+                          <option value="Progressive" />
+                          <option value="Single Vision" />
+                          <option value="Bifocal" />
+                          <option value="Trifocal" />
+                          <option value="Reading" />
+                        </datalist>
+                      </div>
+
+                      <div>
+                        <label className="font-medium mb-1 block text-sm md:text-base">
+                          Lens Price
+                        </label>
+                        <input
+                          type="number"
+                          name="lensePrice"
+                           disabled={!eligibleForFeatures(4)}
+                          value={formData.lensePrice || 0}
+                          onChange={handleInputChange}
+                          className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="font-medium mb-1 block text-sm md:text-base">
+                          Optical Price
+                        </label>
+                        <input
+                          type="number"
+                          value={formData.lensePrice + formData.framePrice || 0}
+                          readOnly
+                          className="border p-2 md:p-3 rounded w-full bg-gray-100 cursor-not-allowed text-sm md:text-base"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Payment Details */}
+
+                    {formData && (
+                      <OpticalPayment
+                        formData={formData}
+                        setFormData={
+                          setFormData as React.Dispatch<
+                            React.SetStateAction<PatientFullTypeWithObjectId>
+                          >
+                        }
+                      />
+                    )}
+                  </section>
+
+                  {/* 💰 Grand Totals Section */}
+                  <div className="bg-white shadow-md rounded-2xl p-3 md:p-4 border border-gray-100">
+                    <div className="grid grid-cols-3 gap-1 md:gap-6">
+                      <div className="flex flex-col">
+                        <label className="font-medium text-gray-700 mb-1 text-sm md:text-base">
+                          T-Amount
+                        </label>
+                        <input
+                          type="number"
+                          readOnly
+                          value={
+                            (formData.visitDetails || []).reduce(
+                              (sum, v) => sum + (Number(v.visitPrice) || 0),
+                              0
+                            ) +
+                            (formData.framePrice || 0) +
+                            (formData.lensePrice || 0) +
+                            (formData.medicines || []).reduce(
+                              (sum, m) => sum + (Number(m.price) || 0),
+                              0
+                            )
+                          }
+                          className="border p-2 md:p-3 rounded-lg bg-gray-100 cursor-not-allowed text-sm md:text-base"
+                        />
+                      </div>
+
+                      <div className="flex flex-col">
+                        <label className="font-medium text-gray-700 mb-1 text-sm md:text-base">
+                          T-Advance
+                        </label>
+                        <input
+                          type="number"
+                          readOnly
+                          value={
+                            (formData.opticalPayDetails || []).reduce(
+                              (sum, d) => sum + (Number(d.amount) || 0),
+                              0
+                            ) +
+                            (formData.visitDetails || []).reduce(
+                              (sum, v) => sum + (Number(v.visitPrice) || 0),
+                              0
+                            ) +
+                            (formData.medicines || []).reduce(
+                              (sum, m) => sum + (Number(m.price) || 0),
+                              0
+                            )
+                          }
+                          className="border p-2 md:p-3 rounded-lg bg-gray-100 cursor-not-allowed text-sm md:text-base"
+                        />
+                      </div>
+
+                      <div className="flex flex-col">
+                        <label className="font-medium text-gray-700 mb-1 text-sm md:text-base">
+                          Total Due
+                        </label>
+                        <input
+                          type="number"
+                          readOnly
+                          value={
+                            (formData.framePrice || 0) +
+                            (formData.lensePrice || 0) -
+                            (formData.opticalPayDetails || []).reduce(
+                              (sum, d) => sum + (Number(d.amount) || 0),
+                              0
+                            )
+                          }
+                          className="border p-2 md:p-3 rounded-lg bg-gray-100 cursor-not-allowed text-sm md:text-base"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Buttons */}
+                <div className="flex justify-end mt-8 space-x-4">
+                  <button
+                    onClick={handleCloseEditPopup}
+                    className="px-4 py-2 bg-gray-300 text-gray-800 font-medium rounded-md hover:bg-gray-400"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={saving}
+                    onClick={handleSaveEdit}
+                    className="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700"
+                  >
+                    {saving ? (
+                      <div className="flex items-center space-x-2">
+                        <span className="spin"></span>
+                        <span>saveing...</span>
+                      </div>
+                    ) : (
+                      "Save Changes"
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
-      )}</div>
   );
 }

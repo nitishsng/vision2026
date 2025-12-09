@@ -192,14 +192,14 @@ export function AppointmentsTab() {
 
           {/* Appointments Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 md:gap-4 gap-2">
-            {filteredAppointments.map((appointment) => {
+            {filteredAppointments.map((appointment,index) => {
               const editedAppointment =
                 editedAppointments.find((a) => a.id === appointment.id) ??
                 appointment;
 
               return (
                 <div
-                  key={appointment.id}
+                  key={index}
                   className="bg-white rounded-lg p-3 md:p-5 border border-gray-200 hover:shadow-md transition-shadow"
                 >
                   <div className="flex items-start justify-between ">

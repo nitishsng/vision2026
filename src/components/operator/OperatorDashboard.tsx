@@ -10,7 +10,12 @@ import { ScheduleTab } from "./ScheduleTab";
 import { ReportsTab } from "../admin/ReportsTab";
 import { OrdersTab } from "../admin/OrdersTab";
 import { MedicinesTab } from "../admin/MedicinesTab";
+import { AnalysisTab } from "../admin/AnalysisTab";
+import { useAuth } from "@/src/contexts/AuthContext";
+import useEligibility from "../elegibleForfeatures";
 export function OperatorDashboard() {
+  const { user } = useAuth();
+   const eligibleForFeatures = useEligibility();
   const [activeTab, setActiveTab] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -25,7 +30,7 @@ export function OperatorDashboard() {
   const renderContent = () => {
     switch (activeTab) {
       case "dashboard":
-        return <DashboardOverview />;
+        return (!eligibleForFeatures(3)) ? <DashboardOverview />: "You are Not Eligible";
       case "appointments":
         return <AppointmentsTab />;
       case "patients":
@@ -33,13 +38,15 @@ export function OperatorDashboard() {
       case "schedule":
         return <ScheduleTab />;
       case "reports":
-        return <ReportsTab />;
+        return  (!eligibleForFeatures(3)) ? <ReportsTab />: "You are Not Eligible";
       case "orders":
         return <OrdersTab />;
       case "medicines":
         return <MedicinesTab />;
+      case 'analysis':
+        return  (!eligibleForFeatures(3)) ? <AnalysisTab />: "You are Not Eligible";
       default:
-        return <DashboardOverview />;
+        return <AppointmentsTab />;
     }
   };
 

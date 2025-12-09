@@ -5,8 +5,13 @@ import { useDashboardData } from "@/src/contexts/dataCollection";
 import toast from "react-hot-toast";
 import NewOrder from "../NewOrderMedicine";
 import Medicine from "../Medicine";
+import { useAuth } from "@/src/contexts/AuthContext";
+import useEligibility from "../elegibleForfeatures";
 
 export function MedicinesTab() {
+  const eligibleForFeatures = useEligibility();
+
+  const { user } = useAuth();
   const { patients, fetchData, isLoading } = useDashboardData();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
@@ -126,366 +131,393 @@ export function MedicinesTab() {
   };
 
   return (
-
-        <div>
-  {isLoading ? (
+    <div>
+      {isLoading ? (
         <div className="flex items-center justify-center py-6">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500"></div>
         </div>
-      ):(
-    <div className="p-2">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-[20px] md:text-2xl font-bold text-gray-900">
-            Medicines Management
-          </h1>
-          <p className="text-gray-600 hidden lg:flex ">
-            Track and manage medicines
-          </p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={() => setNewOrderForm(true)}
-            className="bg-teal-500 hover:bg-teal-600 text-white px-2 py-1 md:px-4 rounded-lg font-medium flex items-center space-x-2 transition-colors"
-          >
-            <Plus className="h-4 w-4" />
-            <span>New Customer</span>
-          </button>
-        </div>
-      </div>
+      ) : (
+        <div className="p-2">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-[20px] md:text-2xl font-bold text-gray-900">
+                Medicines Management
+              </h1>
+              <p className="text-gray-600 hidden lg:flex ">
+                Track and manage medicines
+              </p>
+            </div>
 
-      <div className="bg-white rounded-lg p-2 md:p-5 border border-gray-200">
-        <div className="flex gap-2 md:gap-4 items-center">
-          {/* Search Input */}
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <input
-              type="text"
-              placeholder="Search by name, phone, bill number, or email..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-            />
+            <div className="flex items-center space-x-2">
+              <button
+                disabled={!eligibleForFeatures(4)}
+                onClick={() => setNewOrderForm(true)}
+                className="bg-teal-500 hover:bg-teal-600 text-white px-2 py-1 md:px-4 rounded-lg font-medium flex items-center space-x-2 transition-colors"
+              >
+                <Plus className="h-4 w-4" />
+                <span>New Customer</span>
+              </button>
+            </div>
           </div>
 
-          {/* Date Input */}
-          <div>
-            <input
-              type="date"
-              value={dateFilter}
-              onChange={(e) => setDateFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 w-auto"
-              style={{ width: "fit-content" }}
-            />
+          <div className="bg-white rounded-lg p-2 md:p-5 border border-gray-200">
+            <div className="flex gap-2 md:gap-4 items-center">
+              {/* Search Input */}
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <input
+                  type="text"
+                  placeholder="Search by name, phone, bill number, or email..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
+
+              {/* Date Input */}
+              <div>
+                <input
+                  type="date"
+                  value={dateFilter}
+                  onChange={(e) => setDateFilter(e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 w-auto"
+                  style={{ width: "fit-content" }}
+                />
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
+          <div className="bg-white shadow-md rounded-lg overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="min-w-[560px] md:min-w-full leading-normal w-full">
+                <thead>
+                  <tr>
+                    <th className="px-2 md:px-4 py-2 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Pt-Name
+                    </th>
+                    <th className="px-2 md:px-4 py-2 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Phone No
+                    </th>
+                    <th className="px-2 md:px-4 py-2 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Date
+                    </th>
+                    <th className="px-2 md:px-4 py-2 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Amount
+                    </th>
+                    <th className="px-2 md:px-4 py-2 border-b-2 border-gray-200 bg-gray-100 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
 
-      <div className="bg-white shadow-md rounded-lg overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-[560px] md:min-w-full leading-normal w-full">
-            <thead>
-              <tr>
-                <th className="px-2 md:px-4 py-2 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Pt-Name
-                </th>
-                <th className="px-2 md:px-4 py-2 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Phone No
-                </th>
-                <th className="px-2 md:px-4 py-2 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Date
-                </th>
-                <th className="px-2 md:px-4 py-2 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Amount
-                </th>
-                <th className="px-2 md:px-4 py-2 border-b-2 border-gray-200 bg-gray-100 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
+                <tbody>
+                  {medicinesPatients.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan={5}
+                        className="text-center px-2 md:px-4 text-gray-500 py-4"
+                      >
+                        No medicines found.
+                      </td>
+                    </tr>
+                  ) : (
+                    medicinesPatients.map((p, index) => (
+                      <tr
+                        key={index}
+                        className={`transition-colors ${
+                          (p.framePrice || 0) +
+                            (p.lensePrice || 0) -
+                            (p.opticalPayDetails || []).reduce(
+                              (sum, d) => sum + (Number(d.amount) || 0),
+                              0
+                            ) >
+                          0
+                            ? "bg-red-50"
+                            : "bg-white text-gray-800"
+                        } hover:bg-gray-50`}
+                      >
+                        <td className="px-2 gap-1 flex items-center md:px-4 py-2 border-b border-gray-200 text-sm">
+                          <div className="flex flex-col items-center justify-center">
+                            {/* REPEATED */}
+                            {p.repeated && (
+                              <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-green-600"></span>
+                            )}
 
-            <tbody>
-              {medicinesPatients.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={5}
-                    className="text-center px-2 md:px-4 text-gray-500 py-4"
-                  >
-                    No medicines found.
-                  </td>
-                </tr>
-              ) : (
-                medicinesPatients.map((p, index) => (
-                  <tr
-                    key={index}
-                    className={`transition-colors ${
-                      ((p.framePrice || 0) + (p.lensePrice || 0) - (p.opticalPayDetails || []).reduce((sum, d) => sum + (Number(d.amount) || 0), 0)) > 0 ? "bg-red-50" : "bg-white text-gray-800"
-                    } hover:bg-gray-50`}
-                  >
-<td className="px-2 gap-1 flex items-center md:px-4 py-2 border-b border-gray-200 text-sm">
-<div className="flex flex-col items-center justify-center">
-  {/* REPEATED */}
-  {p.repeated && (
-    <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-green-600"></span>
-  )}
+                            {/* OPTICAL PRICE */}
+                            {(p.framePrice || 0) + (p.lensePrice || 0) > 0 && (
+                              <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-orange-500"></span>
+                            )}
 
-  {/* OPTICAL PRICE */}
-  {((p.framePrice || 0) + (p.lensePrice || 0) > 0) && (
-    <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-orange-500"></span>
-  )}
+                            {/* MEDICINES */}
+                            {(p.medicines?.length || 0) > 0 && (
+                              <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-blue-800"></span>
+                            )}
 
-  {/* MEDICINES */}
-  {(p.medicines?.length || 0) > 0 && (
-    <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-blue-800"></span>
-  )}
+                            {/* NONE TRUE */}
+                            {!(
+                              p.repeated ||
+                              (p.framePrice || 0) + (p.lensePrice || 0) > 0 ||
+                              (p.medicines?.length || 0) > 0
+                            ) && (
+                              <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-transparent"></span>
+                            )}
+                          </div>
 
-  {/* NONE TRUE */}
-  {!(
-    p.repeated ||
-    ((p.framePrice || 0) + (p.lensePrice || 0) > 0) ||
-    (p.medicines?.length || 0) > 0
-  ) && (
-    <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-transparent"></span>
-  )}
-</div>
+                          {p.ptName}
+                        </td>
 
-  {p.ptName}
-</td>
+                        <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm">
+                          {p.phoneNo ? (
+                            <a
+                              href={`tel:${p.phoneNo}`}
+                              className="hover:underline"
+                            >
+                              {p.phoneNo}
+                            </a>
+                          ) : (
+                            "N/A"
+                          )}
+                        </td>
+                        <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm font-semibold">
+                          {p.medicines?.[0]?.date
+                            ? new Date(p.medicines[0].date)
+                                .toLocaleDateString("en-GB")
+                                .replace(/\//g, "-")
+                            : ""}
+                        </td>
 
-                    <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm">
-                      {p.phoneNo ? (
+                        <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm font-semibold">
+                          ₹
+                          {(p.medicines || []).reduce(
+                            (sum, m) => sum + (Number(m.price) || 0),
+                            0
+                          )}
+                        </td>
+                        <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm text-center">
+                          <div className="flex justify-center items-center space-x-3">
+                            <button
+                              onClick={() => handleViewClick(p)}
+                              className="text-teal-600 hover:text-teal-900 focus:outline-none"
+                            >
+                              <Eye className="h-5 w-5" />
+                            </button>
+                            <div className="relative group inline-flex items-center space-x-2 p-1">
+                              <button
+                                onClick={() => handleEditClick(p)}
+                                disabled={!eligibleForFeatures(4)}
+                                className="text-blue-600 hover:text-blue-900 focus:outline-none disabled:opacity-50"
+                              >
+                                <Edit className="h-5 w-5" />
+                              </button>
+
+                              <button
+                                disabled={!eligibleForFeatures(4)}
+                                onClick={() => handleDeleteClick(p)}
+                                className="text-red-600 hover:text-red-800 focus:outline-none disabled:opacity-50"
+                              >
+                                <Delete className="h-5 w-5" />
+                              </button>
+
+                              {!eligibleForFeatures(4) && (
+                                <span className="absolute right-0 top-full mt-1 bg-black text-white text-xs px-2 py-1 rounded hidden group-hover:block whitespace-nowrap z-10">
+                                  You are not eligible
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {newOrderForm && (
+            <NewOrder
+              setNewOrderForm={setNewOrderForm}
+              setorderSuccess={setorderSuccess}
+              catagory={"medicine"}
+            />
+          )}
+
+          {isPopupOpen && formData && (
+            <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
+              <div className="relative p-8 border w-full max-w-2xl md:max-w-3xl lg:max-w-4xl shadow-lg rounded-md bg-white">
+                <h3 className="text-xl font-bold text-gray-900 mb-4">
+                  Medicine Details (Bill No: {formData.billNo})
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
+                  <div>
+                    <p>
+                      <strong>Patient Name:</strong> {formData.ptName}
+                    </p>
+                    <p>
+                      <strong>Phone No:</strong>{" "}
+                      {formData.phoneNo ? (
                         <a
-                          href={`tel:${p.phoneNo}`}
-                          className="hover:underline"
+                          href={`tel:${formData.phoneNo}`}
+                          className="text-blue-600 hover:underline"
                         >
-                          {p.phoneNo}
+                          {formData.phoneNo}
                         </a>
                       ) : (
                         "N/A"
                       )}
-                    </td>
-                    <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm font-semibold">
-                      {p.medicines?.[0]?.date
-                        ? new Date(p.medicines[0].date)
-                            .toLocaleDateString("en-GB")
-                            .replace(/\//g, "-")
-                        : ""}
-                    </td>
-
-                    <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm font-semibold">
-                      ₹{(p.medicines || []).reduce((sum, m) => sum + (Number(m.price) || 0), 0)}
-                    </td>
-                    <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm text-center">
-                      <div className="flex justify-center items-center space-x-3">
-                        <button
-                          onClick={() => handleViewClick(p)}
-                          className="text-teal-600 hover:text-teal-900 focus:outline-none"
-                        >
-                          <Eye className="h-5 w-5" />
-                        </button>
-                        <button
-                          onClick={() => handleEditClick(p)}
-                          className="text-blue-600 hover:text-blue-900 focus:outline-none"
-                        >
-                          <Edit className="h-5 w-5" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteClick(p)}
-                          className="text-red-600 hover:text-red-800 focus:outline-none"
-                        >
-                          <Delete className="h-5 w-5" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {newOrderForm && (
-        <NewOrder
-          setNewOrderForm={setNewOrderForm}
-          setorderSuccess={setorderSuccess}
-          catagory={"medicine"}
-        />
-      )}
-
-      {isPopupOpen && formData && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
-          <div className="relative p-8 border w-full max-w-2xl md:max-w-3xl lg:max-w-4xl shadow-lg rounded-md bg-white">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">
-              Medicine Details (Bill No: {formData.billNo})
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
-              <div>
-                <p>
-                  <strong>Patient Name:</strong> {formData.ptName}
-                </p>
-                <p>
-                  <strong>Phone No:</strong>{" "}
-                  {formData.phoneNo ? (
-                    <a
-                      href={`tel:${formData.phoneNo}`}
-                      className="text-blue-600 hover:underline"
-                    >
-                      {formData.phoneNo}
-                    </a>
-                  ) : (
-                    "N/A"
-                  )}
-                </p>
-                <p>
-                  <strong>Email Id:</strong> {formData.email || "N/A"}
-                </p>
-                <p>
-                  <strong>Age:</strong> {formData.age || "N/A"}
-                </p>
-                <p>
-                  <strong>Gender:</strong> {formData.gender || "N/A"}
-                </p>
-              </div>
-              <div>
-                <h4 className="font-semibold mt-2">Medicines:</h4>
-                <div className="space-y-1">
-                  {(formData.medicines || []).map((m, i) => (
-                    <div key={i} className="flex justify-between">
-                      <span>
-                        {m.date} - {m.medicinename}
-                      </span>
-                      <span>₹{m.price}</span>
+                    </p>
+                    <p>
+                      <strong>Email Id:</strong> {formData.email || "N/A"}
+                    </p>
+                    <p>
+                      <strong>Age:</strong> {formData.age || "N/A"}
+                    </p>
+                    <p>
+                      <strong>Gender:</strong> {formData.gender || "N/A"}
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mt-2">Medicines:</h4>
+                    <div className="space-y-1">
+                      {(formData.medicines || []).map((m, i) => (
+                        <div key={i} className="flex justify-between">
+                          <span>
+                            {m.date} - {m.medicinename}
+                          </span>
+                          <span>₹{m.price}</span>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                    <div className="mt-2">
+                      <strong>Total:</strong> ₹
+                      {(formData.medicines || []).reduce(
+                        (sum, m) => sum + (Number(m.price) || 0),
+                        0
+                      )}
+                    </div>
+                  </div>
                 </div>
-                <div className="mt-2">
-                  <strong>Total:</strong> ₹{(formData.medicines || []).reduce((sum, m) => sum + (Number(m.price) || 0), 0)}
+                <div className="flex justify-end mt-6">
+                  <button
+                    onClick={handleClosePopup}
+                    className="px-4 py-2 bg-teal-600 text-white text-base font-medium rounded-md shadow-sm hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
+                  >
+                    Close
+                  </button>
                 </div>
               </div>
             </div>
-            <div className="flex justify-end mt-6">
-              <button
-                onClick={handleClosePopup}
-                className="px-4 py-2 bg-teal-600 text-white text-base font-medium rounded-md shadow-sm hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+          )}
 
-      {isEditPopupOpen && formData && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
-          <div className="relative p-2 md:p-4 border w-full max-w-2xl md:max-w-3xl lg:max-w-4xl shadow-lg rounded-xl bg-white overflow-y-auto max-h-[95vh]">
-            <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-              Edit Medicines (Bill No: {formData.billNo})
-            </h3>
-            <div className="space-y-3">
-              {formData && (
-                <Medicine
-                  formData={formData}
-                  setFormData={
-                    setFormData as React.Dispatch<
-                      React.SetStateAction<PatientFullTypeWithObjectId>
+          {isEditPopupOpen && formData && (
+            <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
+              <div className="relative p-2 md:p-4 border w-full max-w-2xl md:max-w-3xl lg:max-w-4xl shadow-lg rounded-xl bg-white overflow-y-auto max-h-[95vh]">
+                <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+                  Edit Medicines (Bill No: {formData.billNo})
+                </h3>
+                <div className="space-y-3">
+                  {formData && (
+                    <Medicine
+                      formData={formData}
+                      setFormData={
+                        setFormData as React.Dispatch<
+                          React.SetStateAction<PatientFullTypeWithObjectId>
+                        >
+                      }
+                    />
+                  )}
+
+                  <div className="bg-white shadow-md rounded-2xl p-3 md:p-4 border border-gray-100">
+                    <div className="grid grid-cols-3 gap-1 md:gap-6">
+                      <div className="flex flex-col">
+                        <label className="font-medium text-gray-700 mb-1 text-sm md:text-base">
+                          T-Amount
+                        </label>
+                        <input
+                          type="number"
+                          readOnly
+                          value={
+                            (formData.visitDetails || []).reduce(
+                              (sum, v) => sum + (Number(v.visitPrice) || 0),
+                              0
+                            ) +
+                            (formData.framePrice || 0) +
+                            (formData.lensePrice || 0) +
+                            (formData.medicines || []).reduce(
+                              (sum, m) => sum + (Number(m.price) || 0),
+                              0
+                            )
+                          }
+                          className="border p-2 md:p-3 rounded-lg bg-gray-100 cursor-not-allowed text-sm md:text-base"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="font-medium text-gray-700 mb-1 text-sm md:text-base">
+                          T-Advance
+                        </label>
+                        <input
+                          type="number"
+                          readOnly
+                          value={
+                            (formData.opticalPayDetails || []).reduce(
+                              (sum, d) => sum + (Number(d.amount) || 0),
+                              0
+                            ) +
+                            (formData.visitDetails || []).reduce(
+                              (sum, v) => sum + (Number(v.visitPrice) || 0),
+                              0
+                            ) +
+                            (formData.medicines || []).reduce(
+                              (sum, m) => sum + (Number(m.price) || 0),
+                              0
+                            )
+                          }
+                          className="border p-2 md:p-3 rounded-lg bg-gray-100 cursor-not-allowed text-sm md:text-base"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <label className="font-medium text-gray-700 mb-1 text-sm md:text-base">
+                          Total Due
+                        </label>
+                        <input
+                          type="number"
+                          readOnly
+                          value={
+                            (formData.framePrice || 0) +
+                            (formData.lensePrice || 0) -
+                            (formData.opticalPayDetails || []).reduce(
+                              (sum, d) => sum + (Number(d.amount) || 0),
+                              0
+                            )
+                          }
+                          className="border p-2 md:p-3 rounded-lg bg-gray-100 cursor-not-allowed text-sm md:text-base"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end mt-8 space-x-4">
+                    <button
+                      onClick={handleCloseEditPopup}
+                      className="px-4 py-2 bg-gray-300 text-gray-800 font-medium rounded-md hover:bg-gray-400"
                     >
-                  }
-                />
-              )}
-
-              <div className="bg-white shadow-md rounded-2xl p-3 md:p-4 border border-gray-100">
-                <div className="grid grid-cols-3 gap-1 md:gap-6">
-                  <div className="flex flex-col">
-                    <label className="font-medium text-gray-700 mb-1 text-sm md:text-base">
-                      T-Amount
-                    </label>
-                    <input
-                      type="number"
-                      readOnly
-                      value={
-                        (formData.visitDetails || []).reduce(
-                          (sum, v) => sum + (Number(v.visitPrice) || 0),
-                          0
-                        ) +
-                        (formData.framePrice || 0) +
-                        (formData.lensePrice || 0) +
-                        (formData.medicines || []).reduce(
-                          (sum, m) => sum + (Number(m.price) || 0),
-                          0
-                        )
-                      }
-                      className="border p-2 md:p-3 rounded-lg bg-gray-100 cursor-not-allowed text-sm md:text-base"
-                    />
-                  </div>
-                  <div className="flex flex-col">
-                    <label className="font-medium text-gray-700 mb-1 text-sm md:text-base">
-                      T-Advance
-                    </label>
-                    <input
-                      type="number"
-                      readOnly
-                      value={
-                        ((formData.opticalPayDetails || []).reduce(
-                          (sum, d) => sum + (Number(d.amount) || 0),
-                          0
-                        )) +
-                        (formData.visitDetails || []).reduce(
-                          (sum, v) => sum + (Number(v.visitPrice) || 0),
-                          0
-                        ) +
-                        (formData.medicines || []).reduce(
-                          (sum, m) => sum + (Number(m.price) || 0),
-                          0
-                        )
-                      }
-                      className="border p-2 md:p-3 rounded-lg bg-gray-100 cursor-not-allowed text-sm md:text-base"
-                    />
-                  </div>
-                  <div className="flex flex-col">
-                    <label className="font-medium text-gray-700 mb-1 text-sm md:text-base">
-                      Total Due
-                    </label>
-                    <input
-                      type="number"
-                      readOnly
-                      value={
-                        (formData.framePrice || 0) +
-                        (formData.lensePrice || 0) -
-                        (formData.opticalPayDetails || []).reduce(
-                          (sum, d) => sum + (Number(d.amount) || 0),
-                          0
-                        )
-                      }
-                      className="border p-2 md:p-3 rounded-lg bg-gray-100 cursor-not-allowed text-sm md:text-base"
-                    />
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={saving}
+                      onClick={handleSaveEdit}
+                      className="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700"
+                    >
+                      {saving ? "saving..." : "Save Changes"}
+                    </button>
                   </div>
                 </div>
               </div>
-
-              <div className="flex justify-end mt-8 space-x-4">
-                <button
-                  onClick={handleCloseEditPopup}
-                  className="px-4 py-2 bg-gray-300 text-gray-800 font-medium rounded-md hover:bg-gray-400"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={saving}
-                  onClick={handleSaveEdit}
-                  className="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700"
-                >
-                  {saving ? "saving..." : "Save Changes"}
-                </button>
-              </div>
             </div>
-          </div>
+          )}
         </div>
       )}
     </div>
-      )}
-      </div>
   );
 }

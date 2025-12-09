@@ -9,12 +9,16 @@ import { todayDate } from "@/src/contexts/type";
 import { PatientFullType } from "@/src/contexts/type";
 import PatientDetailsModal from "./PatientDetailsModal";
 import NewPatient from "../AppointmentForm";
+import useEligibility from "../elegibleForfeatures";
+import { useAuth } from "@/src/contexts/AuthContext";
 export function PatientsTab() {
+  const eligibleForFeatures = useEligibility();
+  const { user } = useAuth();
   const { patients, fetchData, isLoading } = useDashboardData();
   const [searchTerm, setSearchTerm] = useState("");
   const [dateFilter, setDateFilter] = useState(todayDate);
   const [repeatedFilter, setRepeatedFilter] = useState(""); // ✅ new filter
-const [newPatintModel, setNewPatintModel] = useState(false);
+  const [newPatintModel, setNewPatintModel] = useState(false);
   const formatDateDisplay = (date: Date | string) => {
     const d = new Date(date); // handle string or Date object
     const day = String(d.getDate()).padStart(2, "0");
@@ -26,7 +30,6 @@ const [newPatintModel, setNewPatintModel] = useState(false);
   const [viewDetails, setviewDetails] = useState<PatientFullType | null>(null);
   const [ViewDetailsOpen, setViewDetailsOpen] = useState(false);
 
-
   const [bookingSuccess, setBookingSuccess] = useState(false);
 
   useEffect(() => {
@@ -36,7 +39,7 @@ const [newPatintModel, setNewPatintModel] = useState(false);
   }, [bookingSuccess]);
 
   const filteredPatients = patients.filter((patient) => {
-      const patientCatagory=patient.catagory === "patient";
+    const patientCatagory = patient.catagory === "patient";
     const matchStatus =
       patient.ptName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       patient.phoneNo.includes(searchTerm) ||
@@ -55,7 +58,13 @@ const [newPatintModel, setNewPatintModel] = useState(false);
       !dateFilter ||
       (patient.visitDate &&
         formatDateDisplay(patient.visitDate) === dateFilter);
-    return matchStatus && matchRepeated && matchesDate && validpatient && patientCatagory;
+    return (
+      matchStatus &&
+      matchRepeated &&
+      matchesDate &&
+      validpatient &&
+      patientCatagory
+    );
   });
 
   const handleDeleteClick = async (patient: any) => {
@@ -86,37 +95,45 @@ const [newPatintModel, setNewPatintModel] = useState(false);
           <div className="flex justify-between items-center">
             <div>
               <div className="md:flex">
-              <div className="text-[20px] md:text-2xl font-bold text-gray-900 mr-4">
-                Patients Management
+                <div className="text-[20px] md:text-2xl font-bold text-gray-900 mr-4">
+                  Patients Management
+                </div>
+                {user?.staffGrade &&
+                  !eligibleForFeatures(5) &&
+                  user.role == "admin" && <ExportPatientsDetails />}
               </div>
 
-                     <ExportPatientsDetails />
-              </div>
-        
               <p className="text-gray-600 hidden lg:flex ">
                 Manage patient records and prescription information
               </p>
             </div>
-            <div>
-           
-                 <button
-              onClick={() => setNewPatintModel(true)}
-              className="bg-teal-500 hover:bg-teal-600 text-white px-2 py-1 md:px-4 d:py-4 rounded-lg font-medium flex items-center space-x-2 transition-colors"
-            >
-              <Plus className="h-4 w-4" />
-              <span>Patient</span>
-            </button>
+
+            <div className="relative group inline-block">
+              <button
+                disabled={!eligibleForFeatures(3)}
+                onClick={() => setNewPatintModel(true)}
+                className="bg-teal-500 hover:bg-teal-600 text-white px-2 py-1 md:px-4 md:py-2 rounded-lg font-medium flex items-center space-x-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Plus className="h-4 w-4" />
+                <span>Patient</span>
+              </button>
+
+              {!eligibleForFeatures(3) && (
+                <span className="absolute left-1/2 -translate-x-1/2 top-full mt-1 bg-black text-white text-xs px-2 py-1 rounded hidden group-hover:block whitespace-nowrap z-10">
+                  You are not eligible
+                </span>
+              )}
             </div>
           </div>
-      {newPatintModel && (
-        <div>
-          <NewPatient
-            setShowBookingForm={setNewPatintModel}
-            setBookingSuccess={setBookingSuccess}
-            setFrom={"staff"}
-          />
-        </div>
-      )}
+          {newPatintModel && (
+            <div>
+              <NewPatient
+                setShowBookingForm={setNewPatintModel}
+                setBookingSuccess={setBookingSuccess}
+                setFrom={"staff"}
+              />
+            </div>
+          )}
 
           <div className="bg-white rounded-lg p-2 md:p-5 border border-gray-200">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
@@ -309,15 +326,6 @@ const [newPatintModel, setNewPatintModel] = useState(false);
                       {/* Actions */}
                       <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm text-center whitespace-nowrap">
                         <div className="flex items-center space-x-2">
-                          <Link href={`edit/${patient._id}`}>
-                            <button
-                              className="text-teal-600 hover:text-teal-800 p-1 rounded transition-colors"
-                              title="Edit Patient"
-                            >
-                              <Edit className="h-5 w-5" />
-                            </button>
-                          </Link>
-
                           <button
                             onClick={() => {
                               setviewDetails(patient);
@@ -329,13 +337,65 @@ const [newPatintModel, setNewPatintModel] = useState(false);
                             <Eye className="h-5 w-5" />
                           </button>
 
-                          <button
-                            onClick={() => handleDeleteClick(patient)}
-                            className="text-red-600 hover:text-red-800 p-1 rounded transition-colors"
-                            title="Delete Patient"
-                          >
-                            <Delete className="h-5 w-5" />
-                          </button>
+                          <div className="flex items-center space-x-2">
+                            {/* Edit Button */}
+                            <div className="relative group inline-block">
+                              <Link
+                                href={
+                                  eligibleForFeatures(3)
+                                    ? `edit/${patient._id}`
+                                    : "#"
+                                }
+                                onClick={(e) => {
+                                  if (!eligibleForFeatures(3))
+                                    e.preventDefault();
+                                }}
+                              >
+                                <button
+                                  className={`text-teal-600 p-1 rounded transition-colors ${
+                                    !eligibleForFeatures(3)
+                                      ? "text-gray-400 cursor-not-allowed"
+                                      : "hover:text-teal-800"
+                                  }`}
+                                  title={
+                                    !eligibleForFeatures(3)
+                                      ? "You are not eligible"
+                                      : "Edit Patient"
+                                  }
+                                >
+                                  <Edit className="h-5 w-5" />
+                                </button>
+                              </Link>
+
+                              {!eligibleForFeatures(3) && (
+                                <span className="absolute right-full top-1/2 -translate-y-1/2 mr-2 bg-black text-white text-xs px-2 py-1 rounded hidden group-hover:block whitespace-nowrap z-10">
+                                  You are not eligible
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Delete Button */}
+                            <div className="relative group inline-block">
+                              <button
+                                disabled={!eligibleForFeatures(4)}
+                                onClick={() => handleDeleteClick(patient)}
+                                className="text-red-600 hover:text-red-800 p-1 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                title={
+                                  !eligibleForFeatures(4)
+                                    ? "You are not eligible"
+                                    : "Delete Patient"
+                                }
+                              >
+                                <Delete className="h-5 w-5" />
+                              </button>
+
+                              {!eligibleForFeatures(4) && (
+                                <span className="absolute right-full top-1/2 -translate-y-1/2 mr-2 bg-black text-white text-xs px-2 py-1 rounded hidden group-hover:block whitespace-nowrap z-10">
+                                  You are not eligible
+                                </span>
+                              )}
+                            </div>
+                          </div>
                         </div>
                       </td>
                     </tr>

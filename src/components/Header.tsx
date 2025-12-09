@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Bell, Search, User, LogOut, Menu } from 'lucide-react';
+import { User, LogOut, Menu } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 interface HeaderProps {
@@ -10,7 +10,6 @@ interface HeaderProps {
 
 export function Header({ onMenuClick }: HeaderProps) {
   const { user, logout } = useAuth();
-
   return (
     <header className="bg-white border-b border-gray-200 px-4 md:px-6 py-4">
       <div className="flex items-center justify-between">

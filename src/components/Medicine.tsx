@@ -1,37 +1,40 @@
 import React from "react";
 import { PatientFullTypeWithObjectId, todayDate } from "@/src/contexts/type";
 import { Trash } from "lucide-react";
-
+import useEligibility from "./elegibleForfeatures";
 type MedicineProps = {
   formData: PatientFullTypeWithObjectId;
-  setFormData: React.Dispatch<React.SetStateAction<PatientFullTypeWithObjectId>>;
+  setFormData: React.Dispatch<
+    React.SetStateAction<PatientFullTypeWithObjectId>
+  >;
 };
 
 const Medicine: React.FC<MedicineProps> = ({ formData, setFormData }) => {
+  const eligibleForFeatures = useEligibility();
   // 🔹 Medicine name-to-price list
   const medicineList: Record<string, number> = {
-    "moximax": 148,
+    moximax: 148,
     "yesflox p": 100,
-    "heltroz": 150,
+    heltroz: 150,
     "locfresh gel": 155,
-    "cycloact": 70,
+    cycloact: 70,
     "selfquin lp": 170,
-    "ratroday": 210,
-    "ciplox": 18,
+    ratroday: 210,
+    ciplox: 18,
     "ocurest ah": 117,
     "realtob oint": 90,
-    "hycotic": 85,
+    hycotic: 85,
     "yesflu tab": 54,
-    "nepadot": 185,
+    nepadot: 185,
     "realtob f": 125,
-    "tobra": 60,
+    tobra: 60,
     "myneph+": 130,
     "selfquin p": 125,
-    "ceflox": 58,
-    "yesflox": 80,
-    "yapat": 105,
+    ceflox: 58,
+    yesflox: 80,
+    yapat: 105,
     "yapat kt": 140,
-    "ralcafit": 240,
+    ralcafit: 240,
   };
 
   // 🔹 Add medicine
@@ -54,7 +57,10 @@ const Medicine: React.FC<MedicineProps> = ({ formData, setFormData }) => {
   };
 
   // 🔹 Change date
-  const handleAdvanceChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+  const handleAdvanceChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    index: number
+  ) => {
     const { name, value } = e.target;
     const newMedicines = [...formData.medicines];
     if (name === "date" || name === "medicinename") {
@@ -64,7 +70,10 @@ const Medicine: React.FC<MedicineProps> = ({ formData, setFormData }) => {
   };
 
   // 🔹 Change price + recalc total
-  const handleMedicineChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+  const handleMedicineChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    index: number
+  ) => {
     const { value } = e.target;
     const newMedicines = [...formData.medicines];
     newMedicines[index].price = Number(value);
@@ -76,7 +85,10 @@ const Medicine: React.FC<MedicineProps> = ({ formData, setFormData }) => {
   };
 
   // 🔹 Select or type medicine name
-  const handleMedicineSelect = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+  const handleMedicineSelect = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    index: number
+  ) => {
     const { value } = e.target;
     const [namePart] = value.split("-");
     const cleanName = namePart.trim().toLowerCase();
@@ -116,7 +128,7 @@ const Medicine: React.FC<MedicineProps> = ({ formData, setFormData }) => {
               name="date"
               value={med.date}
               onChange={(e) => handleAdvanceChange(e, index)}
-              className="border py-2 md:p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+              className="border py-2 md:p-2 rounded-lg w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
             />
           </div>
 
@@ -144,14 +156,22 @@ const Medicine: React.FC<MedicineProps> = ({ formData, setFormData }) => {
                 placeholder="Enter Price"
                 className="border py-1 px-2 md:py-2 rounded-lg w-full focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
               />
-              <div className="flex justify-end items-center ml-2">
+
+              <div className="flex justify-end items-center ml-2 relative group">
                 <button
+                  disabled={!eligibleForFeatures(4)}
                   type="button"
                   onClick={() => removeMedicineField(index)}
                   className="bg-red-500 text-white rounded-lg px-2 py-2 hover:bg-red-600 transition"
                 >
                   <Trash className="w-3 h-4" />
                 </button>
+
+                {!eligibleForFeatures(4) && (
+                  <span className="absolute right-full top-1/2 -translate-y-1/2 mr-2 bg-black text-white text-xs px-2 py-1 rounded hidden group-hover:block whitespace-nowrap z-10">
+                    You are not eligible
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -177,7 +197,10 @@ const Medicine: React.FC<MedicineProps> = ({ formData, setFormData }) => {
         <div className="flex justify-end">
           <input
             type="number"
-            value={formData.medicines.reduce((sum, m) => sum + (Number(m.price) || 0), 0)}
+            value={formData.medicines.reduce(
+              (sum, m) => sum + (Number(m.price) || 0),
+              0
+            )}
             readOnly
             className="border py-1 md:p-3 min-w-[100px] rounded-lg bg-gray-100 text-gray-700 text-center"
           />

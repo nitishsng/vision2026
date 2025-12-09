@@ -7,6 +7,7 @@ export type Staff = {
   createdAt?: string;
   password: string;
   isActive: boolean;
+  staffGrade:number;
   updatedAt: string; 
 };
 
@@ -19,10 +20,12 @@ export const initialStaff: Staff = {
   createdAt: new Date().toISOString(),
   password: "password",
   updatedAt: "",
+  staffGrade:1,
   isActive: false,
 };
 
 export type staffWithId = Staff & { _id?: string };
+
 export type User = {
   id: string;
   email: string;
@@ -33,6 +36,7 @@ export type User = {
   createdAt: string;
   updatedAt: string; 
   password: string;
+  staffGrade:number;
 };
 
 export type AuthContextType = {
@@ -288,43 +292,3 @@ export const initialPatient:PatientFullTypeWithObjectId={
 }
 
 
-
-// export type Vendor = {
-//   id: string;
-//   name: string;
-//   contactPerson: string;
-//   phone: string;
-//   email: string;
-//   address: string;
-//   isActive: boolean;
-//   createdAt: string; // ISO date string
-//   updatedAt: string; // ISO date string
-// };
-
-// export type Order = {
-//   id: string;
-//   orderDate: string; // e.g., "2024-12-17"
-//   ptName: string; // patient name
-//   age: number;
-//   gender: "male" | "female" | "other";
-//   phone: string;
-//   billNo: string;
-//   rPower: string; // right eye power
-//   lPower: string; // left eye power
-//   advance: number;
-//   due: number;
-//   vendor: string; // linked to Company.name
-//   rate: number;
-//   frame: string;
-//   lens: string;
-//   total: number;
-//   less: number;
-//   adv: number;
-//   dueAmount: number;
-//   rcv: number;
-//   deliveryDate: string; // ISO date string or empty if not set
-//   opticalTotal: number;
-//   status: "processing" | "completed" | "cancelled"; // restrict to valid states
-//   createdAt: string; // ISO string
-//   updatedAt: string; // ISO string
-// };
