@@ -97,8 +97,8 @@ const OpticalPayment: React.FC<OpticalPaymentProps> = ({
                   />
                 </div>
 
-                <div className="flex flex-col">
-                  <div className="flex">
+                <div className="flex flex-col ">
+                  <div className="flex items-center">
                     <input
                       type="number"
                       name="amount"
@@ -119,7 +119,7 @@ const OpticalPayment: React.FC<OpticalPaymentProps> = ({
 
                       {/* Tooltip */}
                       {!eligibleForFeatures(4) && (
-                        <span className="absolute right-full top-1/2 -translate-y-1/2 mr-2 bg-black text-white text-xs px-2 py-1 rounded whitespace-nowrap hidden group-hover:block z-10">
+                        <span className="absolute right-full top-1/2 -translate-y-1/2 bg-black text-white text-xs px-2 py-1 rounded hidden group-hover:block whitespace-nowrap z-10">
                           You are not eligible
                         </span>
                       )}

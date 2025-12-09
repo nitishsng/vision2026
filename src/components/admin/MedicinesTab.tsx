@@ -138,7 +138,7 @@ export function MedicinesTab() {
         </div>
       ) : (
         <div className="p-2">
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center mb-2">
             <div>
               <h1 className="text-[20px] md:text-2xl font-bold text-gray-900">
                 Medicines Management
@@ -155,7 +155,7 @@ export function MedicinesTab() {
                 className="bg-teal-500 hover:bg-teal-600 text-white px-2 py-1 md:px-4 rounded-lg font-medium flex items-center space-x-2 transition-colors"
               >
                 <Plus className="h-4 w-4" />
-                <span>New Customer</span>
+                <span>Customer</span>
               </button>
             </div>
           </div>
@@ -164,13 +164,13 @@ export function MedicinesTab() {
             <div className="flex gap-2 md:gap-4 items-center">
               {/* Search Input */}
               <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <input
                   type="text"
                   placeholder="Search by name, phone, bill number, or email..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
               </div>
 
@@ -180,7 +180,7 @@ export function MedicinesTab() {
                   type="date"
                   value={dateFilter}
                   onChange={(e) => setDateFilter(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 w-auto"
+                  className="px-2 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 w-auto"
                   style={{ width: "fit-content" }}
                 />
               </div>
@@ -236,34 +236,37 @@ export function MedicinesTab() {
                             : "bg-white text-gray-800"
                         } hover:bg-gray-50`}
                       >
-                        <td className="px-2 gap-1 flex items-center md:px-4 py-2 border-b border-gray-200 text-sm">
-                          <div className="flex flex-col items-center justify-center">
-                            {/* REPEATED */}
-                            {p.repeated && (
-                              <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-green-600"></span>
-                            )}
+                        <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm">
+                          <div className="flex  gap-1">
+                            <div className="flex flex-col items-center justify-center">
+                              {/* REPEATED */}
+                              {p.repeated && (
+                                <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-green-600"></span>
+                              )}
 
-                            {/* OPTICAL PRICE */}
-                            {(p.framePrice || 0) + (p.lensePrice || 0) > 0 && (
-                              <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-orange-500"></span>
-                            )}
+                              {/* OPTICAL PRICE */}
+                              {(p.framePrice || 0) + (p.lensePrice || 0) >
+                                0 && (
+                                <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-orange-500"></span>
+                              )}
 
-                            {/* MEDICINES */}
-                            {(p.medicines?.length || 0) > 0 && (
-                              <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-blue-800"></span>
-                            )}
+                              {/* MEDICINES */}
+                              {(p.medicines?.length || 0) > 0 && (
+                                <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-blue-800"></span>
+                              )}
 
-                            {/* NONE TRUE */}
-                            {!(
-                              p.repeated ||
-                              (p.framePrice || 0) + (p.lensePrice || 0) > 0 ||
-                              (p.medicines?.length || 0) > 0
-                            ) && (
-                              <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-transparent"></span>
-                            )}
+                              {/* NONE TRUE */}
+                              {!(
+                                p.repeated ||
+                                (p.framePrice || 0) + (p.lensePrice || 0) > 0 ||
+                                (p.medicines?.length || 0) > 0
+                              ) && (
+                                <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-transparent"></span>
+                              )}
+                            </div>
+
+                            {p.ptName}
                           </div>
-
-                          {p.ptName}
                         </td>
 
                         <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm">
@@ -301,28 +304,40 @@ export function MedicinesTab() {
                             >
                               <Eye className="h-5 w-5" />
                             </button>
-                            <div className="relative group inline-flex items-center space-x-2 p-1">
-                              <button
-                                onClick={() => handleEditClick(p)}
-                                disabled={!eligibleForFeatures(4)}
-                                className="text-blue-600 hover:text-blue-900 focus:outline-none disabled:opacity-50"
-                              >
-                                <Edit className="h-5 w-5" />
-                              </button>
+                            <div className="flex items-center space-x-2">
+                              {/* EDIT BUTTON */}
+                              <div className="relative group">
+                                <button
+                                  onClick={() => handleEditClick(p)}
+                                  disabled={!eligibleForFeatures(4)}
+                                  className="text-blue-600 hover:text-blue-900 focus:outline-none disabled:opacity-50"
+                                >
+                                  <Edit className="h-5 w-5" />
+                                </button>
 
-                              <button
-                                disabled={!eligibleForFeatures(4)}
-                                onClick={() => handleDeleteClick(p)}
-                                className="text-red-600 hover:text-red-800 focus:outline-none disabled:opacity-50"
-                              >
-                                <Delete className="h-5 w-5" />
-                              </button>
+                                {!eligibleForFeatures(4) && (
+                                  <span className="absolute right-full top-1/2 -translate-y-1/2 mr-1 bg-black text-white text-xs px-2 py-1 rounded hidden group-hover:block whitespace-nowrap z-10">
+                                    You are not eligible
+                                  </span>
+                                )}
+                              </div>
 
-                              {!eligibleForFeatures(4) && (
-                                <span className="absolute right-0 top-full mt-1 bg-black text-white text-xs px-2 py-1 rounded hidden group-hover:block whitespace-nowrap z-10">
-                                  You are not eligible
-                                </span>
-                              )}
+                              {/* DELETE BUTTON */}
+                              <div className="relative group">
+                                <button
+                                  disabled={!eligibleForFeatures(4)}
+                                  onClick={() => handleDeleteClick(p)}
+                                  className="text-red-600 hover:text-red-800 focus:outline-none disabled:opacity-50"
+                                >
+                                  <Delete className="h-5 w-5" />
+                                </button>
+
+                                {!eligibleForFeatures(4) && (
+                                  <span className="absolute right-full top-1/2 -translate-y-1/2 mr-1 bg-black text-white text-xs px-2 py-1 rounded hidden group-hover:block whitespace-nowrap z-10">
+                                    You are not eligible
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </td>

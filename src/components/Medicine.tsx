@@ -168,7 +168,7 @@ const Medicine: React.FC<MedicineProps> = ({ formData, setFormData }) => {
                 </button>
 
                 {!eligibleForFeatures(4) && (
-                  <span className="absolute right-full top-1/2 -translate-y-1/2 mr-2 bg-black text-white text-xs px-2 py-1 rounded hidden group-hover:block whitespace-nowrap z-10">
+                  <span className="absolute right-full top-1/2 -translate-y-1/2 mr-1 bg-black text-white text-xs px-2 py-1 rounded hidden group-hover:block whitespace-nowrap z-10">
                     You are not eligible
                   </span>
                 )}

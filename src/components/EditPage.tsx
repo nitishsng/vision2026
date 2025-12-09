@@ -1693,7 +1693,7 @@ const EditPage = () => {
 
                       {/* Tooltip message (left side) */}
                       {!eligibleForFeatures(4) && (
-                        <span className="absolute -left-40 top-1/2 -translate-y-1/2 bg-black text-white text-xs px-2 py-1 rounded hidden group-hover:block whitespace-nowrap">
+                        <span className="absolute right-full top-1/2 -translate-y-1/2 mr-1 bg-black text-white text-xs px-2 py-1 rounded hidden group-hover:block whitespace-nowrap z-10">
                           You are not eligible
                         </span>
                       )}

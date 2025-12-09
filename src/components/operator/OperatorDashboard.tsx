@@ -30,7 +30,7 @@ export function OperatorDashboard() {
   const renderContent = () => {
     switch (activeTab) {
       case "dashboard":
-        return (!eligibleForFeatures(3)) ? <DashboardOverview />: "You are Not Eligible";
+        return (eligibleForFeatures(4)) ? <DashboardOverview />: "You are not eligible to see this";
       case "appointments":
         return <AppointmentsTab />;
       case "patients":
@@ -38,13 +38,13 @@ export function OperatorDashboard() {
       case "schedule":
         return <ScheduleTab />;
       case "reports":
-        return  (!eligibleForFeatures(3)) ? <ReportsTab />: "You are Not Eligible";
+        return  (eligibleForFeatures(4)) ? <ReportsTab />: "You are not eligible to see this";
       case "orders":
         return <OrdersTab />;
       case "medicines":
         return <MedicinesTab />;
       case 'analysis':
-        return  (!eligibleForFeatures(3)) ? <AnalysisTab />: "You are Not Eligible";
+        return  (eligibleForFeatures(4)) ? <AnalysisTab />: "You are not eligible to see this";
       default:
         return <AppointmentsTab />;
     }
@@ -61,7 +61,7 @@ export function OperatorDashboard() {
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header onMenuClick={() => setSidebarOpen(true)} />
 
-        <main className="flex-1 overflow-y-auto p-6">{renderContent()}</main>
+        <main className="flex-1 overflow-y-auto p-1">{renderContent()}</main>
       </div>
     </div>
   );

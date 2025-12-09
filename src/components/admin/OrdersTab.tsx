@@ -349,7 +349,7 @@ export function OrdersTab() {
         </div>
       ) : (
         <div className="p-2">
-          <div className="flex justify-between items-center">
+          <div className="flex mb-2 justify-between items-center">
             <div>
               <h1 className="text-[20px] md:text-2xl font-bold text-gray-900">
                 Orders Management
@@ -370,7 +370,7 @@ export function OrdersTab() {
               </button>
 
               {!eligibleForFeatures(4) && (
-                <span className="absolute left-1/2 -translate-x-1/2 top-full mt-1 bg-black text-white text-xs px-2 py-1 rounded hidden group-hover:block whitespace-nowrap z-10">
+                <span className="absolute right-full top-1/2 -translate-y-1/2 mr-1 bg-black text-white text-xs px-2 py-1 rounded hidden group-hover:block whitespace-nowrap z-10">
                   You are not eligible
                 </span>
               )}
@@ -531,28 +531,28 @@ export function OrdersTab() {
                         } hover:bg-gray-50`}
                       >
                         {/* Bill No */}
-                        <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm font-medium whitespace-nowrap flex items-center gap-1">
-                          {/* DOTS */}
-                          <div className="flex flex-col justify-center items-center">
-                            {order.repeated && (
-                              <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-green-600" />
-                            )}
-                            {order.framePrice + order.lensePrice > 0 && (
-                              <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-orange-500" />
-                            )}
-                            {order.medicines.length > 0 && (
-                              <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-blue-800" />
-                            )}
-                            {!(
-                              order.repeated ||
-                              order.framePrice + order.lensePrice > 0 ||
-                              order.medicines.length > 0
-                            ) && (
-                              <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-transparent" />
-                            )}
+                        <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm whitespace-nowrap">
+                          <div className="flex gap-1">
+                            <div className="flex flex-col justify-center items-center">
+                              {order.repeated && (
+                                <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-green-600" />
+                              )}
+                              {order.framePrice + order.lensePrice > 0 && (
+                                <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-orange-500" />
+                              )}
+                              {order.medicines.length > 0 && (
+                                <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-blue-800" />
+                              )}
+                              {!(
+                                order.repeated ||
+                                order.framePrice + order.lensePrice > 0 ||
+                                order.medicines.length > 0
+                              ) && (
+                                <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-transparent" />
+                              )}
+                            </div>
+                            {order.billNo}
                           </div>
-
-                          {order.billNo}
                         </td>
 
                         {/* Name */}
@@ -627,7 +627,7 @@ export function OrdersTab() {
                                   <Edit className="h-5 w-5" />
                                 </button>
                                 {!eligibleForFeatures(3) && (
-                                  <span className="absolute left-1/2 -translate-x-1/2 top-full mt-1 bg-black text-white text-xs px-2 py-1 rounded hidden group-hover:block whitespace-nowrap z-10">
+                                  <span className="absolute right-full top-1/2 -translate-y-1/2 mr-1 bg-black text-white text-xs px-2 py-1 rounded hidden group-hover:block whitespace-nowrap z-10">
                                     You are not eligible
                                   </span>
                                 )}
@@ -643,7 +643,7 @@ export function OrdersTab() {
                                   <Delete className="h-5 w-5" />
                                 </button>
                                 {!eligibleForFeatures(4) && (
-                                  <span className="absolute left-1/2 -translate-x-1/2 top-full mt-1 bg-black text-white text-xs px-2 py-1 rounded hidden group-hover:block whitespace-nowrap z-10">
+                                  <span className="absolute right-full top-1/2 -translate-y-1/2 mr-1 bg-black text-white text-xs px-2 py-1 rounded hidden group-hover:block whitespace-nowrap z-10">
                                     You are not eligible
                                   </span>
                                 )}
@@ -965,22 +965,6 @@ export function OrdersTab() {
                       <span className="text-lg md:text-xl font-semibold text-gray-700">
                         Order Information
                       </span>
-                      <select
-                        name="deliveryStatus"
-                        value={formData.deliveryStatus}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            deliveryStatus: e.target.value,
-                          })
-                        }
-                        className="text-sm px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                      >
-                        <option value="pending">Pending</option>
-                        <option value="inProgress">In Progress</option>
-                        <option value="readyToDeliver">Ready to Deliver</option>
-                        <option value="delivered">Delivered</option>
-                      </select>
                     </h3>
 
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -1030,7 +1014,7 @@ export function OrdersTab() {
                         <input
                           type="number"
                           name="framePrice"
-                           disabled={!eligibleForFeatures(4)}
+                          disabled={!eligibleForFeatures(4)}
                           value={formData.framePrice || 0}
                           onChange={handleInputChange}
                           className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
@@ -1066,7 +1050,7 @@ export function OrdersTab() {
                         <input
                           type="number"
                           name="lensePrice"
-                           disabled={!eligibleForFeatures(4)}
+                          disabled={!eligibleForFeatures(4)}
                           value={formData.lensePrice || 0}
                           onChange={handleInputChange}
                           className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
@@ -1083,6 +1067,29 @@ export function OrdersTab() {
                           readOnly
                           className="border p-2 md:p-3 rounded w-full bg-gray-100 cursor-not-allowed text-sm md:text-base"
                         />
+                      </div>
+                      <div>
+                        <label className="font-medium mb-1 block text-sm md:text-base">
+                        Status
+                        </label>
+                        <select
+                          name="deliveryStatus"
+                          value={formData.deliveryStatus}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              deliveryStatus: e.target.value,
+                            })
+                          }
+                          className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+                        >
+                          <option value="pending">Pending</option>
+                          <option value="inProgress">In Progress</option>
+                          <option value="readyToDeliver">
+                            Ready to Deliver
+                          </option>
+                          <option value="delivered">Delivered</option>
+                        </select>
                       </div>
                     </div>
 
