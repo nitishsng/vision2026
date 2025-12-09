@@ -1631,17 +1631,17 @@ const EditPage = () => {
             Visit & Medicines
           </h3>
 
-          <div className="flex flex-col md:flex-row w-full gap-6">
+          <div className="flex flex-col md:flex-row w-full gap-2">
             {/* Visit History */}
             <div className="flex flex-col md:w-[350px] w-full">
-              <label className="font-medium text-gray-700 mb-2">
+              <label className="font-medium text-gray-700 mb-1">
                 Visit History
               </label>
 
               {(formData.visitDetails || []).map((v, index) => (
                 <div
                   key={index}
-                  className="grid grid-cols-2 gap-2 items-center mb-2 w-full p-2 rounded"
+                  className="grid grid-cols-2 gap-2 items-center w-full p-2 rounded"
                 >
                   {/* LEFT column */}
                   <div>
@@ -1654,7 +1654,7 @@ const EditPage = () => {
                           e.target.value
                         )
                       }
-                      className="border px-2 py-1 md:py-3 rounded text-sm w-full"
+                      className="border px-2 py-1 md:py-2 rounded text-sm w-full"
                     />
                   </div>
 

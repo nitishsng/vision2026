@@ -119,7 +119,7 @@ const Medicine: React.FC<MedicineProps> = ({ formData, setFormData }) => {
       {formData.medicines.map((med, index) => (
         <div
           key={index}
-          className="grid grid-cols-3 gap-1 items-end bg-gray-50 "
+          className="grid grid-cols-3 gap-1 items-end"
         >
           {/* Date */}
           <div className="flex flex-col">
@@ -186,7 +186,7 @@ const Medicine: React.FC<MedicineProps> = ({ formData, setFormData }) => {
       </datalist>
 
       {/* Add + Total */}
-      <div className="grid grid-cols-2 justify-between px-3 gap-3  w-full">
+      <div className="grid grid-cols-2 justify-between px-3 gap-3 w-full">
         <button
           type="button"
           onClick={addMedicineField}

@@ -954,8 +954,13 @@ export function OrdersTab() {
           {isEditPopupOpen && formData && (
             <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
               <div className="relative p-2 md:p-4 border w-full max-w-2xl md:max-w-3xl lg:max-w-4xl shadow-lg rounded-xl bg-white overflow-y-auto max-h-[95vh]">
-                <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-                  Edit Order (Bill No: {formData.billNo})
+                <h3 className="text-2xl font-bold text-gray-800 mb-3 text-center">
+                     <div>
+                      {formData.ptName}
+                     </div>
+                     <div>
+                      {formData.billNo}
+                     </div>
                 </h3>
 
                 <div className="space-y-2">
