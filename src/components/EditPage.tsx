@@ -1672,22 +1672,32 @@ const EditPage = () => {
                       className="border px-2 py-1 md:py-3 rounded text-sm w-full"
                     />
 
-                    <button
-                      onClick={() =>
-                        setFormData((prev) => {
-                          if (!prev) return prev;
-                          return {
-                            ...prev,
-                            visitDetails: (prev.visitDetails || []).filter(
-                              (_, i) => i !== index
-                            ),
-                          };
-                        })
-                      }
-                      className="text-red-500"
-                    >
-                      <Delete className="w-8 h-8" />
-                    </button>
+                    <div className="flex items-center gap-2 relative group">
+                      <button
+                        disabled={!eligibleForFeatures(4)}
+                        onClick={() =>
+                          setFormData((prev) => {
+                            if (!prev) return prev;
+                            return {
+                              ...prev,
+                              visitDetails: (prev.visitDetails || []).filter(
+                                (_, i) => i !== index
+                              ),
+                            };
+                          })
+                        }
+                        className="text-red-500 disabled:opacity-50"
+                      >
+                        <Delete className="w-8 h-8" />
+                      </button>
+
+                      {/* Tooltip message (left side) */}
+                      {!eligibleForFeatures(4) && (
+                        <span className="absolute -left-40 top-1/2 -translate-y-1/2 bg-black text-white text-xs px-2 py-1 rounded hidden group-hover:block whitespace-nowrap">
+                          You are not eligible
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
