@@ -92,7 +92,7 @@ export function PatientsTab() {
         </div>
       ) : (
         <div className="space-y-4 md:space-x-6">
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center p-2">
             <div>
               <div className="md:flex">
                 <div className="text-[20px] md:text-2xl font-bold text-gray-900 mr-4">

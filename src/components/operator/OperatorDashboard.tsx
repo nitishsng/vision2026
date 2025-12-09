@@ -13,6 +13,7 @@ import { MedicinesTab } from "../admin/MedicinesTab";
 import { AnalysisTab } from "../admin/AnalysisTab";
 import { useAuth } from "@/src/contexts/AuthContext";
 import useEligibility from "../elegibleForfeatures";
+import VisibleMessage from "../VisibleMessage";
 export function OperatorDashboard() {
   const { user } = useAuth();
    const eligibleForFeatures = useEligibility();
@@ -30,7 +31,7 @@ export function OperatorDashboard() {
   const renderContent = () => {
     switch (activeTab) {
       case "dashboard":
-        return (eligibleForFeatures(4)) ? <DashboardOverview />: "You are not eligible to see this";
+        return (eligibleForFeatures(4)) ? <DashboardOverview />: <VisibleMessage/>;
       case "appointments":
         return <AppointmentsTab />;
       case "patients":
@@ -38,13 +39,13 @@ export function OperatorDashboard() {
       case "schedule":
         return <ScheduleTab />;
       case "reports":
-        return  (eligibleForFeatures(4)) ? <ReportsTab />: "You are not eligible to see this";
+        return  (eligibleForFeatures(4)) ? <ReportsTab />: <VisibleMessage/>;
       case "orders":
         return <OrdersTab />;
       case "medicines":
         return <MedicinesTab />;
       case 'analysis':
-        return  (eligibleForFeatures(4)) ? <AnalysisTab />: "You are not eligible to see this";
+        return  (eligibleForFeatures(4)) ? <AnalysisTab />: <VisibleMessage/>;
       default:
         return <AppointmentsTab />;
     }

@@ -361,15 +361,15 @@ export function OrdersTab() {
 
             <div className="relative group inline-block">
               <button
-                disabled={!eligibleForFeatures(4)}
+                disabled={!eligibleForFeatures(3)}
                 onClick={() => setNewOrderForm(true)}
                 className="bg-teal-500 hover:bg-teal-600 text-white px-2 py-1 md:px-4 md:py-2 rounded-lg font-medium flex items-center space-x-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Plus className="h-4 w-4" />
-                <span>New Order</span>
+                <span>Order</span>
               </button>
 
-              {!eligibleForFeatures(4) && (
+              {!eligibleForFeatures(3) && (
                 <span className="absolute right-full top-1/2 -translate-y-1/2 mr-1 bg-black text-white text-xs px-2 py-1 rounded hidden group-hover:block whitespace-nowrap z-10">
                   You are not eligible
                 </span>
