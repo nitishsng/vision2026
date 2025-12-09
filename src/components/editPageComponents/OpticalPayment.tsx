@@ -15,7 +15,9 @@ const OpticalPayment: React.FC<OpticalPaymentProps> = ({
   setFormData,
 }) => {
   const eligibleForFeatures = useEligibility();
-  const [lastAddedIndex, setLastAddedIndex] = React.useState<number | null>(null);
+  const [lastAddedIndex, setLastAddedIndex] = React.useState<number | null>(
+    null
+  );
   // ✅ Handles field edits for each payment
   const handleAdvanceChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -85,7 +87,9 @@ const OpticalPayment: React.FC<OpticalPaymentProps> = ({
                     name="date"
                     value={med.date}
                     onChange={(e) => handleAdvanceChange(e, index)}
-                    disabled={!(index === lastAddedIndex || eligibleForFeatures(4))}
+                    disabled={
+                      !(index === lastAddedIndex || eligibleForFeatures(4))
+                    }
                     className="border py-2 md:p-2 rounded-lg w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
                   />
                 </div>
@@ -97,7 +101,9 @@ const OpticalPayment: React.FC<OpticalPaymentProps> = ({
                     value={med.transectionId}
                     onChange={(e) => handleAdvanceChange(e, index)}
                     placeholder="Enter Transection ID"
-                    disabled={!(index === lastAddedIndex || eligibleForFeatures(4))}
+                    disabled={
+                      !(index === lastAddedIndex || eligibleForFeatures(4))
+                    }
                     className="border p-1 py-2 md:p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
                   />
                 </div>
@@ -110,7 +116,9 @@ const OpticalPayment: React.FC<OpticalPaymentProps> = ({
                       value={med.amount}
                       onChange={(e) => handleAdvanceChange(e, index)}
                       placeholder="Enter Amount"
-                      disabled={!(index === lastAddedIndex || eligibleForFeatures(4))}
+                      disabled={
+                        !(index === lastAddedIndex || eligibleForFeatures(4))
+                      }
                       className="border p-1 py-2 md:p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
                     />
                     {eligibleForFeatures(4) && (

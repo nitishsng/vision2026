@@ -223,16 +223,17 @@ export function MedicinesTab() {
                     medicinesPatients.map((p, index) => (
                       <tr
                         key={index}
-                        className={`transition-colors ${(p.framePrice || 0) +
+                        className={`transition-colors ${
+                          (p.framePrice || 0) +
                             (p.lensePrice || 0) -
                             (p.opticalPayDetails || []).reduce(
                               (sum, d) => sum + (Number(d.amount) || 0),
                               0
                             ) >
-                            0
+                          0
                             ? "bg-red-50"
                             : "bg-white text-gray-800"
-                          } hover:bg-gray-50`}
+                        } hover:bg-gray-50`}
                       >
                         <td className="px-2 gap-1 flex items-center md:px-4 py-2 border-b border-gray-200 text-sm">
                           <div className="flex flex-col items-center justify-center">
@@ -257,8 +258,8 @@ export function MedicinesTab() {
                               (p.framePrice || 0) + (p.lensePrice || 0) > 0 ||
                               (p.medicines?.length || 0) > 0
                             ) && (
-                                <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-transparent"></span>
-                              )}
+                              <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-transparent"></span>
+                            )}
                           </div>
 
                           {p.ptName}
@@ -279,8 +280,8 @@ export function MedicinesTab() {
                         <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm font-semibold">
                           {p.medicines?.[0]?.date
                             ? new Date(p.medicines[0].date)
-                              .toLocaleDateString("en-GB")
-                              .replace(/\//g, "-")
+                                .toLocaleDateString("en-GB")
+                                .replace(/\//g, "-")
                             : ""}
                         </td>
 
