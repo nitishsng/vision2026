@@ -91,7 +91,7 @@ export function PatientsTab() {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-500"></div>
         </div>
       ) : (
-        <div className="space-y-4 md:space-x-6">
+        <div className="space-y-2 md:space-x-6">
           <div className="flex justify-between items-center p-2">
             <div>
               <div className="md:flex">
@@ -108,22 +108,17 @@ export function PatientsTab() {
               </p>
             </div>
 
-            <div className="relative group inline-block">
-              <button
-                disabled={!eligibleForFeatures(3)}
-                onClick={() => setNewPatintModel(true)}
-                className="bg-teal-500 hover:bg-teal-600 text-white px-2 py-1 md:px-4 md:py-2 rounded-lg font-medium flex items-center space-x-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Plus className="h-4 w-4" />
-                <span>Patient</span>
-              </button>
-
-              {!eligibleForFeatures(3) && (
-                <span className="absolute right-full top-1/2 -translate-y-1/2 mr-1 bg-black text-white text-xs px-2 py-1 rounded hidden group-hover:block whitespace-nowrap z-10">
-                  You are not eligible
-                </span>
-              )}
-            </div>
+            {eligibleForFeatures(3) && (
+              <div className="inline-block">
+                <button
+                  onClick={() => setNewPatintModel(true)}
+                  className="bg-teal-500 hover:bg-teal-600 text-white px-2 py-1 md:px-4 md:py-2 rounded-lg font-medium flex items-center space-x-2 transition-colors"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span>Patient</span>
+                </button>
+              </div>
+            )}
           </div>
           {newPatintModel && (
             <div>
@@ -339,62 +334,26 @@ export function PatientsTab() {
 
                           <div className="flex items-center space-x-2">
                             {/* Edit Button */}
-                            <div className="relative group inline-block">
-                              <Link
-                                href={
-                                  eligibleForFeatures(3)
-                                    ? `edit/${patient._id}`
-                                    : "#"
-                                }
-                                onClick={(e) => {
-                                  if (!eligibleForFeatures(3))
-                                    e.preventDefault();
-                                }}
-                              >
-                                <button
-                                  className={`text-teal-600 p-1 rounded transition-colors ${
-                                    !eligibleForFeatures(3)
-                                      ? "text-gray-400 cursor-not-allowed"
-                                      : "hover:text-teal-800"
-                                  }`}
-                                  title={
-                                    !eligibleForFeatures(3)
-                                      ? "You are not eligible"
-                                      : "Edit Patient"
-                                  }
-                                >
+                            {eligibleForFeatures(3) && (
+                              <Link href={`edit/${patient._id}`}>
+                                <button className="text-teal-600 p-1 rounded hover:text-teal-800 transition-colors">
                                   <Edit className="h-5 w-5" />
                                 </button>
                               </Link>
-
-                              {!eligibleForFeatures(3) && (
-                                <span className="absolute right-full top-1/2 -translate-y-1/2 mr-1 bg-black text-white text-xs px-2 py-1 rounded hidden group-hover:block whitespace-nowrap z-10">
-                                  You are not eligible
-                                </span>
-                              )}
-                            </div>
+                            )}
 
                             {/* Delete Button */}
-                            <div className="relative group inline-block">
-                              <button
-                                disabled={!eligibleForFeatures(4)}
-                                onClick={() => handleDeleteClick(patient)}
-                                className="text-red-600 hover:text-red-800 p-1 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                title={
-                                  !eligibleForFeatures(4)
-                                    ? "You are not eligible"
-                                    : "Delete Patient"
-                                }
-                              >
-                                <Delete className="h-5 w-5" />
-                              </button>
-
-                              {!eligibleForFeatures(4) && (
-                                <span className="absolute right-full top-1/2 -translate-y-1/2 mr-1 bg-black text-white text-xs px-2 py-1 rounded hidden group-hover:block whitespace-nowrap z-10">
-                                  You are not eligible
-                                </span>
-                              )}
-                            </div>
+                            {eligibleForFeatures(4) && (
+                              <div className="inline-block">
+                                <button
+                                  onClick={() => handleDeleteClick(patient)}
+                                  className="text-red-600 hover:text-red-800 p-1 rounded transition-colors"
+                                  title="Delete Patient"
+                                >
+                                  <Delete className="h-5 w-5" />
+                                </button>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </td>

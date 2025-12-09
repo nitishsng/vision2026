@@ -28,17 +28,16 @@ export const appointmentForm: React.FC<PatientFormProps> = ({
     }));
   };
 
-  function generateAppointmentId() {
-    const now = new Date();
-    const yy = String(now.getFullYear()).slice(-2); // last 2 digits of year
-    const mm = String(now.getMonth() + 1).padStart(2, "0"); // months 0-11
-    const dd = String(now.getDate()).padStart(2, "0");
-    const hh = String(now.getHours()).padStart(2, "0");
-    const min = String(now.getMinutes()).padStart(2, "0");
-    const ss = String(now.getSeconds()).padStart(2, "0");
-
-    return `${yy}${mm}${dd}${hh}${min}${ss}`;
-  }
+function generateAppointmentId() {
+  const now = new Date();
+  // Convert to Kolkata time string in YYYY-MM-DD HH:mm:ss format
+  const istString = now.toLocaleString("en-GB", { timeZone: "Asia/Kolkata" });
+  const [datePart, timePart] = istString.split(", ");
+  const [dd, mm, yyyy] = datePart.split("/"); // day, month, year
+  const [hh, min, ss] = timePart.split(":");
+  const yy = yyyy.slice(-2); // last 2 digits of year\
+  return `${yy}${mm}${dd}${hh}${min}${ss}`;
+}
   const handleBookAppointment = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     formValues.id = generateAppointmentId();

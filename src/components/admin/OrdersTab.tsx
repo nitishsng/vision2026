@@ -4,7 +4,7 @@ import { PatientFullTypeWithObjectId } from "@/src/contexts/type";
 import { useDashboardData } from "@/src/contexts/dataCollection";
 import toast from "react-hot-toast";
 import NewOrder from "../NewOrderMedicine";
-import OpticalPayment from "../OpticalPayment";
+import OpticalPayment from "../editPageComponents/OpticalPayment";
 import useEligibility from "../elegibleForfeatures";
 export function OrdersTab() {
   const eligibleForFeatures = useEligibility();
@@ -359,22 +359,17 @@ export function OrdersTab() {
               </p>
             </div>
 
-            <div className="relative group inline-block">
-              <button
-                disabled={!eligibleForFeatures(3)}
-                onClick={() => setNewOrderForm(true)}
-                className="bg-teal-500 hover:bg-teal-600 text-white px-2 py-1 md:px-4 md:py-2 rounded-lg font-medium flex items-center space-x-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Plus className="h-4 w-4" />
-                <span>Order</span>
-              </button>
-
-              {!eligibleForFeatures(3) && (
-                <span className="absolute right-full top-1/2 -translate-y-1/2 mr-1 bg-black text-white text-xs px-2 py-1 rounded hidden group-hover:block whitespace-nowrap z-10">
-                  You are not eligible
-                </span>
-              )}
-            </div>
+            {eligibleForFeatures(3) && (
+              <div className="relative inline-block">
+                <button
+                  onClick={() => setNewOrderForm(true)}
+                  className="bg-teal-500 hover:bg-teal-600 text-white px-2 py-1 md:px-4 md:py-2 rounded-lg font-medium flex items-center space-x-2 transition-colors"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span>Order</span>
+                </button>
+              </div>
+            )}
           </div>
 
           {newOrderForm && (
@@ -618,36 +613,24 @@ export function OrdersTab() {
 
                             <div className="flex items-center space-x-2">
                               {/* Edit Button */}
-                              <div className="relative group inline-block">
+                              {eligibleForFeatures(3) && (
                                 <button
-                                  disabled={!eligibleForFeatures(3)}
                                   onClick={() => handleEditClick(order)}
-                                  className="text-blue-600 hover:text-blue-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                                  className="text-blue-600 hover:text-blue-900"
                                 >
                                   <Edit className="h-5 w-5" />
                                 </button>
-                                {!eligibleForFeatures(3) && (
-                                  <span className="absolute right-full top-1/2 -translate-y-1/2 mr-1 bg-black text-white text-xs px-2 py-1 rounded hidden group-hover:block whitespace-nowrap z-10">
-                                    You are not eligible
-                                  </span>
-                                )}
-                              </div>
+                              )}
 
                               {/* Delete Button */}
-                              <div className="relative group inline-block">
+                              {eligibleForFeatures(4) && (
                                 <button
-                                  disabled={!eligibleForFeatures(4)}
                                   onClick={() => handleDeleteClick(order)}
-                                  className="text-red-600 hover:text-red-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                                  className="text-red-600 hover:text-red-800"
                                 >
                                   <Delete className="h-5 w-5" />
                                 </button>
-                                {!eligibleForFeatures(4) && (
-                                  <span className="absolute right-full top-1/2 -translate-y-1/2 mr-1 bg-black text-white text-xs px-2 py-1 rounded hidden group-hover:block whitespace-nowrap z-10">
-                                    You are not eligible
-                                  </span>
-                                )}
-                              </div>
+                              )}
                             </div>
                           </div>
                         </td>
@@ -955,12 +938,8 @@ export function OrdersTab() {
             <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
               <div className="relative p-2 md:p-4 border w-full max-w-2xl md:max-w-3xl lg:max-w-4xl shadow-lg rounded-xl bg-white overflow-y-auto max-h-[95vh]">
                 <h3 className="text-2xl font-bold text-gray-800 mb-3 text-center">
-                     <div>
-                      {formData.ptName}
-                     </div>
-                     <div>
-                      {formData.billNo}
-                     </div>
+                  <div>{formData.ptName}</div>
+                  <div>{formData.billNo}</div>
                 </h3>
 
                 <div className="space-y-2">
@@ -1075,7 +1054,7 @@ export function OrdersTab() {
                       </div>
                       <div>
                         <label className="font-medium mb-1 block text-sm md:text-base">
-                        Status
+                          Status
                         </label>
                         <select
                           name="deliveryStatus"

@@ -1,7 +1,7 @@
 import React from "react";
 import { PatientFullTypeWithObjectId, todayDate } from "@/src/contexts/type";
 import { Trash } from "lucide-react";
-import useEligibility from "./elegibleForfeatures";
+import useEligibility from "../elegibleForfeatures";
 type MedicineProps = {
   formData: PatientFullTypeWithObjectId;
   setFormData: React.Dispatch<
@@ -117,10 +117,7 @@ const Medicine: React.FC<MedicineProps> = ({ formData, setFormData }) => {
 
       {/* Medicine Rows */}
       {formData.medicines.map((med, index) => (
-        <div
-          key={index}
-          className="grid grid-cols-3 gap-1 items-end"
-        >
+        <div key={index} className="grid grid-cols-3 gap-1 items-end">
           {/* Date */}
           <div className="flex flex-col">
             <input
@@ -156,23 +153,17 @@ const Medicine: React.FC<MedicineProps> = ({ formData, setFormData }) => {
                 placeholder="Enter Price"
                 className="border py-1 px-2 md:py-2 rounded-lg w-full focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
               />
-
-              <div className="flex justify-end items-center ml-2 relative group">
-                <button
-                  disabled={!eligibleForFeatures(4)}
-                  type="button"
-                  onClick={() => removeMedicineField(index)}
-                  className="bg-red-500 text-white rounded-lg px-2 py-2 hover:bg-red-600 transition"
-                >
-                  <Trash className="w-3 h-4" />
-                </button>
-
-                {!eligibleForFeatures(4) && (
-                  <span className="absolute right-full top-1/2 -translate-y-1/2 mr-1 bg-black text-white text-xs px-2 py-1 rounded hidden group-hover:block whitespace-nowrap z-10">
-                    You are not eligible
-                  </span>
-                )}
-              </div>
+              {eligibleForFeatures(4) && (
+                <div className="flex justify-end items-center ml-2">
+                  <button
+                    type="button"
+                    onClick={() => removeMedicineField(index)}
+                    className="bg-red-500 text-white rounded-lg px-2 py-2 hover:bg-red-600 transition"
+                  >
+                    <Trash className="w-3 h-4" />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>

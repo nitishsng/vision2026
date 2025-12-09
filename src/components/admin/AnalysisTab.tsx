@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useDashboardData } from "@/src/contexts/dataCollection";
 import {
   ResponsiveContainer,
@@ -46,7 +46,9 @@ export function AnalysisTab() {
   const { patients, isLoading } = useDashboardData();
   const [mode, setMode] = useState<Mode>("monthly");
 
-  const now = new Date();
+const istString = new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
+const now = new Date(istString);
+
   const [month, setMonth] = useState<number>(now.getMonth());
   const [quarter, setQuarter] = useState<number>(
     Math.floor(now.getMonth() / 3) + 1
@@ -56,10 +58,6 @@ export function AnalysisTab() {
   const [endDate, setEndDate] = useState<string>("");
 
   const cacheRef = useRef<Map<string, any>>(new Map());
-
-  useEffect(() => {
-    cacheRef.current.clear();
-  }, [patients]);
 
   // ---------------------
   // RANGE LOGIC

@@ -62,33 +62,38 @@ export function AppointmentsTab() {
       }
     });
   };
+const saveAppointment = async (id: string) => {
+  const updatedAppointment = editedAppointments.find((a) => a.id === id);
+  if (!updatedAppointment) return;
 
-  // Save entire appointment document
-  const saveAppointment = async (id: string) => {
-    const updatedAppointment = editedAppointments.find((a) => a.id === id);
-    if (!updatedAppointment) return;
-    setSavingId(id);
-    updatedAppointment.visitDate = new Date();
-    // updatedAppointment.status="pending";
-    try {
-      const res = await fetch("/api/appointment", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedAppointment),
-      });
+  setSavingId(id);
 
-      if (!res.ok) throw new Error("Failed to save");
+  // Set visitDate in IST as ISO string
+  const istDate = new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
+  updatedAppointment.visitDate = new Date(istDate).toISOString();
 
-      const data = await res.json();
-      toast.success("Saved successfully!");
-      setSavingId(null);
-      fetchData();
-    } catch (err) {
-      console.error("Error updating appointment:", err);
-      toast.error("Failed to save appointment.");
-      setSavingId(null);
+  try {
+    const res = await fetch("/api/appointment", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedAppointment),
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.message || "Failed to save");
     }
-  };
+
+    toast.success("Saved successfully!");
+    fetchData();
+  } catch (err) {
+    console.error("Error updating appointment:", err);
+    toast.error(`Failed to save appointment: ${(err as Error).message}`);
+  } finally {
+    setSavingId(null);
+  }
+};
+
 
   return (
     <div>

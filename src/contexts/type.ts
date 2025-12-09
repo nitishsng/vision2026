@@ -97,7 +97,7 @@ export type PatientFullType = {
 
   // Billing / Order Info
   billNo: string;
-  visitDate?: Date | null;
+  visitDate?: string;
   visitDetails?: { visitDate: string; visitPrice: number }[];
   // Optical
 
@@ -210,7 +210,6 @@ export const initialPatient:PatientFullTypeWithObjectId={
   status: "confirmed",
   notes: "",
   createdAt: new Date(),
-  visitDate: new Date(),
   updatedAt: "",
   gender: "",
   repeated: false,

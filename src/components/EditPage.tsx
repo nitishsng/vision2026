@@ -7,11 +7,13 @@ import { PatientFullTypeWithObjectId, todayDate } from "@/src/contexts/type";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { Delete } from "lucide-react";
-import Medicine from "./Medicine";
-import OpticalPayment from "./OpticalPayment";
-import useEligibility from "./elegibleForfeatures";
+import Medicine from "./editPageComponents/Medicine";
+import OpticalPayment from "./editPageComponents/OpticalPayment";
+import VisitHistory from "./editPageComponents/VisitHistory";
+import GrandAmount from "./editPageComponents/GrandAmount";
+import PatientBasicInfo from "./editPageComponents/PatientBasicInfo";
+
 const EditPage = () => {
-  const eligibleForFeatures = useEligibility();
   const navigate = useRouter();
   const { patients, fetchData } = useDashboardData();
   const params = useParams();
@@ -187,7 +189,9 @@ const EditPage = () => {
       setSaving(true);
       const updatedFormData = {
         ...formData,
-        updatedAt: new Date().toISOString(),
+        updatedAt: new Date().toLocaleString("en-US", {
+          timeZone: "Asia/Kolkata",
+        }),
       };
 
       if (!id) throw new Error("Missing patient ID");
@@ -278,145 +282,17 @@ const EditPage = () => {
       </h2>
 
       {(basicDetails || isLargeScreen) && (
-        <div className="space-y-4">
-          {/* Patient Info */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-            <input
-              type="text"
-              name="ptName"
-              value={formData.ptName}
-              onChange={handleChange}
-              placeholder="Patient Name"
-              className="border p-2 md:p-3 rounded text-sm md:text-base focus:ring-2 focus:ring-blue-400 w-full"
-            />
-            <input
-              type="number"
-              name="age"
-              value={formData.age}
-              onChange={handleChange}
-              placeholder="Age"
-              className="border p-2 md:p-3 rounded text-sm md:text-base focus:ring-2 focus:ring-blue-400 w-full"
-            />
-            <select
-              name="gender"
-              value={formData.gender}
-              onChange={handleChange}
-              className="border p-2 md:p-3 rounded text-sm md:text-base focus:ring-2 focus:ring-blue-400 w-full"
-            >
-              <option value="F">Female</option>
-              <option value="M">Male</option>
-              <option value="Other">Other</option>
-            </select>
-
-            <input
-              type="text"
-              name="phoneNo"
-              value={formData.phoneNo}
-              onChange={handleChange}
-              placeholder="Phone Number"
-              className="border p-2 md:p-3 rounded text-sm md:text-base focus:ring-2 focus:ring-blue-400 w-full"
-            />
-            <input
-              type="email"
-              name="email"
-              value={formData.email || ""}
-              onChange={handleChange}
-              placeholder="Email"
-              className="border p-2 md:p-3 rounded text-sm md:text-base focus:ring-2 focus:ring-blue-400 w-full"
-            />
-
-            <select
-              name="purpose"
-              required
-              onChange={handleChange}
-              className="border p-2 md:p-3 rounded text-sm md:text-base focus:ring-2 focus:ring-teal-500 w-full"
-            >
-              <option value="">Select Purpose</option>
-              <option value="eye-test">Eye Test</option>
-              <option value="frame-selection">Frame Selection</option>
-              <option value="consultation">Consultation</option>
-            </select>
-
-            <input
-              type="date"
-              name="preferredDate"
-              value={formData.preferredDate || ""}
-              onChange={handleChange}
-              className="border p-2 md:p-3 rounded text-sm md:text-base focus:ring-2 focus:ring-blue-400 w-full"
-            />
-
-            <select
-              name="preferredTime"
-              value={formData.preferredTime || ""}
-              onChange={handleChange}
-              className="border p-2 md:p-3 rounded text-sm md:text-base focus:ring-2 focus:ring-blue-400 w-full"
-            >
-              {Array.from({ length: 19 }, (_, i) => {
-                const hour = 9 + Math.floor(i / 2);
-                const minutes = i % 2 === 0 ? "00" : "30";
-                const time = `${hour.toString().padStart(2, "0")}:${minutes}`;
-                return (
-                  <option key={time} value={time}>
-                    {time}
-                  </option>
-                );
-              })}
-            </select>
-
-            <select
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-              className="border p-2 md:p-3 rounded text-sm md:text-base focus:ring-2 focus:ring-blue-400 w-full"
-            >
-              {["pending", "cancelled"].includes(formData.status) && (
-                <>
-                  <option value="pending">Pending</option>
-                  <option value="confirmed">Confirmed</option>
-                  <option value="completed">Completed</option>
-                  <option value="cancelled">Cancelled</option>
-                </>
-              )}
-
-              {formData.status === "confirmed" && (
-                <>
-                  <option value="confirmed">Confirmed</option>
-                  <option value="completed">Completed</option>
-                </>
-              )}
-
-              {formData.status === "completed" && (
-                <option value="completed">Completed</option>
-              )}
-            </select>
-          </div>
-
-          {/* Notes & Complaints */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-            <div className="flex flex-col">
-              <label className="font-semibold mb-1 text-sm md:text-base">
-                Address
-              </label>
-              <input
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                className="border p-2 md:p-3 rounded text-sm md:text-base w-full focus:ring-2 focus:ring-blue-400"
-              />
-            </div>
-            <div className="flex flex-col">
-              <label className="font-semibold mb-1 text-sm md:text-base">
-                Present Complaints
-              </label>
-              <input
-                name="presentComplaints"
-                value={formData.presentComplaints}
-                onChange={handleChange}
-                className="border p-2 md:p-3 rounded text-sm md:text-base w-full focus:ring-2 focus:ring-blue-400"
-              />
-            </div>
-          </div>
-        </div>
+    
+        <PatientBasicInfo
+           formData={formData}
+                handleChange={handleChange}
+                setFormData={
+                  setFormData as React.Dispatch<
+                    React.SetStateAction<PatientFullTypeWithObjectId>
+                  >
+                }
+        />
+        
       )}
 
       {/* basic details togal */}
@@ -843,6 +719,7 @@ const EditPage = () => {
                   </table>
                 </div>
               </div>
+
             </div>
           ))}
 
@@ -1632,113 +1509,17 @@ const EditPage = () => {
           </h3>
 
           <div className="flex flex-col md:flex-row w-full gap-2">
-            {/* Visit History */}
-            <div className="flex flex-col md:w-[350px] w-full">
-              <label className="font-medium text-gray-700 mb-1">
-                Visit History
-              </label>
-
-              {(formData.visitDetails || []).map((v, index) => (
-                <div
-                  key={index}
-                  className="grid grid-cols-2 gap-2 items-center w-full p-2 rounded"
-                >
-                  {/* LEFT column */}
-                  <div>
-                    <input
-                      type="date"
-                      value={v.visitDate || ""}
-                      onChange={(e) =>
-                        handleNestedChange(
-                          `visitDetails.${index}.visitDate`,
-                          e.target.value
-                        )
-                      }
-                      className="border px-2 py-1 md:py-2 rounded text-sm w-full"
-                    />
-                  </div>
-
-                  {/* RIGHT column */}
-                  <div className="flex gap-2 items-center">
-                    <input
-                      type="number"
-                      value={Number(v.visitPrice) || 0}
-                      onChange={(e) =>
-                        handleNestedChange(
-                          `visitDetails.${index}.visitPrice`,
-                          e.target.value
-                        )
-                      }
-                      className="border px-2 py-1 md:py-3 rounded text-sm w-full"
-                    />
-
-                    <div className="flex items-center gap-2 relative group">
-                      <button
-                        disabled={!eligibleForFeatures(4)}
-                        onClick={() =>
-                          setFormData((prev) => {
-                            if (!prev) return prev;
-                            return {
-                              ...prev,
-                              visitDetails: (prev.visitDetails || []).filter(
-                                (_, i) => i !== index
-                              ),
-                            };
-                          })
-                        }
-                        className="text-red-500 disabled:opacity-50"
-                      >
-                        <Delete className="w-8 h-8" />
-                      </button>
-
-                      {/* Tooltip message (left side) */}
-                      {!eligibleForFeatures(4) && (
-                        <span className="absolute right-full top-1/2 -translate-y-1/2 mr-1 bg-black text-white text-xs px-2 py-1 rounded hidden group-hover:block whitespace-nowrap z-10">
-                          You are not eligible
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-
-              <div className="flex flex-col-2 justify-evenly">
-                <div>
-                  <button
-                    onClick={() =>
-                      setFormData((prev) => {
-                        if (!prev) return prev;
-                        const newEntry = {
-                          visitDate: todayDate,
-                          visitPrice: 0,
-                        };
-                        return {
-                          ...prev,
-                          visitDetails: [
-                            ...(prev.visitDetails || []),
-                            newEntry,
-                          ],
-                        } as PatientFullTypeWithObjectId;
-                      })
-                    }
-                    className=" px-10 py-2 bg-blue-600 text-white rounded text-sm md:text-base"
+            {formData && (
+              <VisitHistory
+                formData={formData}
+                handleNestedChange={handleNestedChange}
+                setFormData={
+                  setFormData as React.Dispatch<
+                    React.SetStateAction<PatientFullTypeWithObjectId>
                   >
-                    + Add Visit
-                  </button>
-                </div>
-                <div>
-                  <input
-                    type="number"
-                    readOnly
-                    value={(formData.visitDetails || []).reduce(
-                      (total, v) => total + Number(v.visitPrice || 0),
-                      0
-                    )}
-                    className="border py-1 px-2 md:py-2 rounded-lg bg-gray-100 cursor-not-allowed max-w-[150px]"
-                  />
-                </div>
-              </div>
-            </div>
+                }
+              />
+            )}
 
             {/* Medicines */}
             <div className="flex-1">
@@ -1755,80 +1536,8 @@ const EditPage = () => {
             </div>
           </div>
         </div>
-
         {/* 💰 Grand Totals Section */}
-        <div className="bg-white shadow-md rounded-2xl  p-2 md:p-4 border border-gray-100">
-          <h3 className="text-xl font-semibold text-gray-700 mb-1">
-            Grand Totals
-          </h3>
-
-          <div className="grid grid-cols-3 gap-2 md:gap-6">
-            <div className="flex flex-col">
-              <label className="font-medium text-gray-700 mb-1">T-Amount</label>
-              <input
-                type="number"
-                readOnly
-                value={
-                  (formData.visitDetails || []).reduce(
-                    (sum, v) => sum + (Number(v.visitPrice) || 0),
-                    0
-                  ) +
-                  (formData.framePrice || 0) +
-                  (formData.lensePrice || 0) +
-                  (formData.medicines || []).reduce(
-                    (sum, m) => sum + (Number(m.price) || 0),
-                    0
-                  )
-                }
-                className="border py-1 px-3 md:py-3 rounded-lg bg-gray-100 cursor-not-allowed"
-              />
-            </div>
-
-            <div className="flex flex-col">
-              <label className="font-medium text-gray-700 mb-1">
-                T-Advance
-              </label>
-              <input
-                type="number"
-                readOnly
-                value={
-                  (formData.opticalPayDetails || []).reduce(
-                    (sum, d) => sum + (Number(d.amount) || 0),
-                    0
-                  ) +
-                  (formData.visitDetails || []).reduce(
-                    (sum, v) => sum + (Number(v.visitPrice) || 0),
-                    0
-                  ) +
-                  (formData.medicines || []).reduce(
-                    (sum, m) => sum + (Number(m.price) || 0),
-                    0
-                  )
-                }
-                className="border py-1 px-3 md:py-3 rounded-lg bg-gray-100 cursor-not-allowed"
-              />
-            </div>
-
-            <div className="flex flex-col">
-              <label className="font-medium text-gray-700 mb-1">
-                Total Due
-              </label>
-              <input
-                type="number"
-                readOnly
-                value={
-                  (formData.framePrice || 0) +
-                  (formData.lensePrice || 0) -
-                  (formData.opticalPayDetails || []).reduce(
-                    (sum, d) => sum + (Number(d.amount) || 0),
-                    0
-                  )
-                }
-                className="border py-1 px-3 md:py-3 rounded-lg bg-gray-100 cursor-not-allowed"
-              />
-            </div>
-          </div>
-        </div>
+        {formData && <GrandAmount formData={formData} />}
       </div>
 
       {/* Save Button */}

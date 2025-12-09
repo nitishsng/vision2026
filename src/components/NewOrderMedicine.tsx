@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { initialPatient, PatientFullTypeWithObjectId } from "../contexts/type";
 import toast from "react-hot-toast";
-import Medicine from "./Medicine";
-import OpticalPayment from "./OpticalPayment";
+import Medicine from "./editPageComponents/Medicine";
+import OpticalPayment from "./editPageComponents/OpticalPayment";
 
 interface PatientFormProps {
   setNewOrderForm: React.Dispatch<React.SetStateAction<boolean>>;
@@ -35,18 +35,25 @@ const NewOrder: React.FC<PatientFormProps> = ({
   // Derived totals are computed inline for display
 
   // set default dates
-  useEffect(() => {
-    const today = new Date().toISOString().split("T")[0];
-    const nextWeek = new Date();
-    nextWeek.setDate(new Date().getDate() + 7);
-    const nextWeekDate = nextWeek.toISOString().split("T")[0];
+ useEffect(() => {
+  const getISTDate = (date: Date) => {
+    const istString = date.toLocaleString("en-CA", { timeZone: "Asia/Kolkata" });
+    return istString.split(",")[0]; // returns YYYY-MM-DD
+  };
 
-    setFormData((prev) => ({
-      ...prev,
-      orderDate: today,
-      deliveryDate: nextWeekDate,
-    }));
-  }, []);
+  const today = getISTDate(new Date());
+
+  const nextWeek = new Date();
+  nextWeek.setDate(new Date().getDate() + 7);
+  const nextWeekDate = getISTDate(nextWeek);
+
+  setFormData((prev) => ({
+    ...prev,
+    orderDate: today,
+    deliveryDate: nextWeekDate,
+  }));
+}, []);
+
 
   // submit handler
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {

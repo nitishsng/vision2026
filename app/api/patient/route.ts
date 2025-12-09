@@ -55,7 +55,7 @@ export async function PUT(req: Request) {
 
     const result = await collection.updateOne(
       { _id: objectId },
-      { $set: { ...updateData, updatedAt: new Date().toISOString() } }
+      { $set: { ...updateData, updatedAt: new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }) } }
     );
 
     if (result.matchedCount === 0) {

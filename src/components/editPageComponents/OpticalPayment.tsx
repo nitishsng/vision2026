@@ -1,8 +1,8 @@
 import React from "react";
-import { PatientFullTypeWithObjectId } from "../contexts/type";
+import { PatientFullTypeWithObjectId } from "@/src/contexts/type";
 import { Delete } from "lucide-react";
-import { todayDate } from "../contexts/type";
-import useEligibility from "./elegibleForfeatures";
+import { todayDate } from "@/src/contexts/type";
+import useEligibility from "../elegibleForfeatures";
 interface OpticalPaymentProps {
   formData: PatientFullTypeWithObjectId;
   setFormData: React.Dispatch<
@@ -15,6 +15,7 @@ const OpticalPayment: React.FC<OpticalPaymentProps> = ({
   setFormData,
 }) => {
   const eligibleForFeatures = useEligibility();
+  const [lastAddedIndex, setLastAddedIndex] = React.useState<number | null>(null);
   // ✅ Handles field edits for each payment
   const handleAdvanceChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -35,6 +36,7 @@ const OpticalPayment: React.FC<OpticalPaymentProps> = ({
 
   // ✅ Adds a new payment entry
   const addPayment = () => {
+    setLastAddedIndex(formData.opticalPayDetails.length);
     setFormData((prev) => ({
       ...prev,
       opticalPayDetails: [
@@ -46,6 +48,7 @@ const OpticalPayment: React.FC<OpticalPaymentProps> = ({
 
   // ✅ Removes a payment field by index
   const removePaymentField = (index: number) => {
+    if (index === lastAddedIndex) setLastAddedIndex(null);
     setFormData((prev) => {
       const updatedPaymentDetails = prev.opticalPayDetails.filter(
         (_, i) => i !== index
@@ -82,6 +85,7 @@ const OpticalPayment: React.FC<OpticalPaymentProps> = ({
                     name="date"
                     value={med.date}
                     onChange={(e) => handleAdvanceChange(e, index)}
+                    disabled={!(index === lastAddedIndex || eligibleForFeatures(4))}
                     className="border py-2 md:p-2 rounded-lg w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
                   />
                 </div>
@@ -93,6 +97,7 @@ const OpticalPayment: React.FC<OpticalPaymentProps> = ({
                     value={med.transectionId}
                     onChange={(e) => handleAdvanceChange(e, index)}
                     placeholder="Enter Transection ID"
+                    disabled={!(index === lastAddedIndex || eligibleForFeatures(4))}
                     className="border p-1 py-2 md:p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
                   />
                 </div>
@@ -105,25 +110,20 @@ const OpticalPayment: React.FC<OpticalPaymentProps> = ({
                       value={med.amount}
                       onChange={(e) => handleAdvanceChange(e, index)}
                       placeholder="Enter Amount"
+                      disabled={!(index === lastAddedIndex || eligibleForFeatures(4))}
                       className="border p-1 py-2 md:p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
                     />
-                    <div className="relative inline-block group">
-                      <button
-                        type="button"
-                        disabled={!eligibleForFeatures(4)}
-                        onClick={() => removePaymentField(index)}
-                        className="bg-red-500 text-white rounded-lg px-2 md:px-4 py-2 ml-1 hover:bg-red-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        <Delete className="w-4 h-5 md:w-5 md:h-6" />
-                      </button>
-
-                      {/* Tooltip */}
-                      {!eligibleForFeatures(4) && (
-                        <span className="absolute right-full top-1/2 -translate-y-1/2 bg-black text-white text-xs px-2 py-1 rounded hidden group-hover:block whitespace-nowrap z-10">
-                          You are not eligible
-                        </span>
-                      )}
-                    </div>
+                    {eligibleForFeatures(4) && (
+                      <div className="relative inline-block">
+                        <button
+                          type="button"
+                          onClick={() => removePaymentField(index)}
+                          className="bg-red-500 text-white rounded-lg px-2 md:px-4 py-2 ml-1 hover:bg-red-600 transition"
+                        >
+                          <Delete className="w-4 h-5 md:w-5 md:h-6" />
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

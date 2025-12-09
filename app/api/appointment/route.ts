@@ -23,7 +23,7 @@ export async function PUT(req: Request) {
 
     const result = await patientsColl.updateOne(
       { id },
-      { $set: { status, updatedAt: new Date().toISOString() } }
+      { $set: { status, updatedAt: new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }) } }
     );
 
     if (result.matchedCount === 0) {
@@ -96,13 +96,12 @@ export async function POST(req: Request) {
       : 0;
     const isExistingAndHasAmount = Boolean(existingPatient && computedTotalAmount > 0);
 
-    const now = new Date().toISOString();
+    const now = new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
 
     const appointmentData: PatientFullTypeWithObjectId = {
       ...body,
       repeated: Boolean(isExistingAndHasAmount), // true if same patient with due > 0
       updatedAt: now,
-      visitDate:new Date(),
     };
 
     const result = await patientsColl.insertOne(appointmentData);

@@ -4,14 +4,10 @@ import { PatientFullTypeWithObjectId } from "@/src/contexts/type";
 import { useDashboardData } from "@/src/contexts/dataCollection";
 import toast from "react-hot-toast";
 import NewOrder from "../NewOrderMedicine";
-import Medicine from "../Medicine";
-import { useAuth } from "@/src/contexts/AuthContext";
+import Medicine from "../editPageComponents/Medicine";
 import useEligibility from "../elegibleForfeatures";
-
 export function MedicinesTab() {
   const eligibleForFeatures = useEligibility();
-
-  const { user } = useAuth();
   const { patients, fetchData, isLoading } = useDashboardData();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
@@ -104,7 +100,12 @@ export function MedicinesTab() {
 
       const updatedFormData = {
         ...formData,
-        updatedAt: new Date().toISOString(),
+        updatedAt: new Date().toLocaleString("en-CA", {
+          timeZone: "Asia/Kolkata",
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        }),
       };
 
       if (!id) throw new Error("Missing patient ID");
@@ -147,10 +148,8 @@ export function MedicinesTab() {
                 Track and manage medicines
               </p>
             </div>
-
             <div className="flex items-center space-x-2">
               <button
-                disabled={!eligibleForFeatures(4)}
                 onClick={() => setNewOrderForm(true)}
                 className="bg-teal-500 hover:bg-teal-600 text-white px-2 py-1 md:px-4 rounded-lg font-medium flex items-center space-x-2 transition-colors"
               >
@@ -164,13 +163,13 @@ export function MedicinesTab() {
             <div className="flex gap-2 md:gap-4 items-center">
               {/* Search Input */}
               <div className="flex-1 relative">
-                <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <input
                   type="text"
                   placeholder="Search by name, phone, bill number, or email..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
               </div>
 
@@ -180,7 +179,7 @@ export function MedicinesTab() {
                   type="date"
                   value={dateFilter}
                   onChange={(e) => setDateFilter(e.target.value)}
-                  className="px-2 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 w-auto"
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 w-auto"
                   style={{ width: "fit-content" }}
                 />
               </div>
@@ -224,49 +223,45 @@ export function MedicinesTab() {
                     medicinesPatients.map((p, index) => (
                       <tr
                         key={index}
-                        className={`transition-colors ${
-                          (p.framePrice || 0) +
+                        className={`transition-colors ${(p.framePrice || 0) +
                             (p.lensePrice || 0) -
                             (p.opticalPayDetails || []).reduce(
                               (sum, d) => sum + (Number(d.amount) || 0),
                               0
                             ) >
-                          0
+                            0
                             ? "bg-red-50"
                             : "bg-white text-gray-800"
-                        } hover:bg-gray-50`}
+                          } hover:bg-gray-50`}
                       >
-                        <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm">
-                          <div className="flex  gap-1">
-                            <div className="flex flex-col items-center justify-center">
-                              {/* REPEATED */}
-                              {p.repeated && (
-                                <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-green-600"></span>
-                              )}
+                        <td className="px-2 gap-1 flex items-center md:px-4 py-2 border-b border-gray-200 text-sm">
+                          <div className="flex flex-col items-center justify-center">
+                            {/* REPEATED */}
+                            {p.repeated && (
+                              <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-green-600"></span>
+                            )}
 
-                              {/* OPTICAL PRICE */}
-                              {(p.framePrice || 0) + (p.lensePrice || 0) >
-                                0 && (
-                                <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-orange-500"></span>
-                              )}
+                            {/* OPTICAL PRICE */}
+                            {(p.framePrice || 0) + (p.lensePrice || 0) > 0 && (
+                              <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-orange-500"></span>
+                            )}
 
-                              {/* MEDICINES */}
-                              {(p.medicines?.length || 0) > 0 && (
-                                <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-blue-800"></span>
-                              )}
+                            {/* MEDICINES */}
+                            {(p.medicines?.length || 0) > 0 && (
+                              <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-blue-800"></span>
+                            )}
 
-                              {/* NONE TRUE */}
-                              {!(
-                                p.repeated ||
-                                (p.framePrice || 0) + (p.lensePrice || 0) > 0 ||
-                                (p.medicines?.length || 0) > 0
-                              ) && (
+                            {/* NONE TRUE */}
+                            {!(
+                              p.repeated ||
+                              (p.framePrice || 0) + (p.lensePrice || 0) > 0 ||
+                              (p.medicines?.length || 0) > 0
+                            ) && (
                                 <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-transparent"></span>
                               )}
-                            </div>
-
-                            {p.ptName}
                           </div>
+
+                          {p.ptName}
                         </td>
 
                         <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm">
@@ -284,8 +279,8 @@ export function MedicinesTab() {
                         <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm font-semibold">
                           {p.medicines?.[0]?.date
                             ? new Date(p.medicines[0].date)
-                                .toLocaleDateString("en-GB")
-                                .replace(/\//g, "-")
+                              .toLocaleDateString("en-GB")
+                              .replace(/\//g, "-")
                             : ""}
                         </td>
 
@@ -306,38 +301,24 @@ export function MedicinesTab() {
                             </button>
                             <div className="flex items-center space-x-2">
                               {/* EDIT BUTTON */}
-                              <div className="relative group">
+                              {eligibleForFeatures(4) && (
                                 <button
                                   onClick={() => handleEditClick(p)}
-                                  disabled={!eligibleForFeatures(4)}
-                                  className="text-blue-600 hover:text-blue-900 focus:outline-none disabled:opacity-50"
+                                  className="text-blue-600 hover:text-blue-900 focus:outline-none"
                                 >
                                   <Edit className="h-5 w-5" />
                                 </button>
-
-                                {!eligibleForFeatures(4) && (
-                                  <span className="absolute right-full top-1/2 -translate-y-1/2 mr-1 bg-black text-white text-xs px-2 py-1 rounded hidden group-hover:block whitespace-nowrap z-10">
-                                    You are not eligible
-                                  </span>
-                                )}
-                              </div>
+                              )}
 
                               {/* DELETE BUTTON */}
-                              <div className="relative group">
+                              {eligibleForFeatures(4) && (
                                 <button
-                                  disabled={!eligibleForFeatures(4)}
                                   onClick={() => handleDeleteClick(p)}
-                                  className="text-red-600 hover:text-red-800 focus:outline-none disabled:opacity-50"
+                                  className="text-red-600 hover:text-red-800 focus:outline-none"
                                 >
                                   <Delete className="h-5 w-5" />
                                 </button>
-
-                                {!eligibleForFeatures(4) && (
-                                  <span className="absolute right-full top-1/2 -translate-y-1/2 mr-1 bg-black text-white text-xs px-2 py-1 rounded hidden group-hover:block whitespace-nowrap z-10">
-                                    You are not eligible
-                                  </span>
-                                )}
-                              </div>
+                              )}
                             </div>
                           </div>
                         </td>

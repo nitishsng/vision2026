@@ -2,12 +2,9 @@
 import React, { useState ,useEffect} from "react";
 import {
   Users,
-  ShieldCheck,
-  Calendar,
   Clock,
   CheckCircle,
   XCircle,
-  Wallet,
   PiggyBank,
   IndianRupee,
   CreditCard,
@@ -51,9 +48,10 @@ const filteredPatients = patients.filter((p) => {
   
 
   // --- Totals ---
-  const totalPatients = filteredPatients.filter((p) =>
-    ["confirmed", "completed"].includes((p.status ?? "") as string)
-  ).length;
+  const totalPatients = filteredPatients
+    .filter((p) => p.catagory === "patient")
+    .filter((p) => ["confirmed", "completed"].includes((p.status ?? "") as string))
+    .length;
 
   const start = startDate ? new Date(startDate) : null;
   const end = endDate ? new Date(endDate) : null;
@@ -78,10 +76,24 @@ const opticalDue = filteredPatients.reduce((sum, p) => {
   const due = (Number(p.framePrice) || 0) + (Number(p.lensePrice) || 0) - paid;
   return sum + due;
 }, 0);
-const totalDue = opticalDue;
 
   const totalVisitAmount = sumVisit(patients, startDate, endDate);
   const medicinAmount = sumMedicines(patients, startDate, endDate);
+
+  const totalOrders = patients.filter((p) => {
+  const hasBill = p.billNo && String(p.billNo).trim() !== "";
+  if (!hasBill) return false;
+
+  // Only check the first payment date in opticalPayDetails
+  const firstPaymentDate = Array.isArray(p.opticalPayDetails) ? p.opticalPayDetails[0]?.date : null;
+  const hasOpticalPaymentInRange = firstPaymentDate ? isInRange(firstPaymentDate, startDate, endDate) : false;
+
+  const opticalPriceTotal = (Number(p.framePrice) || 0) + (Number(p.lensePrice) || 0);
+  const hasOpticalPriceInRange = opticalPriceTotal > 0 && isInRange(p.visitDate, startDate, endDate);
+
+  return hasOpticalPaymentInRange || hasOpticalPriceInRange;
+}).length;
+
 
   // --- Stats ---
   const stats = {
@@ -264,9 +276,7 @@ const recentAppointments = cleanedPatients.slice(0, 5);
     <p className="text-sm font-medium text-gray-600">Total Orders</p>
 
     <div className="flex items-center justify-between gap-2 mt-1">
-      <p className="text-2xl font-bold text-purple-700">
-        {patients.filter((p) => p.billNo && p.billNo.trim() !== "").length}
-      </p>
+          <p className="text-2xl font-bold text-purple-700">{totalOrders}</p>
       <Receipt className="h-6 w-6 md:h-8 md:w-8 text-purple-500" />
     </div>
   </div>
@@ -365,4 +375,3 @@ const recentAppointments = cleanedPatients.slice(0, 5);
     </div>
   );
 }
-
