@@ -131,6 +131,10 @@ export function MedicinesTab() {
     }
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev!, [name]: value }));
+  };
   return (
     <div>
       {isLoading ? (
@@ -160,28 +164,38 @@ export function MedicinesTab() {
           </div>
 
           <div className="bg-white rounded-lg p-2 md:p-5 border border-gray-200">
-            <div className="flex gap-2 md:gap-4 items-center">
-              {/* Search Input */}
-              <div className="flex-1 relative">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
+              <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <input
                   type="text"
                   placeholder="Search by name, phone, bill number, or email..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
               </div>
-
               {/* Date Input */}
-              <div>
-                <input
-                  type="date"
-                  value={dateFilter}
-                  onChange={(e) => setDateFilter(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 w-auto"
-                  style={{ width: "fit-content" }}
-                />
+              <div className="grid grid-cols-2 gap-1">
+                <div>
+                  <input
+                    type="date"
+                    value={dateFilter}
+                    onChange={(e) => setDateFilter(e.target.value)}
+                    className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 w-full"
+                  />
+                </div>
+                <div>
+                  <button
+                    onClick={() => {
+                      setSearchTerm("");
+                      setDateFilter("");
+                    }}
+                    className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                  >
+                    Clear Filters
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -341,7 +355,7 @@ export function MedicinesTab() {
 
           {isPopupOpen && formData && (
             <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-start pt-10 md:pt-16">
-      <div className="relative p-6 md:p-8 border w-[95%] md:max-w-3xl lg:max-w-4xl shadow-lg rounded-md bg-white mt-4">
+              <div className="relative p-6 md:p-8 border w-[95%] md:max-w-3xl lg:max-w-4xl shadow-lg rounded-md bg-white mt-4">
                 <h3 className="text-xl font-bold text-gray-900 mb-4">
                   Medicine Details (Bill No: {formData.billNo})
                 </h3>
@@ -412,7 +426,92 @@ export function MedicinesTab() {
                 <h3 className="text-2xl font-bold text-gray-800 mb-6 text-center">
                   Edit Medicines (Bill No: {formData.billNo})
                 </h3>
-                <div className="space-y-3">
+                {eligibleForFeatures(4) && (
+                  <section className="space-y-2">
+                    {/*  Customer Details */}
+                    <h3 className="text-xl font-semibold text-gray-700 border-b pb-2">
+                      Customer Details
+                    </h3>
+
+                    <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
+                      {/* Name */}
+                      <div>
+                        <label className="font-medium block text-sm md:text-base mb-1">
+                          Full Name
+                        </label>
+                        <input
+                          type="text"
+                          name="ptName"
+                          value={formData.ptName}
+                          onChange={handleInputChange}
+                          required
+                          className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+                        />
+                      </div>
+
+                      {/* Phone */}
+                      <div>
+                        <label className="font-medium block text-sm md:text-base mb-1">
+                          Phone Number
+                        </label>
+                        <input
+                          type="tel"
+                          name="phoneNo"
+                          value={formData.phoneNo}
+                          onChange={handleInputChange}
+                          required
+                          className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+                        />
+                      </div>
+
+                      {/* Address */}
+                      <div>
+                        <label className="font-medium block text-sm md:text-base mb-1">
+                          Address
+                        </label>
+                        <input
+                          type="text"
+                          name="address"
+                          value={formData.address || ""}
+                          onChange={handleInputChange}
+                          className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+                        />
+                      </div>
+
+                      {/* Bill No */}
+                      <div>
+                        <label className="font-medium block text-sm md:text-base mb-1">
+                          Bill No
+                        </label>
+                        <input
+                          type="text"
+                          name="billNo"
+                          value={formData.billNo || ""}
+                          onChange={handleInputChange}
+                          className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+                        />
+                      </div>
+
+                      {/* Email */}
+                      <div className="col-span-2">
+                        <label className="font-medium block text-sm md:text-base mb-1">
+                          Email
+                        </label>
+                        <input
+                          type="email"
+                          name="email"
+                          value={formData.email || ""}
+                          onChange={handleInputChange}
+                          className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+                        />
+                      </div>
+                    </div>
+                  </section>
+                )}
+                <div className="space-y-3 mt-3">
+                  <h3 className="text-xl font-semibold text-gray-700 border-b pb-2">
+                    Medicine Section
+                  </h3>
                   {formData && (
                     <Medicine
                       formData={formData}

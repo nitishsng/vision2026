@@ -67,58 +67,9 @@ export function OrdersTab() {
     setFormData(null);
   };
 
-  const handleInputChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
-  ) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    if (setFormData) {
-      if (name.startsWith("glassesPrescription.")) {
-        const parts = name.split(".");
-        const key1 = parts[1];
-        const key2 = parts[2];
-        setFormData((prev) => {
-          if (!prev) return prev!;
-          const arr = Array.isArray(prev.glassesPrescription)
-            ? [...prev.glassesPrescription]
-            : [];
-          const current = arr[0] || {
-            updateDate: new Date().toISOString().split("T")[0],
-            use: "",
-            rightEye: {},
-            leftEye: {},
-          };
-          if (key1 === "use") {
-            arr[0] = { ...current, use: value } as any;
-          } else {
-            const eye = key1 as "rightEye" | "leftEye";
-            const field = key2 as string;
-            const isNumeric = field === "axis";
-            arr[0] = {
-              ...current,
-              [eye]: {
-                ...(current as any)[eye],
-                [field]: isNumeric ? Number(value) : value,
-              },
-            } as any;
-          }
-          return {
-            ...prev,
-            glassesPrescription: arr,
-          } as PatientFullTypeWithObjectId;
-        });
-      } else if (
-        name.includes("total") ||
-        name.includes("Price") ||
-        name.includes("Advance") ||
-        name.includes("Due")
-      ) {
-        setFormData((prev) => ({ ...prev!, [name]: parseFloat(value) }));
-      } else {
-        setFormData((prev) => ({ ...prev!, [name]: value }));
-      }
-    }
+    setFormData((prev) => ({ ...prev!, [name]: value }));
   };
 
   const [saving, setSaving] = useState(false);
@@ -203,7 +154,7 @@ export function OrdersTab() {
     const lines: string[] = [];
 
     // Greeting
-    lines.push(`👋 Hello ${formData.ptName || "Patient"},`);
+    lines.push(`Hello ${formData.ptName || "Patient"},`);
     lines.push(
       `Here are the details of your order (Bill No: ${formData.billNo}):\n`
     );
@@ -213,27 +164,27 @@ export function OrdersTab() {
     switch (formData.deliveryStatus) {
       case "pending":
         statusText =
-          "🕒 Pending – Your order has been received and is waiting to be processed.";
+          "Pending – Your order has been received and is waiting to be processed.";
         break;
       case "inProgress":
-        statusText = "🔄 In Progress – Your order is currently being prepared.";
+        statusText = "In Progress – Your order is currently being prepared.";
         break;
       case "readyToDeliver":
         statusText =
-          "✅ Ready to Deliver – Your order is packed and ready for delivery!";
+          "Ready to Deliver – Your order is packed and ready for delivery!";
         break;
       case "delivered":
         statusText =
-          "📦 Delivered – Your order has been successfully delivered. We hope you enjoy it!";
+          "Delivered – Your order has been successfully delivered. We hope you enjoy it!";
         break;
       default:
         statusText =
           "❔ Unknown – Please contact us for more details about your order.";
     }
-    lines.push(`📌 Status: ${statusText}\n`);
+    lines.push(`Status: ${statusText}\n`);
 
     // Patient Info
-    lines.push("🧑 Patient Info:");
+    lines.push("Patient Info:");
     if (formData.ptName) lines.push(`Name: ${formData.ptName}`);
     if (formData.phoneNo) lines.push(`Phone: ${formData.phoneNo}`);
     if (formData.email) lines.push(`Email: ${formData.email}`);
@@ -280,14 +231,14 @@ export function OrdersTab() {
 
     // Frame & Lens
     if (formData.frameId || formData.framePrice) {
-      lines.push("🖼️ Frame Details:");
+      lines.push("Frame Details:");
       if (formData.frameId) lines.push(`ID: ${formData.frameId}`);
       if (formData.framePrice) lines.push(`Price: ₹${formData.framePrice}`);
       lines.push("");
     }
 
     if (formData.lenseType || formData.lensePrice) {
-      lines.push("🔍 Lens Details:");
+      lines.push("Lens Details:");
       if (formData.lenseType) lines.push(`ID: ${formData.lenseType}`);
       if (formData.lensePrice) lines.push(`Price: ₹${formData.lensePrice}`);
       lines.push("");
@@ -327,14 +278,14 @@ export function OrdersTab() {
             0
           )
         : 0);
-    lines.push("💰 Payment Details:");
+    lines.push("Payment Details:");
     lines.push(`Total Amount: ₹${totalAmount}`);
     lines.push(`Total Advance Paid: ₹${advance}`);
     if (due > 0)
-      lines.push(`Amount Due: ₹${due} ⚠️ Please pay the remaining amount.`);
-    else lines.push("✅ Payment Complete. Thank you!");
+      lines.push(`Amount Due: ₹${due} Please pay the remaining amount.`);
+    else lines.push("Payment Complete. Thank you!");
 
-    lines.push("\nThank you for choosing us! 🙏");
+    lines.push("\nThank you for choosing us! ");
 
     const message = lines.join("\n");
     const url = `https://wa.me/+91${phone}?text=${encodeURIComponent(message)}`;
@@ -363,10 +314,9 @@ export function OrdersTab() {
               <div className="relative inline-block">
                 <button
                   onClick={() => setNewOrderForm(true)}
-                  className="bg-teal-500 hover:bg-teal-600 text-white px-2 py-1 md:px-4 md:py-2 rounded-lg font-medium flex items-center space-x-2 transition-colors"
+                  className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-1 md:px-4 md:py-2 rounded-lg font-medium flex items-center space-x-2 transition-colors"
                 >
-                  <Plus className="h-4 w-4" />
-                  <span>Order</span>
+                  <span>+ Order</span>
                 </button>
               </div>
             )}
@@ -532,7 +482,9 @@ export function OrdersTab() {
                               {order.repeated && (
                                 <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-green-600" />
                               )}
-                              {((order?.framePrice || 0 )+ (  order?.lensePrice || 0)) > 0 && (
+                              {(order?.framePrice || 0) +
+                                (order?.lensePrice || 0) >
+                                0 && (
                                 <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-orange-500" />
                               )}
                               {order.medicines.length > 0 && (
@@ -540,7 +492,9 @@ export function OrdersTab() {
                               )}
                               {!(
                                 order.repeated ||
-                                ((order?.framePrice || 0 )+ (  order?.lensePrice || 0)) > 0 ||
+                                (order?.framePrice || 0) +
+                                  (order?.lensePrice || 0) >
+                                  0 ||
                                 order.medicines.length > 0
                               ) && (
                                 <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-transparent" />
@@ -644,8 +598,8 @@ export function OrdersTab() {
 
           {/* View Popup/Modal for Order Details */}
           {isPopupOpen && formData && (
-  <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-start pt-10 md:pt-16">
-      <div className="relative p-6 md:p-8 border w-[95%] md:max-w-3xl lg:max-w-4xl shadow-lg rounded-md bg-white mt-4">
+            <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-start pt-10 md:pt-16">
+              <div className="relative p-6 md:p-8 border w-[95%] md:max-w-3xl lg:max-w-4xl shadow-lg rounded-md bg-white mt-4">
                 <h3 className="text-xl font-bold text-gray-900 mb-4">
                   Order Details (Bill No: {formData.billNo})
                 </h3>
@@ -941,7 +895,88 @@ export function OrdersTab() {
                   <div>{formData.ptName}</div>
                   <div>{formData.billNo}</div>
                 </h3>
+                {eligibleForFeatures(4) && (
+                  <section className="space-y-2">
+                    {/*  Customer Details */}
+                    <h3 className="text-xl font-semibold text-gray-700 border-b pb-2">
+                      Customer Details
+                    </h3>
 
+                    <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
+                      {/* Name */}
+                      <div>
+                        <label className="font-medium block text-sm md:text-base mb-1">
+                          Full Name
+                        </label>
+                        <input
+                          type="text"
+                          name="ptName"
+                          value={formData.ptName}
+                          onChange={handleInputChange}
+                          required
+                          className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+                        />
+                      </div>
+
+                      {/* Phone */}
+                      <div>
+                        <label className="font-medium block text-sm md:text-base mb-1">
+                          Phone Number
+                        </label>
+                        <input
+                          type="tel"
+                          name="phoneNo"
+                          value={formData.phoneNo}
+                          onChange={handleInputChange}
+                          required
+                          className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+                        />
+                      </div>
+
+                      {/* Address */}
+                      <div>
+                        <label className="font-medium block text-sm md:text-base mb-1">
+                          Address
+                        </label>
+                        <input
+                          type="text"
+                          name="address"
+                          value={formData.address || ""}
+                          onChange={handleInputChange}
+                          className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+                        />
+                      </div>
+
+                      {/* Bill No */}
+                      <div>
+                        <label className="font-medium block text-sm md:text-base mb-1">
+                          Bill No
+                        </label>
+                        <input
+                          type="text"
+                          name="billNo"
+                          value={formData.billNo || ""}
+                          onChange={handleInputChange}
+                          className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+                        />
+                      </div>
+
+                      {/* Email */}
+                      <div className="col-span-2">
+                        <label className="font-medium block text-sm md:text-base mb-1">
+                          Email
+                        </label>
+                        <input
+                          type="email"
+                          name="email"
+                          value={formData.email || ""}
+                          onChange={handleInputChange}
+                          className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+                        />
+                      </div>
+                    </div>
+                  </section>
+                )}            
                 <div className="space-y-2">
                   {/* 🛒 Order Information */}
                   <section className="space-y-2">
@@ -951,9 +986,9 @@ export function OrdersTab() {
                       </span>
                     </h3>
 
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
                       <div>
-                        <label className="font-medium mb-1 block text-sm md:text-base">
+                        <label className="font-medium block text-sm md:text-base">
                           Order Date
                         </label>
                         <input
@@ -966,7 +1001,7 @@ export function OrdersTab() {
                       </div>
 
                       <div>
-                        <label className="font-medium mb-1 block text-sm md:text-base">
+                        <label className="font-medium block text-sm md:text-base">
                           Delivery Date
                         </label>
                         <input
@@ -979,7 +1014,7 @@ export function OrdersTab() {
                       </div>
 
                       <div>
-                        <label className="font-medium mb-1 block text-sm md:text-base">
+                        <label className="font-medium block text-sm md:text-base">
                           Frame ID
                         </label>
                         <input
@@ -992,7 +1027,7 @@ export function OrdersTab() {
                       </div>
 
                       <div>
-                        <label className="font-medium mb-1 block text-sm md:text-base">
+                        <label className="font-medium  block text-sm md:text-base">
                           Frame Price
                         </label>
                         <input
@@ -1006,7 +1041,7 @@ export function OrdersTab() {
                       </div>
 
                       <div>
-                        <label className="font-medium mb-1 block text-sm md:text-base">
+                        <label className="font-medium block text-sm md:text-base">
                           Lens Type
                         </label>
                         <input
@@ -1028,7 +1063,7 @@ export function OrdersTab() {
                       </div>
 
                       <div>
-                        <label className="font-medium mb-1 block text-sm md:text-base">
+                        <label className="font-medium block text-sm md:text-base">
                           Lens Price
                         </label>
                         <input
@@ -1042,18 +1077,21 @@ export function OrdersTab() {
                       </div>
 
                       <div>
-                        <label className="font-medium mb-1 block text-sm md:text-base">
+                        <label className="font-medium block text-sm md:text-base">
                           Optical Price
                         </label>
                         <input
                           type="number"
-                          value={((formData?.framePrice || 0 )+ (  formData?.lensePrice || 0)) || 0}
+                          value={
+                            (formData?.framePrice || 0) +
+                              (formData?.lensePrice || 0) || 0
+                          }
                           readOnly
                           className="border p-2 md:p-3 rounded w-full bg-gray-100 cursor-not-allowed text-sm md:text-base"
                         />
                       </div>
                       <div>
-                        <label className="font-medium mb-1 block text-sm md:text-base">
+                        <label className="font-medium block text-sm md:text-base">
                           Status
                         </label>
                         <select

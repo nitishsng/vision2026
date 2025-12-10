@@ -39,8 +39,8 @@ const EditPage = () => {
   const [showIopPachyCCT, setShowIopPachyCCT] = useState(false);
   const [showDiagnosis, setShowDiagnosis] = useState(false);
   const [someDetails, setSomeDetails] = useState(false);
+  const [visitAndMedicines, setVisitAndMedicines] = useState(false);
   const [isLargeScreen, setIsLargeScreen] = useState(false);
-
   // Detect screen size
   useEffect(() => {
     const handleResize = () => {
@@ -240,6 +240,7 @@ const EditPage = () => {
       setShowIopPachyCCT(false);
       setShowDiagnosis(false);
       setSomeDetails(false);
+      setVisitAndMedicines(false);
       // Then toggle the current section
       onToggle();
     };
@@ -603,13 +604,16 @@ const EditPage = () => {
         isLargeScreen
       )}
 
-      {/* Payment Details */}
-      <div className="space-y-2">
+
+{
+  visitAndMedicines && (
+    <div className="space-y-2">
+        {/* Payment Details */}
         {/* 🧾 Visit & Medicines Section */}
         <div className="bg-white shadow-md rounded-2xl px-2 py-3 border border-gray-100">
-          <h3 className="text-xl font-semibold text-gray-700 mb-2">
+          {/* <h3 className="text-xl font-semibold text-gray-700 mb-2">
             Visit & Medicines
-          </h3>
+          </h3> */}
 
           <div className="flex flex-col md:flex-row w-full gap-2">
             {formData && (
@@ -639,16 +643,30 @@ const EditPage = () => {
             </div>
           </div>
         </div>
-        {/* 💰 Grand Totals Section */}
-        {formData && <GrandAmount formData={formData} />}
+ 
       </div>
+  )
+}
+      {renderToggleSection(
+        {
+          isOpen: visitAndMedicines,
+          onToggle: () => setVisitAndMedicines(!visitAndMedicines),
+          closedLabel: "Visit & Medicines",
+          buttonLabels: { open: "Hide Details", closed: "Show Details" },
+        },
+        isLargeScreen
+      )}
+
+
+        {/* Grand Totals Section */}
+        {formData && <GrandAmount formData={formData} />}
 
       {/* Save Button */}
       <div className="flex justify-end">
         <button
           onClick={handleSave}
           disabled={saving}
-          className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+          className="bg-blue-600 mt-4 text-white px-6 py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50"
         >
           {saving ? "Saving..." : "Save"}
         </button>

@@ -142,32 +142,37 @@ const PatientBasicInfo: React.FC<BasicInfo> = ({ formData, handleChange }) => {
           </select>
         </div>
 
-        <select
-          name="status"
-          value={formData.status}
-          onChange={handleChange}
-          className="border p-2 md:p-3 rounded text-sm md:text-base focus:ring-2 focus:ring-blue-400 w-full"
-        >
-          {["pending", "cancelled"].includes(formData.status) && (
-            <>
-              <option value="pending">Pending</option>
-              <option value="confirmed">Confirmed</option>
-              <option value="completed">Completed</option>
-              <option value="cancelled">Cancelled</option>
-            </>
-          )}
+        <div className="flex flex-col">
+          <label className="font-medium mb-1 text-sm md:text-base">
+            Status
+          </label>
+          <select
+            name="status"
+            value={formData.status}
+            onChange={handleChange}
+            className="border p-2 md:p-3 rounded text-sm md:text-base focus:ring-2 focus:ring-blue-400 w-full"
+          >
+            {["pending", "cancelled"].includes(formData.status) && (
+              <>
+                <option value="pending">Pending</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled</option>
+              </>
+            )}
 
-          {formData.status === "confirmed" && (
-            <>
-              <option value="confirmed">Confirmed</option>
-              <option value="completed">Completed</option>
-            </>
-          )}
+            {formData.status === "confirmed" && (
+              <>
+                <option value="confirmed">Confirmed</option>
+                <option value="completed">Completed</option>
+              </>
+            )}
 
-          {formData.status === "completed" && (
-            <option value="completed">Completed</option>
-          )}
-        </select>
+            {formData.status === "completed" && (
+              <option value="completed">Completed</option>
+            )}
+          </select>
+        </div>
       </div>
 
       {/* Notes & Complaints */}

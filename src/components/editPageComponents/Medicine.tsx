@@ -96,12 +96,12 @@ const Medicine: React.FC<MedicineProps> = ({ formData, setFormData }) => {
   return (
     <div className="flex flex-col gap-2 w-full">
       {/* Header */}
-      {formData.medicines.length >0 && (
-      <div className="grid grid-cols-3 w-full">
-        <label className="font-medium px-3 text-gray-700">Date</label>
-        <label className="font-medium px-3 text-gray-700">M-Name</label>
-        <label className="font-medium px-3 text-gray-700">Price</label>
-      </div>
+      {formData.medicines.length > 0 && (
+        <div className="grid grid-cols-3 w-full">
+          <label className="font-medium px-3 text-gray-700">Date</label>
+          <label className="font-medium px-3 text-gray-700">M-Name</label>
+          <label className="font-medium px-3 text-gray-700">Price</label>
+        </div>
       )}
 
       {/* Medicine Rows */}
@@ -171,13 +171,14 @@ const Medicine: React.FC<MedicineProps> = ({ formData, setFormData }) => {
       </datalist>
 
       {/* Add + Total */}
-      <div className="grid grid-cols-2 px-3 gap-3">
+      {/* Add + Total */}
+      <div className="flex flex-col-2 sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 mt-3 px-2 sm:px-0">
         <button
           type="button"
           onClick={addMedicineField}
-          className="px-3 py-1 bg-blue-600 text-white rounded"
+          className="w-full sm:w-auto px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-sm sm:text-base"
         >
-          + Add Medicine
+          + Medicine
         </button>
 
         <input
@@ -187,7 +188,7 @@ const Medicine: React.FC<MedicineProps> = ({ formData, setFormData }) => {
             (sum, m) => sum + (Number(m.price) || 0),
             0
           )}
-          className="border py-2 rounded-lg bg-gray-100 text-center"
+          className="border py-2 px-2 rounded-lg bg-gray-100 text-center w-full sm:w-[120px] text-sm sm:text-base"
         />
       </div>
     </div>

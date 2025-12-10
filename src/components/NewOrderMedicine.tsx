@@ -7,13 +7,13 @@ import OpticalPayment from "./editPageComponents/OpticalPayment";
 interface PatientFormProps {
   setNewOrderForm: React.Dispatch<React.SetStateAction<boolean>>;
   setorderSuccess: React.Dispatch<React.SetStateAction<boolean>>;
-  catagory:string;
+  catagory: string;
 }
 
 const NewOrder: React.FC<PatientFormProps> = ({
   setNewOrderForm,
   setorderSuccess,
-  catagory
+  catagory,
 }) => {
   const [formData, setFormData] =
     useState<PatientFullTypeWithObjectId>(initialPatient);
@@ -35,35 +35,34 @@ const NewOrder: React.FC<PatientFormProps> = ({
   // Derived totals are computed inline for display
 
   // set default dates
- useEffect(() => {
-  const getISTDate = (date: Date) => {
-    const istString = date.toLocaleString("en-CA", { timeZone: "Asia/Kolkata" });
-    return istString.split(",")[0]; // returns YYYY-MM-DD
-  };
+  useEffect(() => {
+    const getISTDate = (date: Date) => {
+      const istString = date.toLocaleString("en-CA", {
+        timeZone: "Asia/Kolkata",
+      });
+      return istString.split(",")[0]; // returns YYYY-MM-DD
+    };
 
-  const today = getISTDate(new Date());
+    const today = getISTDate(new Date());
 
-  const nextWeek = new Date();
-  nextWeek.setDate(new Date().getDate() + 7);
-  const nextWeekDate = getISTDate(nextWeek);
+    const nextWeek = new Date();
+    nextWeek.setDate(new Date().getDate() + 7);
+    const nextWeekDate = getISTDate(nextWeek);
 
-  setFormData((prev) => ({
-    ...prev,
-    orderDate: today,
-    deliveryDate: nextWeekDate,
-  }));
-}, []);
-
+    setFormData((prev) => ({
+      ...prev,
+      orderDate: today,
+      deliveryDate: nextWeekDate,
+    }));
+  }, []);
 
   // submit handler
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-    if( catagory== "medicine")
-      formData.catagory="medicine";
-    else if(catagory == "order")
-      formData.catagory="order";
-    
+    if (catagory == "medicine") formData.catagory = "medicine";
+    else if (catagory == "order") formData.catagory = "order";
+
     try {
       const res = await fetch("/api/appointment", {
         method: "POST",
@@ -89,228 +88,245 @@ const NewOrder: React.FC<PatientFormProps> = ({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-lg p-4 md:p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-lg">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">
-{
-  catagory === "medicine" ? (
-    <div>🧾 New Medicine Customer</div>
-  ) : catagory === "order" ? (
-    <div>🧾 New Optical Order</div>
-  ) : null
-}
-
+          {catagory === "medicine" ? (
+            <div>New Medicine Customer</div>
+          ) : catagory === "order" ? (
+            <div>New Optical Order</div>
+          ) : null}
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* 👤 Customer Details */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Customer Details */}
           <section className="space-y-2">
-            <h3 className="text-xl font-semibold text-gray-700 border-b pb-2">
-              Customer Details
-            </h3>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
               <div>
-                <label className="font-medium mb-1 block">Full Name</label>
+                <label className="font-medium block text-sm md:text-base">
+                  Full Name
+                </label>
                 <input
                   type="text"
                   name="ptName"
                   value={formData.ptName}
                   onChange={handleInputChange}
                   required
-                  className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
+                  className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
                 />
               </div>
 
               <div>
-                <label className="font-medium mb-1 block">Phone Number</label>
+                <label className="font-medium block text-sm md:text-base">
+                  Phone Number
+                </label>
                 <input
                   type="tel"
                   name="phoneNo"
                   value={formData.phoneNo}
                   onChange={handleInputChange}
                   required
-                  className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
+                  className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
                 />
               </div>
 
               <div>
-                <label className="font-medium mb-1 block">Email</label>
+                <label className="font-medium block text-sm md:text-base">
+                  Email
+                </label>
                 <input
                   type="email"
                   name="email"
                   value={formData.email || ""}
                   onChange={handleInputChange}
-                  className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
+                  className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
                 />
               </div>
 
               <div>
-                <label className="font-medium mb-1 block">Address</label>
+                <label className="font-medium block text-sm md:text-base">
+                  Address
+                </label>
                 <input
                   type="text"
                   name="address"
                   value={formData.address}
                   onChange={handleInputChange}
-                  className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
+                  className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
                 />
               </div>
+
               <div>
-                <label className="font-medium mb-1 block">Bill No</label>
+                <label className="font-medium block text-sm md:text-base">
+                  Bill No
+                </label>
                 <input
                   type="text"
                   name="billNo"
                   value={formData.billNo}
                   onChange={handleInputChange}
-                  className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
+                  className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
                 />
               </div>
-
             </div>
           </section>
-          
-          {/* 🕓 Order Information */}
 
-    {catagory === "order" && (
+          {/* Order Information */}
+          {catagory === "order" && (
+            <section className="space-y-2">
+              <h3 className="text-xl font-semibold text-gray-700 border-b pb-2">
+                Order Information
+              </h3>
 
-          <section className="space-y-2">
-            <h3 className="text-xl font-semibold text-gray-700 border-b pb-2">
-              Order Information
-            </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+                <div>
+                  <label className="font-medium block text-sm md:text-base">
+                    Order Date
+                  </label>
+                  <input
+                    type="date"
+                    name="orderDate"
+                    value={formData.orderDate?.split("T")[0] || ""}
+                    onChange={handleInputChange}
+                    className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+                  />
+                </div>
 
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <div>
-                <label className="font-medium mb-1 block">Order Date</label>
-                <input
-                  type="date"
-                  name="orderDate"
-                  value={formData.orderDate?.split("T")[0] || ""}
-                  onChange={handleInputChange}
-                  className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
-                />
+                <div>
+                  <label className="font-medium block text-sm md:text-base">
+                    Delivery Date
+                  </label>
+                  <input
+                    type="date"
+                    name="deliveryDate"
+                    value={formData.deliveryDate?.split("T")[0] || ""}
+                    onChange={handleInputChange}
+                    className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+                  />
+                </div>
+
+                <div>
+                  <label className="font-medium block text-sm md:text-base">
+                    Frame ID
+                  </label>
+                  <input
+                    type="text"
+                    name="frameId"
+                    value={formData.frameId}
+                    onChange={handleInputChange}
+                    className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+                  />
+                </div>
+
+                <div>
+                  <label className="font-medium block text-sm md:text-base">
+                    Frame Price
+                  </label>
+                  <input
+                    type="number"
+                    name="framePrice"
+                    value={formData.framePrice}
+                    onChange={handleInputChange}
+                    className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+                  />
+                </div>
+
+                <div>
+                  <label className="font-medium block text-sm md:text-base">
+                    Lens Type
+                  </label>
+                  <select
+                    name="lenseType"
+                    value={formData.lenseType || ""}
+                    onChange={handleInputChange}
+                    className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+                  >
+                    <option value="" disabled>
+                      Select Lens Type
+                    </option>
+                    <option value="progressive">Progressive</option>
+                    <option value="single-vision">Single Vision</option>
+                    <option value="bifocal">Bifocal</option>
+                    <option value="trifocal">Trifocal</option>
+                    <option value="reading">Reading</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="font-medium block text-sm md:text-base">
+                    Lens Price
+                  </label>
+                  <input
+                    type="number"
+                    name="lensePrice"
+                    value={formData.lensePrice}
+                    onChange={handleInputChange}
+                    className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+                  />
+                </div>
+
+                <div>
+                  <label className="font-medium block text-sm md:text-base">
+                    Optical Price
+                  </label>
+                  <input
+                    type="number"
+                    value={
+                      (formData.framePrice || 0) + (formData.lensePrice || 0)
+                    }
+                    readOnly
+                    className="border p-2 md:p-3 rounded w-full bg-gray-100 cursor-not-allowed text-sm md:text-base"
+                  />
+                </div>
               </div>
 
-              <div>
-                <label className="font-medium mb-1 block">Delivery Date</label>
-                <input
-                  type="date"
-                  name="deliveryDate"
-                  value={formData.deliveryDate?.split("T")[0] || ""}
-                  onChange={handleInputChange}
-                  className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
+              {formData && (
+                <OpticalPayment
+                  formData={formData}
+                  setFormData={
+                    setFormData as React.Dispatch<
+                      React.SetStateAction<PatientFullTypeWithObjectId>
+                    >
+                  }
                 />
-              </div>
+              )}
+            </section>
+          )}
 
-              <div>
-                <label className="font-medium mb-1 block">Frame ID</label>
-                <input
-                  type="text"
-                  name="frameId"
-                  value={formData.frameId}
-                  onChange={handleInputChange}
-                  className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
-                />
-              </div>
-
-              <div>
-                <label className="font-medium mb-1 block">Frame Price</label>
-                <input
-                  type="number"
-                  name="framePrice"
-                  value={formData.framePrice}
-                  onChange={handleInputChange}
-                  className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
-                />
-              </div>
-
-              <div>
-                <label className="font-medium mb-1 block">Lens Type</label>
-                <select
-                  name="lenseType"
-                  value={formData.lenseType || ""}
-                  onChange={handleInputChange}
-                  className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
+          {/* Medicine Section */}
+          {catagory === "medicine" && formData && (
+            <Medicine
+              formData={formData}
+              setFormData={
+                setFormData as React.Dispatch<
+                  React.SetStateAction<PatientFullTypeWithObjectId>
                 >
-                  <option value="" disabled>
-                    Select Lens Type
-                  </option>
-                  <option value="progressive">Progressive</option>
-                  <option value="single-vision">Single Vision</option>
-                  <option value="bifocal">Bifocal</option>
-                  <option value="trifocal">Trifocal</option>
-                  <option value="reading">Reading</option>
-                </select>
-              </div>
+              }
+            />
+          )}
 
-              <div>
-                <label className="font-medium mb-1 block">Lens Price</label>
-                <input
-                  type="number"
-                  name="lensePrice"
-                  value={formData.lensePrice}
-                  onChange={handleInputChange}
-                  className="border p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
-                />
-              </div>
-
-              <div>
-                <label className="font-medium mb-1 block">Optical Price</label>
-                <input
-                  type="number"
-                  value={(formData.framePrice || 0) + (formData.lensePrice || 0)}
-                  readOnly
-                  className="border p-3 rounded w-full bg-gray-100 cursor-not-allowed"
-                />
-              </div>
-
-            
-
-            </div>
-            
-                        {formData && (
-                          <OpticalPayment
-                            formData={formData}
-                            setFormData={
-                              setFormData as React.Dispatch<
-                                React.SetStateAction<PatientFullTypeWithObjectId>
-                              >
-                            }
-                          />
-                        )}
-          </section>
-
-    )}      
-
-
-{catagory === "medicine" && (
-  formData && (
-    <Medicine
-      formData={formData}
-      setFormData={
-        setFormData as React.Dispatch<
-          React.SetStateAction<PatientFullTypeWithObjectId>
-        >
-      }
-    />
-  )
-)}
-  
-          {/* 💰 Financial Summary */}
+          {/* Financial Summary */}
           <section className="space-y-2">
             <h3 className="text-xl font-semibold text-gray-700 border-b pb-2">
               Financial Summary
             </h3>
 
-            <div className="grid grid-cols-3 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-3 sm:grid-cols-3 gap-3">
               <div>
-                <label className="font-medium mb-1 block">Total Amount</label>
+                <label className="font-medium block text-sm md:text-base">
+                  T-Amount
+                </label>
                 <input
                   type="number"
-                  value={(formData.framePrice || 0) + (formData.lensePrice || 0)}
+                  value={
+                    (formData.framePrice || 0) + (formData.lensePrice || 0)
+                  }
                   readOnly
-                  className="border p-3 rounded w-full bg-gray-100 cursor-not-allowed"
+                  className="border p-1 md:p-3 rounded w-full bg-gray-100 cursor-not-allowed text-sm md:text-base"
                 />
               </div>
 
               <div>
-                <label className="font-medium mb-1 block">Total Advance</label>
+                <label className="font-medium block text-sm md:text-base">
+                  T-Advance
+                </label>
                 <input
                   type="number"
                   value={
@@ -328,28 +344,37 @@ const NewOrder: React.FC<PatientFormProps> = ({
                     )
                   }
                   readOnly
-                  className="border p-3 rounded w-full bg-gray-100 cursor-not-allowed"
+                  className="border p-1 md:p-3 rounded w-full bg-gray-100 cursor-not-allowed text-sm md:text-base"
                 />
               </div>
 
               <div>
-                <label className="font-medium mb-1 block">Total Due</label>
+                <label className="font-medium block text-sm md:text-base">
+                  T-Due
+                </label>
                 <input
                   type="number"
-                  value={(formData.framePrice || 0) + (formData.lensePrice || 0) - (formData.opticalPayDetails || []).reduce((sum, d) => sum + (Number(d.amount) || 0), 0)}
+                  value={
+                    (formData.framePrice || 0) +
+                    (formData.lensePrice || 0) -
+                    (formData.opticalPayDetails || []).reduce(
+                      (sum, d) => sum + (Number(d.amount) || 0),
+                      0
+                    )
+                  }
                   readOnly
-                  className="border p-3 rounded w-full bg-gray-100 cursor-not-allowed"
+                  className="border p-1 md:p-3 rounded w-full bg-gray-100 cursor-not-allowed text-sm md:text-base"
                 />
               </div>
             </div>
           </section>
 
           {/* Buttons */}
-          <div className="flex justify-end space-x-4 mt-6">
+          <div className="flex flex-col-2 gap-2 sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-4 mt-6">
             <button
               type="button"
               onClick={() => setNewOrderForm(false)}
-              className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
+              className="px-4 py-1 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 w-full sm:w-auto"
             >
               Cancel
             </button>
@@ -358,10 +383,12 @@ const NewOrder: React.FC<PatientFormProps> = ({
               type="submit"
               disabled={
                 loading ||
-                (catagory === "medicine" && (formData.medicines || []).length < 1) ||
-                (catagory === "order" && (formData.opticalPayDetails || []).length < 1)
+                (catagory === "medicine" &&
+                  (formData.medicines || []).length < 1) ||
+                (catagory === "order" &&
+                  (formData.opticalPayDetails || []).length < 1)
               }
-              className="flex items-center justify-center px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 disabled:opacity-70"
+              className="flex items-center justify-center px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 disabled:opacity-70 w-full sm:w-auto"
             >
               {loading ? "Saving..." : "Save Order"}
             </button>
