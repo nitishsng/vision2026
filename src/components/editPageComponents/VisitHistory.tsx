@@ -23,21 +23,27 @@ const VisitHistory: React.FC<VisitProps> = ({
     null
   );
 
-  // Remove visit entry
-  const removeVisitObject = (index: number) => {
-    if (index === lastAddedIndex) setLastAddedIndex(null);
+ // Remove visit entry with confirmation
+const removeVisitObject = (index: number) => {
+  const confirmed = window.confirm(
+    "Are you sure you want to delete this visit entry?"
+  );
+  if (!confirmed) return;
 
-    setFormData((prev) => {
-      if (!prev) return prev;
+  if (index === lastAddedIndex) setLastAddedIndex(null);
 
-      const updated = (prev.visitDetails ?? []).filter((_, i) => i !== index);
+  setFormData((prev) => {
+    if (!prev) return prev;
 
-      return {
-        ...prev,
-        visitDetails: updated,
-      };
-    });
-  };
+    const updated = (prev.visitDetails ?? []).filter((_, i) => i !== index);
+
+    return {
+      ...prev,
+      visitDetails: updated,
+    };
+  });
+};
+
 
   // Decide if row should be editable
   const isEditable = (index: number) =>

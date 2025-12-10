@@ -44,7 +44,10 @@ const IpoPachyCCT: React.FC<IpoPachyCCTProps> = ({
       </button>
 
       {formData.iopPachyCCT?.map((entry, index) => (
-        <div key={index} className="space-y-2 md:space-y-3 border p-2 rounded-lg bg-gray-50">
+        <div
+          key={index}
+          className="space-y-2 md:space-y-3 border p-2 rounded-lg bg-gray-50"
+        >
           <div className="flex justify-between items-center">
             <h4 className="text-sm md:text-base font-semibold text-gray-700">
               IOP Entry #{(formData.iopPachyCCT?.length || 0) - index}
@@ -62,7 +65,12 @@ const IpoPachyCCT: React.FC<IpoPachyCCTProps> = ({
                 className="border p-1.5 md:p-2 rounded text-xs md:text-sm"
               />
               <button
-                onClick={() =>
+                onClick={() => {
+                  const confirmed = window.confirm(
+                    "Are you sure you want to delete this IOP/Pachy CCT entry?"
+                  );
+                  if (!confirmed) return;
+
                   setFormData((prev) => {
                     if (!prev) return prev;
                     return {
@@ -71,8 +79,8 @@ const IpoPachyCCT: React.FC<IpoPachyCCTProps> = ({
                         (_, i) => i !== index
                       ),
                     } as PatientFullTypeWithObjectId;
-                  })
-                }
+                  });
+                }}
                 className="text-red-500 text-xs underline"
               >
                 <Delete className="h-8 w-8" />

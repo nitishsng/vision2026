@@ -13,9 +13,9 @@ const PatientBasicInfo: React.FC<BasicInfo> = ({ formData, handleChange }) => {
   return (
     <div className="space-y-4">
       {/* Patient Info */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 md:gap-4">
         <div className="flex flex-col">
-          <label className="font-medium mb-1 text-sm md:text-base">
+          <label className="font-medium text-sm md:text-base">
             Patient Name
           </label>
           <input
@@ -30,7 +30,7 @@ const PatientBasicInfo: React.FC<BasicInfo> = ({ formData, handleChange }) => {
 
         {/* Age */}
         <div className="flex flex-col">
-          <label className="font-medium mb-1 text-sm md:text-base">Age</label>
+          <label className="font-medium text-sm md:text-base">Age</label>
           <input
             type="number"
             name="age"
@@ -60,7 +60,7 @@ const PatientBasicInfo: React.FC<BasicInfo> = ({ formData, handleChange }) => {
 
         {/* Phone Number */}
         <div className="flex flex-col">
-          <label className="font-medium mb-1 text-sm md:text-base">
+          <label className="font-medium text-sm md:text-base">
             Phone Number
           </label>
           <input
@@ -73,22 +73,10 @@ const PatientBasicInfo: React.FC<BasicInfo> = ({ formData, handleChange }) => {
           />
         </div>
 
-        {/* Email */}
-        <div className="flex flex-col">
-          <label className="font-medium mb-1 text-sm md:text-base">Email</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email || ""}
-            onChange={handleChange}
-            placeholder="Enter Email"
-            className="border border-gray-300 p-1 md:p-2 rounded-sm w-full focus:ring-2 focus:ring-blue-400 focus:outline-none"
-          />
-        </div>
 
         {/* Purpose */}
         <div className="flex flex-col">
-          <label className="font-medium mb-1 text-sm md:text-base">
+          <label className="font-medium text-sm md:text-base">
             Purpose
           </label>
           <select
@@ -106,7 +94,7 @@ const PatientBasicInfo: React.FC<BasicInfo> = ({ formData, handleChange }) => {
 
         {/* Preferred Date */}
         <div className="flex flex-col">
-          <label className="font-medium mb-1 text-sm md:text-base">
+          <label className="font-medium text-sm md:text-base">
             Preferred Date
           </label>
           <input
@@ -120,7 +108,7 @@ const PatientBasicInfo: React.FC<BasicInfo> = ({ formData, handleChange }) => {
 
         {/* Preferred Time */}
         <div className="flex flex-col">
-          <label className="font-medium mb-1 text-sm md:text-base">
+          <label className="font-medium text-sm md:text-base">
             Preferred Time
           </label>
           <select
@@ -143,7 +131,7 @@ const PatientBasicInfo: React.FC<BasicInfo> = ({ formData, handleChange }) => {
         </div>
 
         <div className="flex flex-col">
-          <label className="font-medium mb-1 text-sm md:text-base">
+          <label className="font-medium text-sm md:text-base">
             Status
           </label>
           <select
@@ -173,12 +161,21 @@ const PatientBasicInfo: React.FC<BasicInfo> = ({ formData, handleChange }) => {
             )}
           </select>
         </div>
-      </div>
+        {/* Email */}
+        <div className="col-span-2">
+          <label className="font-medium mb-1 text-sm md:text-base">Email</label>
+          <input
+            type="email"
+            name="email"
+            value={formData.email || ""}
+            onChange={handleChange}
+            placeholder="Enter Email"
+            className="border border-gray-300 p-1 md:p-2 rounded-sm w-full focus:ring-2 focus:ring-blue-400 focus:outline-none"
+          />
+        </div>
 
-      {/* Notes & Complaints */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-        <div className="flex flex-col">
-          <label className="font-semibold mb-1 text-sm md:text-base">
+        <div className="col-span-2">
+          <label className="font-semibold text-sm md:text-base">
             Address
           </label>
           <input
@@ -188,8 +185,8 @@ const PatientBasicInfo: React.FC<BasicInfo> = ({ formData, handleChange }) => {
             className="border p-2 md:p-3 rounded text-sm md:text-base w-full focus:ring-2 focus:ring-blue-400"
           />
         </div>
-        <div className="flex flex-col">
-          <label className="font-semibold mb-1 text-sm md:text-base">
+        <div className="col-span-2">
+          <label className="font-semibold text-sm md:text-base">
             Present Complaints
           </label>
           <input

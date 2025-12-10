@@ -62,7 +62,12 @@ const GlassesPrescription: React.FC<GlassesPrescriptionProps> = ({
                 className="border p-1.5 md:p-2 rounded text-xs md:text-sm"
               />
               <button
-                onClick={() =>
+                onClick={() => {
+                  const confirmed = window.confirm(
+                    "Are you sure you want to delete this glasses prescription?"
+                  );
+                  if (!confirmed) return;
+
                   setFormData((prev) => {
                     if (!prev) return prev;
                     return {
@@ -71,8 +76,8 @@ const GlassesPrescription: React.FC<GlassesPrescriptionProps> = ({
                         prev.glassesPrescription || []
                       ).filter((_, i) => i !== index),
                     } as PatientFullTypeWithObjectId;
-                  })
-                }
+                  });
+                }}
                 className="text-red-500 text-xs underline"
               >
                 <Delete className="h-8 w-8" />

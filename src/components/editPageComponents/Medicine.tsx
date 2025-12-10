@@ -57,19 +57,25 @@ const Medicine: React.FC<MedicineProps> = ({ formData, setFormData }) => {
     }
   };
 
-  // Remove row
-  const removeMedicineField = (index: number) => {
-    setFormData((prev) => {
-      const updated = prev.medicines.filter((_, i) => i !== index);
-      return { ...prev, medicines: updated };
-    });
+ // Remove medicine row with confirmation
+const removeMedicineField = (index: number) => {
+  const confirmed = window.confirm(
+    "Are you sure you want to delete this medicine entry?"
+  );
+  if (!confirmed) return;
 
-    if (editableIndex === index) {
-      setEditableIndex(null);
-    } else if (editableIndex && index < editableIndex) {
-      setEditableIndex((old) => (old !== null ? old - 1 : null));
-    }
-  };
+  setFormData((prev) => {
+    const updated = prev.medicines.filter((_, i) => i !== index);
+    return { ...prev, medicines: updated };
+  });
+
+  if (editableIndex === index) {
+    setEditableIndex(null);
+  } else if (editableIndex && index < editableIndex) {
+    setEditableIndex((old) => (old !== null ? old - 1 : null));
+  }
+};
+
 
   // Update fields only in editable row (or all if premium)
   const updateField = (

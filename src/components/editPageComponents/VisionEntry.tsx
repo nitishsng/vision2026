@@ -63,17 +63,23 @@ const VisionEntry: React.FC<VisionProps> = ({
                 }
                 className="border p-1.5 md:p-2 rounded text-xs md:text-sm"
               />
+           
               {/* Delete entry */}
               <button
-                onClick={() =>
+                onClick={() => {
+                  const confirmed = window.confirm(
+                    "Are you sure you want to delete this vision entry?"
+                  );
+                  if (!confirmed) return;
+
                   setFormData((prev) => {
                     if (!prev) return prev;
                     return {
                       ...prev,
                       vision: (prev.vision || []).filter((_, i) => i !== index),
                     };
-                  })
-                }
+                  });
+                }}
                 className="text-red-500 text-xs underline"
               >
                 <Delete className="w-8 h-8" />

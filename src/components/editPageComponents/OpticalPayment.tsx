@@ -76,18 +76,25 @@ const OpticalPayment: React.FC<OpticalPaymentProps> = ({
     }));
   };
 
-  const removePaymentField = (index: number) => {
-    if (index === lastAddedIndex) setLastAddedIndex(null);
-    setFormData((prev) => {
-      const updatedPaymentDetails = prev.opticalPayDetails.filter(
-        (_, i) => i !== index
-      );
-      return {
-        ...prev,
-        opticalPayDetails: updatedPaymentDetails,
-      };
-    });
-  };
+const removePaymentField = (index: number) => {
+  const confirmed = window.confirm(
+    "Are you sure you want to delete this payment entry?"
+  );
+  if (!confirmed) return;
+
+  if (index === lastAddedIndex) setLastAddedIndex(null);
+
+  setFormData((prev) => {
+    const updatedPaymentDetails = prev.opticalPayDetails.filter(
+      (_, i) => i !== index
+    );
+    return {
+      ...prev,
+      opticalPayDetails: updatedPaymentDetails,
+    };
+  });
+};
+
 
   return (
     <div className="w-full grid md:flex rounded-md gap-1 md:gap-3">
@@ -119,7 +126,7 @@ const OpticalPayment: React.FC<OpticalPaymentProps> = ({
                   disabled={
                     !(index === lastAddedIndex || eligibleForFeatures(4))
                   }
-                  className="border py-2 md:p-2 rounded-sm w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+                  className="border py-1 md:p-2 rounded-sm w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
                 />
               </div>
 
@@ -133,7 +140,7 @@ const OpticalPayment: React.FC<OpticalPaymentProps> = ({
                   disabled={
                     !(index === lastAddedIndex || eligibleForFeatures(4))
                   }
-                  className="border p-1 py-2 md:p-3 rounded-sm w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+                  className="border p-1 md:p-2 rounded-sm w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
                 />
               </div>
 
@@ -149,7 +156,7 @@ const OpticalPayment: React.FC<OpticalPaymentProps> = ({
                       !(index === lastAddedIndex || eligibleForFeatures(4))
                     }
                     max={maxValue}
-                    className="border p-1 py-2 md:p-3 rounded-sm w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+                    className="border p-1 md:p-2 rounded-sm w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
                   />
                   {eligibleForFeatures(4) && (
                     <button

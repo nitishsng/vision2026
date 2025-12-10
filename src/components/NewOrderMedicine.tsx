@@ -101,7 +101,7 @@ const NewOrder: React.FC<PatientFormProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
               <div>
                 <label className="font-medium block text-sm md:text-base">
-                  Full Name
+                  Full Name *
                 </label>
                 <input
                   type="text"
@@ -115,7 +115,7 @@ const NewOrder: React.FC<PatientFormProps> = ({
 
               <div>
                 <label className="font-medium block text-sm md:text-base">
-                  Phone Number
+                  Phone Number *
                 </label>
                 <input
                   type="tel"
@@ -155,7 +155,7 @@ const NewOrder: React.FC<PatientFormProps> = ({
 
               <div>
                 <label className="font-medium block text-sm md:text-base">
-                  Bill No
+                  Bill No {catagory === "order" && <span>*</span>}
                 </label>
                 <input
                   type="text"
@@ -383,10 +383,10 @@ const NewOrder: React.FC<PatientFormProps> = ({
               type="submit"
               disabled={
                 loading ||
-                (catagory === "medicine" &&
-                  (formData.medicines || []).length < 1) ||
+                (catagory === "medicine" && formData.medicines.length < 1) ||
                 (catagory === "order" &&
-                  (formData.opticalPayDetails || []).length < 1)
+                  (formData.opticalPayDetails.length < 1 ||
+                    formData.billNo === ""))
               }
               className="flex items-center justify-center px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 disabled:opacity-70 w-full sm:w-auto"
             >

@@ -1,7 +1,6 @@
 import React from "react";
-import { PatientFullTypeWithObjectId, todayDate } from "@/src/contexts/type";
+import { PatientFullTypeWithObjectId } from "@/src/contexts/type";
 import { Delete } from "lucide-react";
-import useEligibility from "../elegibleForfeatures";
 type DiagnosisProps = {
   formData: PatientFullTypeWithObjectId;
   handleNestedChange: (path: string, value: any) => void;
@@ -9,19 +8,21 @@ type DiagnosisProps = {
     React.SetStateAction<PatientFullTypeWithObjectId>
   >;
 };
-const Diagnosis : React.FC<DiagnosisProps> = ({ formData, handleNestedChange, setFormData }) => {
-     const removeDiagnosis = (index: number) => {
-    setFormData((prev) => {
-      if (!prev) return prev; // safely handle null state
+const Diagnosis : React.FC<DiagnosisProps> = ({ formData, setFormData }) => {
 
-      const updatedDiagnosis = prev.diagnosis?.filter((_, i) => i !== index);
+const removeDiagnosis = (index: number) => {
+  const confirmed = window.confirm("Are you sure you want to delete this diagnosis?");
+  if (!confirmed) return; 
+  setFormData((prev) => {
+    if (!prev) return prev; 
+    const updatedDiagnosis = prev.diagnosis?.filter((_, i) => i !== index);
+    return {
+      ...prev,
+      diagnosis: updatedDiagnosis,
+    };
+  });
+};
 
-      return {
-        ...prev,
-        diagnosis: updatedDiagnosis,
-      };
-    });
-  };
   return (
            <div className="space-y-4 w-full">
           <h3 className="text-lg md:text-xl font-semibold text-gray-700">

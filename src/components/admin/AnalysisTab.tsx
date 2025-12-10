@@ -40,14 +40,14 @@ const COLORS = [
   "#10b981",
 ];
 
-
-
 export function AnalysisTab() {
   const { patients, isLoading } = useDashboardData();
   const [mode, setMode] = useState<Mode>("monthly");
 
-const istString = new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
-const now = new Date(istString);
+  const istString = new Date().toLocaleString("en-US", {
+    timeZone: "Asia/Kolkata",
+  });
+  const now = new Date(istString);
 
   const [month, setMonth] = useState<number>(now.getMonth());
   const [quarter, setQuarter] = useState<number>(
@@ -62,7 +62,6 @@ const now = new Date(istString);
   // ---------------------
   // RANGE LOGIC
   // ---------------------
- 
 
   const range = useMemo(() => {
     if (mode === "monthly") {
@@ -121,15 +120,14 @@ const now = new Date(istString);
         .forEach((e: any) => {
           const d = df.normalizeYYYYMMDD(e.visitDate);
           if (!d) return;
-          const prev =
-            byDayMap.get(d) || {
-              date: d,
-              appointments: 0,
-              visit: 0,
-              medicines: 0,
-              optical: 0,
-              total: 0,
-            };
+          const prev = byDayMap.get(d) || {
+            date: d,
+            appointments: 0,
+            visit: 0,
+            medicines: 0,
+            optical: 0,
+            total: 0,
+          };
           const visitAmt = Number(e.visitPrice || 0);
           byDayMap.set(d, {
             date: d,
@@ -147,15 +145,14 @@ const now = new Date(istString);
         .forEach((m: any) => {
           const d = df.normalizeYYYYMMDD(m.date);
           if (!d) return;
-          const prev =
-            byDayMap.get(d) || {
-              date: d,
-              appointments: 0,
-              visit: 0,
-              medicines: 0,
-              optical: 0,
-              total: 0,
-            };
+          const prev = byDayMap.get(d) || {
+            date: d,
+            appointments: 0,
+            visit: 0,
+            medicines: 0,
+            optical: 0,
+            total: 0,
+          };
           const medAmt = Number(m.price || 0);
           byDayMap.set(d, {
             date: d,
@@ -167,21 +164,22 @@ const now = new Date(istString);
           });
         });
 
-      const optical = Array.isArray(p.opticalPayDetails) ? p.opticalPayDetails : [];
+      const optical = Array.isArray(p.opticalPayDetails)
+        ? p.opticalPayDetails
+        : [];
       optical
         .filter((o: any) => df.isInRange(o.date, range.start, range.end))
         .forEach((o: any) => {
           const d = df.normalizeYYYYMMDD(o.date);
           if (!d) return;
-          const prev =
-            byDayMap.get(d) || {
-              date: d,
-              appointments: 0,
-              visit: 0,
-              medicines: 0,
-              optical: 0,
-              total: 0,
-            };
+          const prev = byDayMap.get(d) || {
+            date: d,
+            appointments: 0,
+            visit: 0,
+            medicines: 0,
+            optical: 0,
+            total: 0,
+          };
           const amt = Number(o.amount || 0);
           byDayMap.set(d, {
             date: d,
@@ -253,7 +251,9 @@ const now = new Date(istString);
           });
         });
 
-      const optical = Array.isArray(p.opticalPayDetails) ? p.opticalPayDetails : [];
+      const optical = Array.isArray(p.opticalPayDetails)
+        ? p.opticalPayDetails
+        : [];
       optical
         .filter((o: any) => df.isInRange(o.date, range.start, range.end))
         .forEach((o: any) => {
@@ -306,257 +306,303 @@ const now = new Date(istString);
   // UI
   // --------------------------------------------------------------------------
   return (
-
     <div>
-      
-
       {isLoading ? (
         <div className="flex items-center justify-center py-6">
           <div className="animate-spin h-8 w-8 border-b-2 border-teal-500 rounded-full"></div>
         </div>
-      ):(
-   <div className="space-y-4 md:space-y-6 pb-8">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-xl md:text-2xl font-bold text-gray-900">
-            Analysis
-          </h1>
-          <p className="text-gray-600 hidden md:block">
-            Comprehensive insights and visualizations
-          </p>
-        </div>
-      </div>
-
-      {/* FILTER CARD */}
-      <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-100 shadow-sm">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-
-          {/* MODE */}
-          <div>
-            <label className="text-sm text-gray-700 font-medium">Mode</label>
-            <select
-              value={mode}
-              onChange={(e) => setMode(e.target.value as Mode)}
-              className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-teal-500"
-            >
-              <option value="monthly">Monthly</option>
-              <option value="quarterly">Quarterly</option>
-              <option value="yearly">Yearly</option>
-              <option value="custom">Custom</option>
-            </select>
+      ) : (
+        <div className="space-y-2 md:space-y-4 pb-8">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-xl md:text-2xl font-bold text-gray-900">
+                Analysis
+              </h1>
+              <p className="text-gray-600 hidden md:block">
+                Comprehensive insights and visualizations
+              </p>
+            </div>
           </div>
 
-          {/* MONTHLY */}
-          {mode === "monthly" && (
-            <>
+          {/* FILTER CARD */}
+          <div className="bg-white rounded-xl p-2 md:p-4 border border-gray-100 shadow-sm">
+            <div
+              className={`grid gap-2 ${
+                mode === "yearly" ? "grid-cols-2" : "grid-cols-3"
+              }`}
+            >
+              {/* MODE */}
               <div>
-                <label className="text-sm text-gray-700 font-medium">Month</label>
+                <label className="text-sm text-gray-700 font-medium">
+                  Mode
+                </label>
                 <select
-                  value={month}
-                  onChange={(e) => setMonth(Number(e.target.value))}
+                  value={mode}
+                  onChange={(e) => setMode(e.target.value as Mode)}
                   className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-teal-500"
                 >
-                  {[
-                    "January",
-                    "February",
-                    "March",
-                    "April",
-                    "May",
-                    "June",
-                    "July",
-                    "August",
-                    "September",
-                    "October",
-                    "November",
-                    "December",
-                  ].map((m, i) => (
-                    <option key={m} value={i}>
-                      {m}
-                    </option>
-                  ))}
+                  <option value="monthly">Monthly</option>
+                  <option value="quarterly">Quarterly</option>
+                  <option value="yearly">Yearly</option>
+                  <option value="custom">Custom</option>
                 </select>
               </div>
 
-              <div>
-                <label className="text-sm text-gray-700 font-medium">Year</label>
-                <input
-                  type="number"
-                  value={year}
-                  onChange={(e) => setYear(Number(e.target.value))}
-                  className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-teal-500"
-                />
-              </div>
-            </>
-          )}
+              {/* MONTHLY */}
+              {mode === "monthly" && (
+                <>
+                  <div>
+                    <label className="text-sm text-gray-700 font-medium">
+                      Month
+                    </label>
+                    <select
+                      value={month}
+                      onChange={(e) => setMonth(Number(e.target.value))}
+                      className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-teal-500"
+                    >
+                      {[
+                        "January",
+                        "February",
+                        "March",
+                        "April",
+                        "May",
+                        "June",
+                        "July",
+                        "August",
+                        "September",
+                        "October",
+                        "November",
+                        "December",
+                      ].map((m, i) => (
+                        <option key={m} value={i}>
+                          {m}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-          {/* QUARTERLY */}
-          {mode === "quarterly" && (
-            <>
-              <div>
-                <label className="text-sm text-gray-700 font-medium">Quarter</label>
-                <select
-                  value={quarter}
-                  onChange={(e) => setQuarter(Number(e.target.value))}
-                  className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-teal-500"
-                >
-                  <option value={1}>Q1</option>
-                  <option value={2}>Q2</option>
-                  <option value={3}>Q3</option>
-                  <option value={4}>Q4</option>
-                </select>
-              </div>
+                  <div>
+                    <label className="text-sm text-gray-700 font-medium">
+                      Year
+                    </label>
+                    <input
+                      type="number"
+                      value={year}
+                      onChange={(e) => setYear(Number(e.target.value))}
+                      className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-teal-500"
+                    />
+                  </div>
+                </>
+              )}
 
-              <div>
-                <label className="text-sm text-gray-700 font-medium">Year</label>
-                <input
-                  type="number"
-                  value={year}
-                  onChange={(e) => setYear(Number(e.target.value))}
-                  className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-teal-500"
-                />
-              </div>
-            </>
-          )}
+              {/* QUARTERLY */}
+              {mode === "quarterly" && (
+                <>
+                  <div>
+                    <label className="text-sm text-gray-700 font-medium">
+                      Quarter
+                    </label>
+                    <select
+                      value={quarter}
+                      onChange={(e) => setQuarter(Number(e.target.value))}
+                      className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-teal-500"
+                    >
+                      <option value={1}>Q1</option>
+                      <option value={2}>Q2</option>
+                      <option value={3}>Q3</option>
+                      <option value={4}>Q4</option>
+                    </select>
+                  </div>
 
-          {/* YEARLY */}
-          {mode === "yearly" && (
-            <div>
-              <label className="text-sm text-gray-700 font-medium">Year</label>
-              <input
-                type="number"
-                value={year}
-                onChange={(e) => setYear(Number(e.target.value))}
-                className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-teal-500"
-              />
+                  <div>
+                    <label className="text-sm text-gray-700 font-medium">
+                      Year
+                    </label>
+                    <input
+                      type="number"
+                      value={year}
+                      onChange={(e) => setYear(Number(e.target.value))}
+                      className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-teal-500"
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* YEARLY */}
+              {mode === "yearly" && (
+                <div>
+                  <label className="text-sm text-gray-700 font-medium">
+                    Year
+                  </label>
+                  <input
+                    type="number"
+                    value={year}
+                    onChange={(e) => setYear(Number(e.target.value))}
+                    className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-teal-500"
+                  />
+                </div>
+              )}
+
+              {/* CUSTOM */}
+              {mode === "custom" && (
+                <>
+                  <div>
+                    <label className="text-sm text-gray-700 font-medium">
+                      Start
+                    </label>
+                    <input
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-teal-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm text-gray-700 font-medium">
+                      End
+                    </label>
+                    <input
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-teal-500"
+                    />
+                  </div>
+                </>
+              )}
             </div>
-          )}
+          </div>
 
-          {/* CUSTOM */}
-          {mode === "custom" && (
-            <>
-              <div>
-                <label className="text-sm text-gray-700 font-medium">Start</label>
-                <input
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-teal-500"
-                />
-              </div>
-
-              <div>
-                <label className="text-sm text-gray-700 font-medium">End</label>
-                <input
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-teal-500"
-                />
-              </div>
-            </>
-          )}
-        </div>
-      </div>
-
-
-      {/* -----------------------
+          {/* -----------------------
         CHARTS GRID
       ------------------------ */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6">
+            {/* LINE CHART */}
+            <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-100 shadow-sm">
+              <div className="flex items-center gap-2 mb-4">
+                <BarChart3 className="h-5 w-5 text-gray-700" />
+                <h2 className="font-semibold text-gray-800">Trend</h2>
+              </div>
 
-        {/* LINE CHART */}
-        <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-100 shadow-sm">
-          <div className="flex items-center gap-2 mb-4">
-            <BarChart3 className="h-5 w-5 text-gray-700" />
-            <h2 className="font-semibold text-gray-800">Trend</h2>
-          </div>
+              <div className="h-64 md:h-72">
+                <ResponsiveContainer>
+                  <LineChart
+                    data={data.byDay}
+                    margin={{ top: 10, right: 20, left: 0, bottom: 10 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" tick={{ fontSize: 12 }} />
+                    <YAxis tick={{ fontSize: 12 }} />
+                    <Tooltip />
+                    <Legend />
+                    <Brush dataKey="date" height={20} />
+                    <Line
+                      type="monotone"
+                      dataKey="appointments"
+                      stroke={COLORS[0]}
+                      dot={false}
+                      name="Appointments"
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="total"
+                      stroke={COLORS[1]}
+                      dot={false}
+                      name="Total ₹"
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
 
-          <div className="h-64 md:h-72">
-            <ResponsiveContainer>
-              <LineChart data={data.byDay} margin={{ top: 10, right: 20, left: 0, bottom: 10 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip />
-                <Legend />
-                <Brush dataKey="date" height={20} />
-                <Line type="monotone" dataKey="appointments" stroke={COLORS[0]} dot={false} name="Appointments" />
-                <Line type="monotone" dataKey="total" stroke={COLORS[1]} dot={false} name="Total ₹" />
-              </LineChart>
-            </ResponsiveContainer>
+            {/* BAR CHART */}
+            <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-100 shadow-sm">
+              <div className="flex items-center gap-2 mb-4">
+                <Calendar className="h-5 w-5 text-gray-700" />
+                <h2 className="font-semibold text-gray-800">Monthly</h2>
+              </div>
+
+              <div className="h-64 md:h-72">
+                <ResponsiveContainer>
+                  <BarChart
+                    data={data.byMonth}
+                    margin={{ top: 10, right: 20, left: 0, bottom: 10 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" tick={{ fontSize: 12 }} />
+                    <YAxis tick={{ fontSize: 12 }} />
+                    <Tooltip />
+                    <Legend />
+                    <Brush dataKey="month" height={20} />
+                    <Bar
+                      dataKey="appointments"
+                      fill={COLORS[0]}
+                      name="Appointments"
+                    />
+                    <Bar dataKey="total" fill={COLORS[1]} name="Total ₹" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* STATUS PIE */}
+            <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-100 shadow-sm">
+              <div className="flex items-center gap-2 mb-4">
+                <PieIcon className="h-5 w-5 text-gray-700" />
+                <h2 className="font-semibold text-gray-800">Status</h2>
+              </div>
+
+              <div className="h-64">
+                <ResponsiveContainer>
+                  <PieChart>
+                    <Pie
+                      data={statusPieData}
+                      dataKey="value"
+                      nameKey="name"
+                      outerRadius={105}
+                    >
+                      {statusPieData.map((_, i) => (
+                        <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Legend />
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* REVENUE DONUT */}
+            <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-100 shadow-sm">
+              <div className="flex items-center gap-2 mb-4">
+                <PieIcon className="h-5 w-5 text-gray-700" />
+                <h2 className="font-semibold text-gray-800">Revenue</h2>
+              </div>
+
+              <div className="h-64">
+                <ResponsiveContainer>
+                  <PieChart>
+                    <Pie
+                      data={donutData}
+                      dataKey="value"
+                      nameKey="name"
+                      innerRadius={70}
+                      outerRadius={110}
+                    >
+                      {donutData.map((_, i) => (
+                        <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Legend />
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
           </div>
         </div>
-
-        {/* BAR CHART */}
-        <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-100 shadow-sm">
-          <div className="flex items-center gap-2 mb-4">
-            <Calendar className="h-5 w-5 text-gray-700" />
-            <h2 className="font-semibold text-gray-800">Monthly</h2>
-          </div>
-
-          <div className="h-64 md:h-72">
-            <ResponsiveContainer>
-              <BarChart data={data.byMonth} margin={{ top: 10, right: 20, left: 0, bottom: 10 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip />
-                <Legend />
-                <Brush dataKey="month" height={20} />
-                <Bar dataKey="appointments" fill={COLORS[0]} name="Appointments" />
-                <Bar dataKey="total" fill={COLORS[1]} name="Total ₹" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* STATUS PIE */}
-        <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-100 shadow-sm">
-          <div className="flex items-center gap-2 mb-4">
-            <PieIcon className="h-5 w-5 text-gray-700" />
-            <h2 className="font-semibold text-gray-800">Status</h2>
-          </div>
-
-          <div className="h-64">
-            <ResponsiveContainer>
-              <PieChart>
-                <Pie data={statusPieData} dataKey="value" nameKey="name" outerRadius={105}>
-                  {statusPieData.map((_, i) => (
-                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Legend />
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* REVENUE DONUT */}
-        <div className="bg-white rounded-xl p-4 md:p-6 border border-gray-100 shadow-sm">
-          <div className="flex items-center gap-2 mb-4">
-            <PieIcon className="h-5 w-5 text-gray-700" />
-            <h2 className="font-semibold text-gray-800">Revenue</h2>
-          </div>
-
-          <div className="h-64">
-            <ResponsiveContainer>
-              <PieChart>
-                <Pie data={donutData} dataKey="value" nameKey="name" innerRadius={70} outerRadius={110}>
-                  {donutData.map((_, i) => (
-                    <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Legend />
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
-    </div>
       )}
     </div>
- 
   );
 }

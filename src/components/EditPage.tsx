@@ -15,7 +15,7 @@ import PatientBasicInfo from "./editPageComponents/PatientBasicInfo";
 import VisionEntry from "./editPageComponents/VisionEntry";
 import ExamDetails from "./editPageComponents/ExamDetails";
 import GlassesPrescription from "./editPageComponents/GlassesPrescription";
-import IpoPachyCCT from "./editPageComponents/IpoPachyCCT"
+import IpoPachyCCT from "./editPageComponents/IpoPachyCCT";
 import Diagnosis from "./editPageComponents/Diagnosis";
 
 const EditPage = () => {
@@ -246,32 +246,33 @@ const EditPage = () => {
     };
 
     return (
-<div
-      className={`
+      <div
+        className={`
         flex items-center py-1 px-2
         ${isLargeScreen ? "hidden" : ""}
         ${!isLargeScreen && isOpen ? "justify-end" : "justify-between"}
         transition-all duration-200 ease-in-out
       `}
-    >
-      {/* Show label when collapsed */}
-      {!isOpen && <span className="text-gray-600">{closedLabel}</span>}
+      >
+        {/* Show label when collapsed */}
+        {!isOpen && <span className="text-gray-600">{closedLabel}</span>}
 
-      {/* Toggle Button */}
-      <button
-        onClick={handleToggle}
-        className={`
+        {/* Toggle Button */}
+        <button
+          onClick={handleToggle}
+          className={`
           px-3 py-1 rounded border
           focus:outline-none focus:ring-2
-          ${isOpen
-            ? "bg-red-500 text-white border-red-600 hover:bg-red-600 focus:ring-red-400"
-            : "bg-white text-blue-600 border-blue-600 hover:bg-blue-50 focus:ring-blue-400"
+          ${
+            isOpen
+              ? "bg-red-500 text-white border-red-600 hover:bg-red-600 focus:ring-red-400"
+              : "bg-white text-blue-600 border-blue-600 hover:bg-blue-50 focus:ring-blue-400"
           }
         `}
-      >
-        {isOpen ? buttonLabels.open : buttonLabels.closed}
-      </button>
-    </div>
+        >
+          {isOpen ? buttonLabels.open : buttonLabels.closed}
+        </button>
+      </div>
     );
   };
 
@@ -284,10 +285,7 @@ const EditPage = () => {
       </h2>
 
       {(basicDetails || isLargeScreen) && (
-        <PatientBasicInfo
-          formData={formData}
-          handleChange={handleChange}
-        />
+        <PatientBasicInfo formData={formData} handleChange={handleChange} />
       )}
 
       {/* basic details togal */}
@@ -433,7 +431,7 @@ const EditPage = () => {
 
       {(someDetails || isLargeScreen) && (
         <div className="space-y-1">
-          {/* 🧾 Billing & Dates */}
+          {/* Billing & Dates */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:p-4 rounded-lg ">
             {/* Bill No */}
             <div className="flex flex-col">
@@ -604,35 +602,20 @@ const EditPage = () => {
         isLargeScreen
       )}
 
-
-{
-  visitAndMedicines && (
-    <div className="space-y-2">
-        {/* Payment Details */}
-        {/* 🧾 Visit & Medicines Section */}
-        <div className="bg-white shadow-md rounded-2xl px-2 py-3 border border-gray-100">
-          {/* <h3 className="text-xl font-semibold text-gray-700 mb-2">
+      {(visitAndMedicines || isLargeScreen) && (
+        <div className="space-y-2">
+          {/* Payment Details */}
+          {/* 🧾 Visit & Medicines Section */}
+          <div className="bg-white shadow-md rounded-2xl px-2 py-3 border border-gray-100">
+            {/* <h3 className="text-xl font-semibold text-gray-700 mb-2">
             Visit & Medicines
           </h3> */}
 
-          <div className="flex flex-col md:flex-row w-full gap-2">
-            {formData && (
-              <VisitHistory
-                formData={formData}
-                handleNestedChange={handleNestedChange}
-                setFormData={
-                  setFormData as React.Dispatch<
-                    React.SetStateAction<PatientFullTypeWithObjectId>
-                  >
-                }
-              />
-            )}
-
-            {/* Medicines */}
-            <div className="flex-1">
+            <div className="flex flex-col md:flex-row w-full gap-2">
               {formData && (
-                <Medicine
+                <VisitHistory
                   formData={formData}
+                  handleNestedChange={handleNestedChange}
                   setFormData={
                     setFormData as React.Dispatch<
                       React.SetStateAction<PatientFullTypeWithObjectId>
@@ -640,13 +623,23 @@ const EditPage = () => {
                   }
                 />
               )}
+              {/* Medicines */}
+              <div className="flex-1">
+                {formData && (
+                  <Medicine
+                    formData={formData}
+                    setFormData={
+                      setFormData as React.Dispatch<
+                        React.SetStateAction<PatientFullTypeWithObjectId>
+                      >
+                    }
+                  />
+                )}
+              </div>
             </div>
           </div>
         </div>
- 
-      </div>
-  )
-}
+      )}
       {renderToggleSection(
         {
           isOpen: visitAndMedicines,
@@ -657,16 +650,19 @@ const EditPage = () => {
         isLargeScreen
       )}
 
-
-        {/* Grand Totals Section */}
-        {formData && <GrandAmount formData={formData} />}
+      {/* Grand Totals Section */}
+      {formData && (
+        <div className="pt-4">
+          <GrandAmount formData={formData} />
+        </div>
+      )}
 
       {/* Save Button */}
       <div className="flex justify-end">
         <button
           onClick={handleSave}
           disabled={saving}
-          className="bg-blue-600 mt-4 text-white px-6 py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+          className="bg-blue-600 mt-2 text-white px-6 py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50"
         >
           {saving ? "Saving..." : "Save"}
         </button>

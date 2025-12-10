@@ -103,10 +103,10 @@ export type PatientFullType = {
 
   orderDate: string;
 
-  frameId?: string;
+  frameId: string;
   lenseType?: string;
-  lensePrice?: number;
-  framePrice?: number;
+  lensePrice: number;
+  framePrice: number;
   deliveryStatus?: string;
   deliveryDate?: string;
 
@@ -189,7 +189,6 @@ export type PatientFullType = {
 };
 
 export type PatientFullTypeWithObjectId = PatientFullType & { _id?: string };
-const defaultEyeDetail: EyeDetail = { right: "Normal", left: "Normal" };
 export const todayDate = new Date().toLocaleDateString("en-CA", {
   timeZone: "Asia/Kolkata",
 });
@@ -197,11 +196,14 @@ export const todayDate = new Date().toLocaleDateString("en-CA", {
 export const initialPatient: PatientFullTypeWithObjectId = {
   id: "",
   address:"",
-  billNo: "",
+  billNo:"",
   catagory: "patient",
   ptName: "",
   age: 0,
   phoneNo: "",
+  lensePrice:0,
+  frameId: "",
+  framePrice:0,
   opticalPayDetails: [],
   medicines: [],
   purpose: "consultation",

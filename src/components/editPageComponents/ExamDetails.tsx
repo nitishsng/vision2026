@@ -1,7 +1,6 @@
 import React from "react";
 import { PatientFullTypeWithObjectId, todayDate } from "@/src/contexts/type";
 import { Delete } from "lucide-react";
-import useEligibility from "../elegibleForfeatures";
 type ExamDetailsProps = {
   formData: PatientFullTypeWithObjectId;
   handleNestedChange: (path: string, value: any) => void;
@@ -14,9 +13,7 @@ const ExamDetails: React.FC<ExamDetailsProps> = ({
   handleNestedChange,
   setFormData,
 }) => {
-  const eligibleForFeatures = useEligibility();
   type VisionEntry = PatientFullTypeWithObjectId["vision"][number];
-  type VisionKey = keyof VisionEntry["rightEye"];
   return (
     <div className="space-y-3 md:space-y-4 w-full">
       <h3 className="text-base md:text-lg font-semibold text-gray-700">
@@ -70,7 +67,12 @@ const ExamDetails: React.FC<ExamDetailsProps> = ({
                 className="border p-1.5 md:p-2 rounded text-xs md:text-sm"
               />
               <button
-                onClick={() =>
+                onClick={() => {
+                  const confirmDelete = window.confirm(
+                    "Are you sure you want to delete this exam detail?"
+                  );
+                  if (!confirmDelete) return;
+
                   setFormData((prev) => {
                     if (!prev) return prev;
                     return {
@@ -79,9 +81,9 @@ const ExamDetails: React.FC<ExamDetailsProps> = ({
                         (_, i) => i !== index
                       ),
                     } as PatientFullTypeWithObjectId;
-                  })
-                }
-                className="text-red-500 text-xs underline"
+                  });
+                }}
+                className="text-red-500 text-xs underline flex items-center"
               >
                 <Delete className="h-8 w-8" />
               </button>
