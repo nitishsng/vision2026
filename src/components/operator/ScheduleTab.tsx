@@ -16,9 +16,9 @@ export function ScheduleTab() {
     return date.toISOString().split('T')[0];
   };
 
-  const dayAppointments = appointments
-    .filter((apt) => apt.preferredDate === formatDate(selectedDate))
-    .sort((a, b) => a.preferredTime.localeCompare(b.preferredTime));
+ const dayAppointments = appointments
+  .filter((apt) => apt.preferredDate === formatDate(selectedDate))
+  .sort((a, b) => (a.preferredTime || "").localeCompare(b.preferredTime || ""));
 
   const previousDay = () => {
     const newDate = new Date(selectedDate);

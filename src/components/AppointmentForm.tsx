@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 interface PatientFormProps {
   setShowBookingForm: React.Dispatch<React.SetStateAction<boolean>>;
   setBookingSuccess: React.Dispatch<React.SetStateAction<boolean>>;
-  setFrom:string;
+  setFrom: string;
 }
 
 export const appointmentForm: React.FC<PatientFormProps> = ({
@@ -28,21 +28,21 @@ export const appointmentForm: React.FC<PatientFormProps> = ({
     }));
   };
 
-function generateAppointmentId() {
-  const now = new Date();
-  // Convert to Kolkata time string in YYYY-MM-DD HH:mm:ss format
-  const istString = now.toLocaleString("en-GB", { timeZone: "Asia/Kolkata" });
-  const [datePart, timePart] = istString.split(", ");
-  const [dd, mm, yyyy] = datePart.split("/"); // day, month, year
-  const [hh, min, ss] = timePart.split(":");
-  const yy = yyyy.slice(-2); // last 2 digits of year\
-  return `${yy}${mm}${dd}${hh}${min}${ss}`;
-}
+  function generateAppointmentId() {
+    const now = new Date();
+    // Convert to Kolkata time string in YYYY-MM-DD HH:mm:ss format
+    const istString = now.toLocaleString("en-GB", { timeZone: "Asia/Kolkata" });
+    const [datePart, timePart] = istString.split(", ");
+    const [dd, mm, yyyy] = datePart.split("/"); // day, month, year
+    const [hh, min, ss] = timePart.split(":");
+    const yy = yyyy.slice(-2); // last 2 digits of year\
+    return `${yy}${mm}${dd}${hh}${min}${ss}`;
+  }
   const handleBookAppointment = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     formValues.id = generateAppointmentId();
-    if(setFrom=="patient"){
-      formValues.status="pending"
+    if (setFrom == "patient") {
+      formValues.status = "pending";
     }
     setLoading(true);
     try {
@@ -89,18 +89,18 @@ function generateAppointmentId() {
               />
             </div>
             <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
                 Gender
               </label>
-            <select
-              name="gender"
-              onChange={handleChange}
-              className="border p-3 rounded focus:ring-2 focus:ring-blue-400 w-full"
-            >
-              <option value="F">Female</option>
-              <option value="M">Male</option>
-              <option value="Othher">Other</option>
-            </select>
+              <select
+                name="gender"
+                onChange={handleChange}
+                className="border p-3 rounded focus:ring-2 focus:ring-blue-400 w-full"
+              >
+                <option value="F">Female</option>
+                <option value="M">Male</option>
+                <option value="Othher">Other</option>
+              </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -128,11 +128,11 @@ function generateAppointmentId() {
                 className="w-full px-3 py-1 md:py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
               />
             </div>
-                        <div>
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Address 
+                Address
               </label>
-                 <input
+              <input
                 type="text"
                 name="address"
                 required
@@ -185,25 +185,23 @@ function generateAppointmentId() {
               </select>
             </div>
 
-<div>
-  <label className="block text-sm font-medium text-gray-700 mb-1">
-    Purpose
-  </label>
-  <select
-    name="purpose"
-    required
-    onChange={handleChange}
-    defaultValue="consultation"
-    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-  >
-    <option value="">Select Purpose</option>
-    <option value="eye-test">Eye Test</option>
-    <option value="consultation">Consultation</option>
-    <option value="frame-selection">Frame Selection</option>
-  </select>
-</div>
-
-
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Purpose
+              </label>
+              <select
+                name="purpose"
+                required
+                onChange={handleChange}
+                defaultValue="consultation"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+              >
+                <option value="">Select Purpose</option>
+                <option value="eye-test">Eye Test</option>
+                <option value="consultation">Consultation</option>
+                <option value="frame-selection">Frame Selection</option>
+              </select>
+            </div>
           </div>
 
           <div className="flex justify-end space-x-4 mt-6">

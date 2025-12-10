@@ -68,78 +68,79 @@ const OpticalPayment: React.FC<OpticalPaymentProps> = ({
       <div className="flex mt-3 rounded-md flex-col w-full">
         <h3 className="font-semibold text-base md:text-lg">Advance Payments</h3>
 
-        <div className="grid grid-cols-3 w-full text-xs md:text-sm font-medium text-gray-700 px-1 md:px-3">
-          <label>Date</label>
-          <label>T-Id</label>
-          <label>Amount</label>
-        </div>
+        {formData.opticalPayDetails.length > 0 && (
+          <div className="grid grid-cols-3 w-full text-xs md:text-sm font-medium text-gray-700 px-1 md:px-3">
+            <label>Date</label>
+            <label>T-Id</label>
+            <label>Amount</label>
+          </div>
+        )}
 
-        {formData.opticalPayDetails && formData.opticalPayDetails.length > 0 ? (
-          <>
-            {formData.opticalPayDetails.map((med, index) => (
-              <div
-                key={index}
-                className="grid grid-cols-3 gap-1 items-end py-1 md:p-2 rounded"
-              >
-                <div className="flex flex-col">
-                  <input
-                    type="date"
-                    name="date"
-                    value={med.date}
-                    onChange={(e) => handleAdvanceChange(e, index)}
-                    disabled={
-                      !(index === lastAddedIndex || eligibleForFeatures(4))
-                    }
-                    className="border py-2 md:p-2 rounded-lg w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
-                  />
-                </div>
-
-                <div className="flex flex-col">
-                  <input
-                    type="text"
-                    name="transectionId"
-                    value={med.transectionId}
-                    onChange={(e) => handleAdvanceChange(e, index)}
-                    placeholder="Enter Transection ID"
-                    disabled={
-                      !(index === lastAddedIndex || eligibleForFeatures(4))
-                    }
-                    className="border p-1 py-2 md:p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
-                  />
-                </div>
-
-                <div className="flex flex-col ">
-                  <div className="flex items-center">
+        {formData.opticalPayDetails &&
+          formData.opticalPayDetails.length > 0 && (
+            <>
+              {formData.opticalPayDetails.map((med, index) => (
+                <div
+                  key={index}
+                  className="grid grid-cols-3 gap-1 items-end py-1 md:p-2 rounded"
+                >
+                  <div className="flex flex-col">
                     <input
-                      type="number"
-                      name="amount"
-                      value={med.amount}
+                      type="date"
+                      name="date"
+                      value={med.date}
                       onChange={(e) => handleAdvanceChange(e, index)}
-                      placeholder="Enter Amount"
+                      disabled={
+                        !(index === lastAddedIndex || eligibleForFeatures(4))
+                      }
+                      className="border py-2 md:p-2 rounded-lg w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+                    />
+                  </div>
+
+                  <div className="flex flex-col">
+                    <input
+                      type="text"
+                      name="transectionId"
+                      value={med.transectionId}
+                      onChange={(e) => handleAdvanceChange(e, index)}
+                      placeholder="Enter Transection ID"
                       disabled={
                         !(index === lastAddedIndex || eligibleForFeatures(4))
                       }
                       className="border p-1 py-2 md:p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
                     />
-                    {eligibleForFeatures(4) && (
-                      <div className="relative inline-block">
-                        <button
-                          type="button"
-                          onClick={() => removePaymentField(index)}
-                          className="bg-red-500 text-white rounded-lg px-2 md:px-4 py-2 ml-1 hover:bg-red-600 transition"
-                        >
-                          <Delete className="w-4 h-5 md:w-5 md:h-6" />
-                        </button>
-                      </div>
-                    )}
+                  </div>
+
+                  <div className="flex flex-col ">
+                    <div className="flex items-center">
+                      <input
+                        type="number"
+                        name="amount"
+                        value={med.amount}
+                        onChange={(e) => handleAdvanceChange(e, index)}
+                        placeholder="Enter Amount"
+                        disabled={
+                          !(index === lastAddedIndex || eligibleForFeatures(4))
+                        }
+                        className="border p-1 py-2 md:p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+                      />
+                      {eligibleForFeatures(4) && (
+                        <div className="relative inline-block">
+                          <button
+                            type="button"
+                            onClick={() => removePaymentField(index)}
+                            className="bg-red-500 text-white rounded-lg px-2 md:px-4 py-2 ml-1 hover:bg-red-600 transition"
+                          >
+                            <Delete className="w-4 h-5 md:w-5 md:h-6" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </>
-        ) : (
-          <div></div>
-        )}
+              ))}
+            </>
+          )}
 
         <div className="grid grid-cols-2 justify-between px-2 md:px-3 mt-2 w-full">
           <button
@@ -152,7 +153,7 @@ const OpticalPayment: React.FC<OpticalPaymentProps> = ({
           <div className="flex justify-end">
             <input
               type="number"
-              value={formData.opticalPayDetails.reduce(
+              value={formData.opticalPayDetails?.reduce(
                 (sum, d) => sum + (Number(d.amount) || 0),
                 0
               )}

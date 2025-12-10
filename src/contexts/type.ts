@@ -1,14 +1,14 @@
 export type Staff = {
   id: string;
   name: string;
-  email?: string; 
-  phone?: string; 
-  role?: "admin" | "operator"; 
+  email?: string;
+  phone?: string;
+  role?: "admin" | "operator";
   createdAt?: string;
   password: string;
   isActive: boolean;
-  staffGrade:number;
-  updatedAt: string; 
+  staffGrade: number;
+  updatedAt: string;
 };
 
 export const initialStaff: Staff = {
@@ -20,7 +20,7 @@ export const initialStaff: Staff = {
   createdAt: new Date().toISOString(),
   password: "password",
   updatedAt: "",
-  staffGrade:1,
+  staffGrade: 1,
   isActive: false,
 };
 
@@ -34,9 +34,9 @@ export type User = {
   phone?: string;
   isActive: boolean;
   createdAt: string;
-  updatedAt: string; 
+  updatedAt: string;
   password: string;
-  staffGrade:number;
+  staffGrade: number;
 };
 
 export type AuthContextType = {
@@ -63,14 +63,12 @@ export const initialService: Service = {
   description: "",
   price: 0,
   duration: "",
-  category: "", 
-  isActive: true, 
+  category: "",
+  isActive: true,
   maxDiscouunt: 0,
   createdAt: new Date().toISOString(),
   updatedAt: "",
 };
-
-
 
 export type EyeDetail = {
   right: string;
@@ -79,22 +77,21 @@ export type EyeDetail = {
 
 export type PatientFullType = {
   id: string;
-  catagory:string;
+  catagory: string;
   ptName: string;
-  age: number; 
+  age?: number;
   phoneNo: string;
   email?: string;
-  address?: string;
-  preferredDate: string; 
-  preferredTime: string; 
+  address: string;
+  preferredDate?: string;
+  preferredTime?: string;
   purpose: "eye-test" | "frame-selection" | "consultation" | "follow-up";
   status: "pending" | "confirmed" | "completed" | "cancelled";
   notes?: string;
   createdAt: Date;
-  updatedAt: string;
+  updatedAt?: string;
   repeated: boolean;
   gender?: "";
-
   // Billing / Order Info
   billNo: string;
   visitDate?: string;
@@ -102,24 +99,24 @@ export type PatientFullType = {
   // Optical
 
   // Order
-  opticalPayDetails: {date:string,amount:number,transectionId:string}[];
+  opticalPayDetails: { date: string; amount: number; transectionId: string }[];
 
   orderDate: string;
 
-  frameId: string;
-  lenseType: string;
-  lensePrice: number;
-  framePrice: number;
-  deliveryStatus:string;
-  deliveryDate: string;
+  frameId?: string;
+  lenseType?: string;
+  lensePrice?: number;
+  framePrice?: number;
+  deliveryStatus?: string;
+  deliveryDate?: string;
 
   // Medicine
-  medicines: {date:string,medicinename:string,price:number}[];
-  
+  medicines: { date: string; medicinename: string; price: number }[];
+
   // Medical Info
-  primaryWorkupBy: string;
-  presentComplaints: string[];
-  iopPachyCCT: {
+  primaryWorkupBy?: string;
+  presentComplaints?: string[];
+  iopPachyCCT?: {
     updateDate: string;
     rightEye: {
       methodTime: string;
@@ -135,7 +132,7 @@ export type PatientFullType = {
     };
   }[];
   vision: {
-    updateDate: string,
+    updateDate: string;
     rightEye: {
       unaidedDistance: string;
       unaidedNear?: string;
@@ -149,8 +146,8 @@ export type PatientFullType = {
       bestCorrectedNear?: string;
     };
   }[];
-  examinedBy: string;
-  examDetails: {
+  examinedBy?: string;
+  examDetails?: {
     updateDate: string;
     adnexa: EyeDetail;
     conjunctiva: EyeDetail;
@@ -163,11 +160,11 @@ export type PatientFullType = {
     syringing: EyeDetail;
     vitreous: EyeDetail;
   }[];
-  diagnosis: string[];
-  prescription: string;
-  nextReview: string;
-  doctorRemarks: string;
-  glassesPrescription: {
+  diagnosis?: string[];
+  prescription?: string;
+  nextReview?: string;
+  doctorRemarks?: string;
+  glassesPrescription?: {
     updateDate: string;
     rightEye: {
       sph: string;
@@ -191,103 +188,29 @@ export type PatientFullType = {
   }[];
 };
 
-
 export type PatientFullTypeWithObjectId = PatientFullType & { _id?: string };
 const defaultEyeDetail: EyeDetail = { right: "Normal", left: "Normal" };
-export const todayDate = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+export const todayDate = new Date().toLocaleDateString("en-CA", {
+  timeZone: "Asia/Kolkata",
+});
 
-export const initialPatient:PatientFullTypeWithObjectId={
-  catagory:"patient",
+export const initialPatient: PatientFullTypeWithObjectId = {
   id: "",
+  address:"",
+  billNo: "",
+  catagory: "patient",
   ptName: "",
   age: 0,
-  email: "",
   phoneNo: "",
-  address: "",
-  preferredDate: "",
-  preferredTime: "",
+  opticalPayDetails: [],
+  medicines: [],
   purpose: "consultation",
   status: "confirmed",
-  notes: "",
   createdAt: new Date(),
-  updatedAt: "",
-  gender: "",
   repeated: false,
-  // Billing Info
-  billNo: "",
-  visitDetails: [
-    {
-      visitDate: todayDate,
-      visitPrice: 0,
-    },
-  ],
-  //order
-
+  visitDate: todayDate,
   // frame
   orderDate: "",
-  deliveryStatus:"pending",
-  frameId: "",
-  framePrice: 0,
-  // lance
-  lenseType: "",
-  lensePrice: 0,
-  deliveryDate: "",
-  opticalPayDetails: [],
-
-
-
-  //madicine
-  medicines: [],
-
-  // Medical Info (empty/default values)
-  primaryWorkupBy: "",
-  presentComplaints: [],
-  iopPachyCCT: [
-    {
-      updateDate: todayDate,
-      rightEye: { methodTime: "", iop: 0 },
-      leftEye: { methodTime: "", iop: 0 },
-    },
-  ],
-  vision: [
-  {
-    updateDate: new Date().toISOString().split("T")[0], 
-    rightEye: {
-      unaidedDistance: ""
-    },
-    leftEye: {
-      unaidedDistance: ""
-    }
-  }
-],
-  examinedBy: "",
-  examDetails: [
-    {
-      updateDate: todayDate,
-      adnexa: { ...defaultEyeDetail },
-      conjunctiva: { ...defaultEyeDetail },
-      cornea: { ...defaultEyeDetail },
-      anteriorChamber: { ...defaultEyeDetail },
-      iris: { ...defaultEyeDetail },
-      lens: { ...defaultEyeDetail },
-      fundus: { ...defaultEyeDetail },
-      orbit: { ...defaultEyeDetail },
-      syringing: { ...defaultEyeDetail },
-      vitreous: { ...defaultEyeDetail },
-    },
-  ],
-  diagnosis: [],
-  prescription: "",
-  nextReview: "",
-  doctorRemarks: "",
-  glassesPrescription: [
-    {
-      updateDate: todayDate,
-      rightEye: { sph: "", add: "" },
-      leftEye: { sph: "", add: "" },
-      use: "",
-    },
-  ],
-}
-
-
+  deliveryStatus: "pending",
+  vision: [],
+};

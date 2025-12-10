@@ -24,7 +24,7 @@ export function ReportsTab() {
     ).length,
     totalPatients: patients.length,
     thisWeekAppointments: appointments.filter((apt) => {
-      const appointmentDate = new Date(apt.preferredDate);
+      const appointmentDate = new Date(apt?.createdAt);
       const now = new Date();
       const weekStart = new Date(now.setDate(now.getDate() - now.getDay()));
       return appointmentDate >= weekStart;

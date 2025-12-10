@@ -1,7 +1,6 @@
 import React from "react";
 import { PatientFullTypeWithObjectId, todayDate } from "@/src/contexts/type";
 import { Delete } from "lucide-react";
-import useEligibility from "../elegibleForfeatures";
 type VisionProps = {
   formData: PatientFullTypeWithObjectId;
   handleNestedChange: (path: string, value: any) => void;
@@ -14,7 +13,6 @@ const VisionEntry: React.FC<VisionProps> = ({
   handleNestedChange,
   setFormData,
 }) => {
-  const eligibleForFeatures = useEligibility();
   type VisionEntry = PatientFullTypeWithObjectId["vision"][number];
   type VisionKey = keyof VisionEntry["rightEye"];
   return (
@@ -46,7 +44,7 @@ const VisionEntry: React.FC<VisionProps> = ({
 
       {/* Loop through all vision entries */}
       {formData.vision?.map((entry, index) => (
-        <div key={index} className="space-y-3 border p-2 rounded-lg bg-gray-50">
+        <div key={index} className="space-y-2 border p-2 rounded-lg bg-gray-50">
           {/* Entry Heading */}
           <div className="flex justify-between items-center">
             <h4 className="text-sm md:text-base font-semibold text-gray-700">
@@ -143,7 +141,7 @@ const VisionEntry: React.FC<VisionProps> = ({
                     </td>
 
                     {/* Right eye */}
-                    <td className="px-2 md:px-4 py-2">
+                    <td className="px-2 md:px-4 py-1">
                       <input
                         type="text"
                         list={`${key}Options-${index}`}
@@ -154,12 +152,12 @@ const VisionEntry: React.FC<VisionProps> = ({
                             e.target.value
                           )
                         }
-                        className="border p-1.5 md:p-2 rounded w-full"
+                        className="border p-1 md:p-2 rounded w-full"
                       />
                     </td>
 
                     {/* Left eye */}
-                    <td className="px-2 md:px-4 py-2">
+                    <td className="px-2 md:px-4 py-1">
                       <input
                         type="text"
                         list={`${key}Options-${index}`}
@@ -170,7 +168,7 @@ const VisionEntry: React.FC<VisionProps> = ({
                             e.target.value
                           )
                         }
-                        className="border p-1.5 md:p-2 rounded w-full"
+                        className="border p-1 md:p-2 rounded w-full"
                       />
                     </td>
                   </tr>

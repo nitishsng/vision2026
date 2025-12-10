@@ -44,7 +44,7 @@ const IpoPachyCCT: React.FC<IpoPachyCCTProps> = ({
       </button>
 
       {formData.iopPachyCCT?.map((entry, index) => (
-        <div key={index} className="space-y-3 border p-2 rounded-lg bg-gray-50">
+        <div key={index} className="space-y-2 md:space-y-3 border p-2 rounded-lg bg-gray-50">
           <div className="flex justify-between items-center">
             <h4 className="text-sm md:text-base font-semibold text-gray-700">
               IOP Entry #{(formData.iopPachyCCT?.length || 0) - index}
@@ -104,10 +104,10 @@ const IpoPachyCCT: React.FC<IpoPachyCCTProps> = ({
                   { label: "Method/Time", key: "methodTime" },
                 ].map(({ label, key }) => (
                   <tr key={key} className="odd:bg-white even:bg-gray-50">
-                    <td className="border px-2 md:px-4 py-1.5 md:py-2 font-medium text-gray-700 whitespace-nowrap">
+                    <td className="border px-2 md:px-4 py-1 md:py-2 font-medium text-gray-700 whitespace-nowrap">
                       {label}
                     </td>
-                    <td className="border px-2 md:px-4 py-1.5 md:py-2">
+                    <td className="border px-2 md:px-4 py-1 md:py-2">
                       <input
                         type="text"
                         list={
@@ -125,10 +125,10 @@ const IpoPachyCCT: React.FC<IpoPachyCCTProps> = ({
                           )
                         }
                         placeholder="R"
-                        className="border p-1.5 md:p-2 rounded w-full focus:ring-2 focus:ring-blue-400 text-xs md:text-sm"
+                        className="border p-1 md:p-2 rounded w-full focus:ring-2 focus:ring-blue-400 text-xs md:text-sm"
                       />
                     </td>
-                    <td className="border px-2 md:px-4 py-1.5 md:py-2">
+                    <td className="border px-2 md:px-4 py-1 md:py-2">
                       <input
                         type="text"
                         list={
@@ -146,7 +146,7 @@ const IpoPachyCCT: React.FC<IpoPachyCCTProps> = ({
                           )
                         }
                         placeholder="L"
-                        className="border p-1.5 md:p-2 rounded w-full focus:ring-2 focus:ring-blue-400 text-xs md:text-sm"
+                        className="border p-1 md:p-2 rounded w-full focus:ring-2 focus:ring-blue-400 text-xs md:text-sm"
                       />
                     </td>
                   </tr>

@@ -158,10 +158,10 @@ const ExamDetails: React.FC<ExamDetailsProps> = ({
                     },
                   ].map(({ label, name, options }) => (
                     <tr key={name}>
-                      <td className="px-2 md:px-4 py-1 md:py-1.5 font-medium text-gray-700 whitespace-nowrap">
+                      <td className="px-2 md:px-4 py-1 md:py-2 font-medium text-gray-700 whitespace-nowrap">
                         {label}
                       </td>
-                      <td className="px-2 md:px-4 py-1 md:py-1.5">
+                      <td className="px-2 md:px-4 py-1 md:py-2">
                         <input
                           type="text"
                           list={`${name}Options`}
@@ -173,10 +173,10 @@ const ExamDetails: React.FC<ExamDetailsProps> = ({
                             )
                           }
                           placeholder="R"
-                          className="border p-1.5 md:p-2 rounded w-full focus:ring-1 focus:ring-blue-400 text-xs md:text-sm"
+                          className="border p-1 md:p-2 rounded w-full focus:ring-1 focus:ring-blue-400 text-xs md:text-sm"
                         />
                       </td>
-                      <td className="px-2 md:px-4 py-1 md:py-1.5">
+                      <td className="px-2 md:px-4 py-1 md:py-2">
                         <input
                           type="text"
                           list={`${name}Options`}
@@ -188,7 +188,7 @@ const ExamDetails: React.FC<ExamDetailsProps> = ({
                             )
                           }
                           placeholder="L"
-                          className="border p-1.5 md:p-2 rounded w-full focus:ring-1 focus:ring-blue-400 text-xs md:text-sm"
+                          className="border p-1 md:p-2 rounded w-full focus:ring-1 focus:ring-blue-400 text-xs md:text-sm"
                         />
                       </td>
                     </tr>

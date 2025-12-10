@@ -173,7 +173,7 @@ export function OrdersTab() {
     const matchStatus =
       patient.ptName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       patient.phoneNo.includes(searchTerm) ||
-      patient.billNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      patient.billNo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       patient.email?.toLowerCase().includes(searchTerm.toLowerCase());
 
     const filterByDeliveryStatus =
@@ -532,7 +532,7 @@ export function OrdersTab() {
                               {order.repeated && (
                                 <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-green-600" />
                               )}
-                              {order.framePrice + order.lensePrice > 0 && (
+                              {((order?.framePrice || 0 )+ (  order?.lensePrice || 0)) > 0 && (
                                 <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-orange-500" />
                               )}
                               {order.medicines.length > 0 && (
@@ -540,7 +540,7 @@ export function OrdersTab() {
                               )}
                               {!(
                                 order.repeated ||
-                                order.framePrice + order.lensePrice > 0 ||
+                                ((order?.framePrice || 0 )+ (  order?.lensePrice || 0)) > 0 ||
                                 order.medicines.length > 0
                               ) && (
                                 <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-transparent" />
@@ -644,8 +644,8 @@ export function OrdersTab() {
 
           {/* View Popup/Modal for Order Details */}
           {isPopupOpen && formData && (
-            <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
-              <div className="relative p-8 border w-full max-w-2xl md:max-w-3xl lg:max-w-4xl shadow-lg rounded-md bg-white">
+  <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-start pt-10 md:pt-16">
+      <div className="relative p-6 md:p-8 border w-[95%] md:max-w-3xl lg:max-w-4xl shadow-lg rounded-md bg-white mt-4">
                 <h3 className="text-xl font-bold text-gray-900 mb-4">
                   Order Details (Bill No: {formData.billNo})
                 </h3>
@@ -1047,7 +1047,7 @@ export function OrdersTab() {
                         </label>
                         <input
                           type="number"
-                          value={formData.lensePrice + formData.framePrice || 0}
+                          value={((formData?.framePrice || 0 )+ (  formData?.lensePrice || 0)) || 0}
                           readOnly
                           className="border p-2 md:p-3 rounded w-full bg-gray-100 cursor-not-allowed text-sm md:text-base"
                         />

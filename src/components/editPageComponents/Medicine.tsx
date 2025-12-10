@@ -5,7 +5,9 @@ import useEligibility from "../elegibleForfeatures";
 
 type MedicineProps = {
   formData: PatientFullTypeWithObjectId;
-  setFormData: React.Dispatch<React.SetStateAction<PatientFullTypeWithObjectId>>;
+  setFormData: React.Dispatch<
+    React.SetStateAction<PatientFullTypeWithObjectId>
+  >;
 };
 
 const Medicine: React.FC<MedicineProps> = ({ formData, setFormData }) => {
@@ -94,11 +96,13 @@ const Medicine: React.FC<MedicineProps> = ({ formData, setFormData }) => {
   return (
     <div className="flex flex-col gap-2 w-full">
       {/* Header */}
+      {formData.medicines.length >0 && (
       <div className="grid grid-cols-3 w-full">
         <label className="font-medium px-3 text-gray-700">Date</label>
         <label className="font-medium px-3 text-gray-700">M-Name</label>
         <label className="font-medium px-3 text-gray-700">Price</label>
       </div>
+      )}
 
       {/* Medicine Rows */}
       {formData.medicines.map((med, index) => {
@@ -112,11 +116,10 @@ const Medicine: React.FC<MedicineProps> = ({ formData, setFormData }) => {
               value={med.date}
               readOnly={!isEditable}
               onChange={(e) => updateField(index, "date", e.target.value)}
-              className={`border py-2 px-2 rounded-lg ${
+              className={`border py-1 px-1 md:py-2 rounded-sm w-full focus:ring-2 focus:ring-blue-400 focus:border-blue-400 ${
                 !isEditable ? "bg-gray-200 cursor-not-allowed" : ""
               }`}
             />
-
             {/* Medicine Name */}
             <input
               type="text"
@@ -127,7 +130,7 @@ const Medicine: React.FC<MedicineProps> = ({ formData, setFormData }) => {
                 updateField(index, "medicinename", e.target.value)
               }
               placeholder="Medicine Name"
-              className={`border py-2 px-2 rounded-lg ${
+              className={`border py-[3px] px-1 md:py-2 rounded-sm w-full focus:ring-2 focus:ring-blue-400 focus:border-blue-400 ${
                 !isEditable ? "bg-gray-200 cursor-not-allowed" : ""
               }`}
             />
@@ -141,7 +144,7 @@ const Medicine: React.FC<MedicineProps> = ({ formData, setFormData }) => {
                 onChange={(e) =>
                   updateField(index, "price", Number(e.target.value))
                 }
-                className={`border py-2 px-2 rounded-lg w-full ${
+                className={`border py-[3px] px-1 md:py-2 rounded-sm w-full focus:ring-2 focus:ring-blue-400 focus:border-blue-400 ${
                   !isEditable ? "bg-gray-200 cursor-not-allowed" : ""
                 }`}
               />

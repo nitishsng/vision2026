@@ -14,7 +14,7 @@ const Diagnosis : React.FC<DiagnosisProps> = ({ formData, handleNestedChange, se
     setFormData((prev) => {
       if (!prev) return prev; // safely handle null state
 
-      const updatedDiagnosis = prev.diagnosis.filter((_, i) => i !== index);
+      const updatedDiagnosis = prev.diagnosis?.filter((_, i) => i !== index);
 
       return {
         ...prev,

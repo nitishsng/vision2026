@@ -6,7 +6,7 @@ import { useDashboardData } from "@/src/contexts/dataCollection";
 import { PatientFullTypeWithObjectId, todayDate } from "@/src/contexts/type";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import { Delete } from "lucide-react";
+
 import Medicine from "./editPageComponents/Medicine";
 import OpticalPayment from "./editPageComponents/OpticalPayment";
 import VisitHistory from "./editPageComponents/VisitHistory";
@@ -15,7 +15,7 @@ import PatientBasicInfo from "./editPageComponents/PatientBasicInfo";
 import VisionEntry from "./editPageComponents/VisionEntry";
 import ExamDetails from "./editPageComponents/ExamDetails";
 import GlassesPrescription from "./editPageComponents/GlassesPrescription";
-import IpoPachyCCT from "./editPageComponents/IpoPachyCCT";
+import IpoPachyCCT from "./editPageComponents/IpoPachyCCT"
 import Diagnosis from "./editPageComponents/Diagnosis";
 
 const EditPage = () => {
@@ -55,7 +55,7 @@ const EditPage = () => {
 
   useEffect(() => {
     if (existingPatient) {
-      setFormData(normalizePatient(existingPatient as any));
+      setFormData(existingPatient);
     }
   }, [existingPatient]);
 
@@ -245,23 +245,32 @@ const EditPage = () => {
     };
 
     return (
-      <div
-        className={
-          isLargeScreen
-            ? "hidden"
-            : isOpen
-            ? "flex justify-end items-center py-1 px-2"
-            : "flex justify-between items-center py-1 px-2"
-        }
+<div
+      className={`
+        flex items-center py-1 px-2
+        ${isLargeScreen ? "hidden" : ""}
+        ${!isLargeScreen && isOpen ? "justify-end" : "justify-between"}
+        transition-all duration-200 ease-in-out
+      `}
+    >
+      {/* Show label when collapsed */}
+      {!isOpen && <span className="text-gray-600">{closedLabel}</span>}
+
+      {/* Toggle Button */}
+      <button
+        onClick={handleToggle}
+        className={`
+          px-3 py-1 rounded border
+          focus:outline-none focus:ring-2
+          ${isOpen
+            ? "bg-red-500 text-white border-red-600 hover:bg-red-600 focus:ring-red-400"
+            : "bg-white text-blue-600 border-blue-600 hover:bg-blue-50 focus:ring-blue-400"
+          }
+        `}
       >
-        {!isOpen && <span className="text-gray-600">{closedLabel}</span>}
-        <button
-          onClick={handleToggle}
-          className="bg-white text-blue-600 border border-blue-600 px-3 py-1 rounded hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-400"
-        >
-          {isOpen ? buttonLabels.open : buttonLabels.closed}
-        </button>
-      </div>
+        {isOpen ? buttonLabels.open : buttonLabels.closed}
+      </button>
+    </div>
     );
   };
 
@@ -422,30 +431,30 @@ const EditPage = () => {
       )}
 
       {(someDetails || isLargeScreen) && (
-        <div className="space-y-6">
+        <div className="space-y-1">
           {/* 🧾 Billing & Dates */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 bg-white md:p-4 rounded-lg shadow-sm">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:p-4 rounded-lg ">
             {/* Bill No */}
             <div className="flex flex-col">
-              <label className="font-medium mb-1">Bill No</label>
+              <label className="font-medium mb-[3mb]">Bill No</label>
               <input
                 type="text"
                 name="billNo"
                 value={formData.billNo}
                 onChange={handleChange}
                 placeholder="Enter Bill No"
-                className="border border-gray-300 p-2 md:p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                className="border border-gray-300 p-1 md:p-2 rounded-sm w-full focus:ring-2 focus:ring-blue-400 focus:outline-none"
               />
             </div>
 
             {/* Delivery Status */}
             <div className="flex flex-col">
-              <label className="font-medium mb-1">Delivery Status</label>
+              <label className="font-medium mb-[3mb]">Delivery Status</label>
               <select
                 name="deliveryStatus"
                 value={formData.deliveryStatus}
                 onChange={handleChange}
-                className="border border-gray-300 p-2 md:p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                className="border border-gray-300 p-1 md:p-2 rounded-sm w-full focus:ring-2 focus:ring-blue-400 focus:outline-none"
               >
                 <option value="pending">Pending</option>
                 <option value="inProgress">In Progress</option>
@@ -456,56 +465,56 @@ const EditPage = () => {
 
             {/* Order Date */}
             <div className="flex flex-col">
-              <label className="font-medium mb-1">Order Date</label>
+              <label className="font-medium mb-[3mb]">Order Date</label>
               <input
                 type="date"
                 name="orderDate"
                 value={formData.orderDate || ""}
                 onChange={handleChange}
-                className="border border-gray-300 p-2 md:p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                className="border border-gray-300 p-1 md:p-2 rounded-sm w-full focus:ring-2 focus:ring-blue-400 focus:outline-none"
               />
             </div>
 
             {/* Delivery Date */}
             <div className="flex flex-col">
-              <label className="font-medium mb-1">Delivery Date</label>
+              <label className="font-medium mb-[3mb]">Delivery Date</label>
               <input
                 type="date"
                 name="deliveryDate"
                 value={formData.deliveryDate || ""}
                 onChange={handleChange}
-                className="border border-gray-300 p-2 md:p-3 rounded-lg w-full focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                className="border border-gray-300 p-1 md:p-2 rounded-sm w-full focus:ring-2 focus:ring-blue-400 focus:outline-none"
               />
             </div>
           </div>
 
           {/* 👓 Frame & Lens Details */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 bg-white md:p-4 rounded-lg shadow-sm">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2  md:p-4 rounded-lg ">
             <div className="flex flex-col">
-              <label className="font-medium mb-1">Frame ID</label>
+              <label className="font-medium mb-[3mb]">Frame ID</label>
               <input
                 type="text"
                 name="frameId"
                 value={formData.frameId || ""}
                 onChange={handleChange}
                 placeholder="Frame ID"
-                className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
+                className="border p-1 md:p-2 rounded-sm w-full focus:ring-2 focus:ring-blue-400"
               />
             </div>
 
             <div className="flex flex-col">
-              <label className="font-medium mb-1">Frame Price</label>
+              <label className="font-medium mb-[3mb]">Frame Price</label>
               <input
                 type="number"
                 name="framePrice"
                 value={formData.framePrice}
                 onChange={handleChange}
-                className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
+                className="border p-1 md:p-2 rounded-sm w-full focus:ring-2 focus:ring-blue-400"
               />
             </div>
 
             <div className="flex flex-col">
-              <label className="font-medium mb-1">Lens Type</label>
+              <label className="font-medium mb-[3mb]">Lens Type</label>
               <input
                 type="text"
                 list="lensTypeOptions"
@@ -513,7 +522,7 @@ const EditPage = () => {
                 value={formData.lenseType || ""}
                 onChange={handleChange}
                 placeholder="Select or enter lens type"
-                className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
+                className="border p-1 md:p-2 rounded-sm w-full focus:ring-2 focus:ring-blue-400"
               />
               <datalist id="lensTypeOptions">
                 <option value="Progressive" />
@@ -525,34 +534,34 @@ const EditPage = () => {
             </div>
 
             <div className="flex flex-col">
-              <label className="font-medium mb-1">Lens Price</label>
+              <label className="font-medium mb-[3mb]">Lens Price</label>
               <input
                 type="number"
                 name="lensePrice"
                 value={formData.lensePrice}
                 onChange={handleChange}
-                className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400"
+                className="border p-1 md:p-2 rounded-sm w-full focus:ring-2 focus:ring-blue-400"
               />
             </div>
           </div>
 
           {/* 💳 Optical Payment */}
-          <div className="flex flex-col lg:flex-row gap-4">
+          <div className="flex flex-col lg:flex-row gap-2">
             {/* Totals */}
-            <div className="flex flex-col-2 sm:flex-col gap-3 w-full lg:max-w-[250px]">
+            <div className="flex flex-col-2 sm:flex-col gap-1 w-full lg:max-w-[250px]">
               <div>
-                <label className="font-medium mb-1">Optical Total</label>
+                <label className="font-medium mb-[3mb]">Optical Total </label>
                 <input
                   type="number"
                   readOnly
                   value={
                     (formData.framePrice || 0) + (formData.lensePrice || 0)
                   }
-                  className="border p-2 md:p-3 rounded w-full bg-gray-100 cursor-not-allowed"
+                  className="border p-1 md:p-2 rounded-sm w-full cursor-not-allowed"
                 />
               </div>
               <div>
-                <label className="font-medium mb-1">Optical Due</label>
+                <label className="font-medium mb-[3mb]">Optical Due</label>
                 <input
                   type="number"
                   readOnly
@@ -564,7 +573,7 @@ const EditPage = () => {
                       0
                     )
                   }
-                  className="border p-2 md:p-3 rounded w-full bg-gray-100 cursor-not-allowed"
+                  className="border p-1 md:p-2 rounded-sm w-full  cursor-not-allowed"
                 />
               </div>
             </div>
@@ -649,111 +658,109 @@ const EditPage = () => {
 };
 
 export default EditPage;
-const normalizePatient = (
-  p: PatientFullTypeWithObjectId
-): PatientFullTypeWithObjectId => {
-  const toArray = (val: any, def: any) =>
-    Array.isArray(val) ? val : val ? [val] : [def];
+// const normalizePatient = (
+//   p: PatientFullTypeWithObjectId
+// ): PatientFullTypeWithObjectId => {
+//   const toArray = (val: any, def: any) =>
+//     Array.isArray(val) ? val : val ? [val] : [def];
 
-  const examDefault = {
-    updateDate: todayDate,
-    adnexa: { right: "", left: "" },
-    conjunctiva: { right: "", left: "" },
-    cornea: { right: "", left: "" },
-    anteriorChamber: { right: "", left: "" },
-    iris: { right: "", left: "" },
-    lens: { right: "", left: "" },
-    fundus: { right: "", left: "" },
-    orbit: { right: "", left: "" },
-    syringing: { right: "", left: "" },
-    vitreous: { right: "", left: "" },
-  };
+//   const examDefault = {
+//     updateDate: todayDate,
+//     adnexa: { right: "", left: "" },
+//     conjunctiva: { right: "", left: "" },
+//     cornea: { right: "", left: "" },
+//     anteriorChamber: { right: "", left: "" },
+//     iris: { right: "", left: "" },
+//     lens: { right: "", left: "" },
+//     fundus: { right: "", left: "" },
+//     orbit: { right: "", left: "" },
+//     syringing: { right: "", left: "" },
+//     vitreous: { right: "", left: "" },
+//   };
 
-  const iopDefault = {
-    updateDate: todayDate,
-    rightEye: { methodTime: "", iop: 0, correctedIop: 0, cct: 0 },
-    leftEye: { methodTime: "", iop: 0, correctedIop: 0, cct: 0 },
-  };
+//   const iopDefault = {
+//     updateDate: todayDate,
+//     rightEye: { methodTime: "", iop: 0, correctedIop: 0, cct: 0 },
+//     leftEye: { methodTime: "", iop: 0, correctedIop: 0, cct: 0 },
+//   };
 
-  const gpDefault = {
-    updateDate: todayDate,
-    use: "",
-    rightEye: { sph: "", add: "" },
-    leftEye: { sph: "", add: "" },
-  };
+//   const gpDefault = {
+//     updateDate: todayDate,
+//     use: "",
+//     rightEye: { sph: "", add: "" },
+//     leftEye: { sph: "", add: "" },
+//   };
 
-  const visionDefault = {
-    updateDate: todayDate,
-    rightEye: { unaidedDistance: "" },
-    leftEye: { unaidedDistance: "" },
-  };
+//   const visionDefault = {
+//     updateDate: todayDate,
+//     rightEye: { unaidedDistance: "" },
+//     leftEye: { unaidedDistance: "" },
+//   };
 
-  const normExam = toArray((p as any).examDetails, examDefault).map(
-    (e: any) => ({
-      ...examDefault,
-      ...e,
-      updateDate: e?.updateDate || todayDate,
-      adnexa: { ...examDefault.adnexa, ...(e?.adnexa || {}) },
-      conjunctiva: { ...examDefault.conjunctiva, ...(e?.conjunctiva || {}) },
-      cornea: { ...examDefault.cornea, ...(e?.cornea || {}) },
-      anteriorChamber: {
-        ...examDefault.anteriorChamber,
-        ...(e?.anteriorChamber || {}),
-      },
-      iris: { ...examDefault.iris, ...(e?.iris || {}) },
-      lens: { ...examDefault.lens, ...(e?.lens || {}) },
-      fundus: { ...examDefault.fundus, ...(e?.fundus || {}) },
-      orbit: { ...examDefault.orbit, ...(e?.orbit || {}) },
-      syringing: { ...examDefault.syringing, ...(e?.syringing || {}) },
-      vitreous: { ...examDefault.vitreous, ...(e?.vitreous || {}) },
-    })
-  );
+//   const normExam = toArray((p as any).examDetails, examDefault).map(
+//     (e: any) => ({
+//       ...examDefault,
+//       ...e,
+//       updateDate: e?.updateDate || todayDate,
+//       adnexa: { ...examDefault.adnexa, ...(e?.adnexa || {}) },
+//       conjunctiva: { ...examDefault.conjunctiva, ...(e?.conjunctiva || {}) },
+//       cornea: { ...examDefault.cornea, ...(e?.cornea || {}) },
+//       anteriorChamber: {
+//         ...examDefault.anteriorChamber,
+//         ...(e?.anteriorChamber || {}),
+//       },
+//       iris: { ...examDefault.iris, ...(e?.iris || {}) },
+//       lens: { ...examDefault.lens, ...(e?.lens || {}) },
+//       fundus: { ...examDefault.fundus, ...(e?.fundus || {}) },
+//       orbit: { ...examDefault.orbit, ...(e?.orbit || {}) },
+//       syringing: { ...examDefault.syringing, ...(e?.syringing || {}) },
+//       vitreous: { ...examDefault.vitreous, ...(e?.vitreous || {}) },
+//     })
+//   );
 
-  const normIop = toArray((p as any).iopPachyCCT, iopDefault).map((e: any) => ({
-    updateDate: e?.updateDate || todayDate,
-    rightEye: { ...iopDefault.rightEye, ...(e?.rightEye || {}) },
-    leftEye: { ...iopDefault.leftEye, ...(e?.leftEye || {}) },
-  }));
+//   const normIop = toArray((p as any).iopPachyCCT, iopDefault).map((e: any) => ({
+//     updateDate: e?.updateDate || todayDate,
+//     rightEye: { ...iopDefault.rightEye, ...(e?.rightEye || {}) },
+//     leftEye: { ...iopDefault.leftEye, ...(e?.leftEye || {}) },
+//   }));
 
-  const normGp = toArray((p as any).glassesPrescription, gpDefault).map(
-    (e: any) => ({
-      updateDate: e?.updateDate || todayDate,
-      use: e?.use ?? "",
-      rightEye: { ...gpDefault.rightEye, ...(e?.rightEye || {}) },
-      leftEye: { ...gpDefault.leftEye, ...(e?.leftEye || {}) },
-    })
-  );
+//   const normGp = toArray((p as any).glassesPrescription, gpDefault).map(
+//     (e: any) => ({
+//       updateDate: e?.updateDate || todayDate,
+//       use: e?.use ?? "",
+//       rightEye: { ...gpDefault.rightEye, ...(e?.rightEye || {}) },
+//       leftEye: { ...gpDefault.leftEye, ...(e?.leftEye || {}) },
+//     })
+//   );
 
-  const normVision = toArray((p as any).vision, visionDefault).map(
-    (e: any) => ({
-      updateDate: e?.updateDate || todayDate,
-      rightEye: { ...visionDefault.rightEye, ...(e?.rightEye || {}) },
-      leftEye: { ...visionDefault.leftEye, ...(e?.leftEye || {}) },
-    })
-  );
+//   const normVision = toArray((p as any).vision, visionDefault).map(
+//     (e: any) => ({
+//       updateDate: e?.updateDate || todayDate,
+//       rightEye: { ...visionDefault.rightEye, ...(e?.rightEye || {}) },
+//       leftEye: { ...visionDefault.leftEye, ...(e?.leftEye || {}) },
+//     })
+//   );
+//   const normVisits = Array.isArray((p as any).visitDetails)
+//     ? (p as any).visitDetails.map((e: any) => ({
+//         visitDate: e?.visitDate || todayDate,
+//         visitPrice: Number(e?.visitPrice) || 0,
+//       }))
+//     : [
+//         {
+//           visitDate:
+//             typeof (p as any).visitDate === "string"
+//               ? (p as any).visitDate
+//               : todayDate,
+//           visitPrice: Number((p as any).visitPrice) || 0,
+//         },
+//       ];
 
-  const visitDefault = { visitDate: todayDate, visitPrice: 0 };
-  const normVisits = Array.isArray((p as any).visitDetails)
-    ? (p as any).visitDetails.map((e: any) => ({
-        visitDate: e?.visitDate || todayDate,
-        visitPrice: Number(e?.visitPrice) || 0,
-      }))
-    : [
-        {
-          visitDate:
-            typeof (p as any).visitDate === "string"
-              ? (p as any).visitDate
-              : todayDate,
-          visitPrice: Number((p as any).visitPrice) || 0,
-        },
-      ];
-
-  return {
-    ...p,
-    examDetails: normExam,
-    iopPachyCCT: normIop,
-    glassesPrescription: normGp,
-    vision: normVision,
-    visitDetails: normVisits.length ? normVisits : [visitDefault],
-  } as PatientFullTypeWithObjectId;
-};
+//   return {
+//     ...p,
+//     examDetails: normExam,
+//     iopPachyCCT: normIop,
+//     glassesPrescription: normGp,
+//     vision: normVision,
+//     visitDetails: normVisits.length ? normVisits : [],
+//   } as PatientFullTypeWithObjectId;
+// };

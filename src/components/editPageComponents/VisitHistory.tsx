@@ -19,7 +19,9 @@ const VisitHistory: React.FC<VisitProps> = ({
   const eligibleForFeatures = useEligibility();
 
   // Track only newly added editable row
-  const [lastAddedIndex, setLastAddedIndex] = React.useState<number | null>(null);
+  const [lastAddedIndex, setLastAddedIndex] = React.useState<number | null>(
+    null
+  );
 
   // Remove visit entry
   const removeVisitObject = (index: number) => {
@@ -43,7 +45,12 @@ const VisitHistory: React.FC<VisitProps> = ({
 
   return (
     <div className="flex flex-col md:w-[350px] w-full">
-      <label className="font-medium text-gray-700 mb-1">Visit History</label>
+      
+      {
+        formData.visitDetails?.length &&(
+          <label className="font-medium text-gray-700 mb-1">Visit History</label>
+        )
+      }
 
       {(formData.visitDetails || []).map((v, index) => {
         const editable = isEditable(index);

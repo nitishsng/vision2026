@@ -123,10 +123,10 @@ const GlassesPrescription: React.FC<GlassesPrescriptionProps> = ({
                   { label: "N/V", key: "N_V" },
                 ].map(({ label, key }) => (
                   <tr key={key} className="odd:bg-white even:bg-gray-50">
-                    <td className="border px-2 md:px-4 py-1.5 md:py-2 font-medium text-gray-700 whitespace-nowrap">
+                    <td className="border px-2 md:px-4 py-1 md:py-2 font-medium text-gray-700 whitespace-nowrap">
                       {label}
                     </td>
-                    <td className="border px-2 md:px-4 py-1.5 md:py-2">
+                    <td className="border px-2 md:px-4 py-1 md:py-2">
                       <input
                         type="text"
                         list={`${key}Options`}
@@ -138,10 +138,10 @@ const GlassesPrescription: React.FC<GlassesPrescriptionProps> = ({
                           )
                         }
                         placeholder="R"
-                        className="border p-1.5 md:p-2 rounded w-full focus:ring-2 focus:ring-blue-400 text-xs md:text-sm"
+                        className="border p-1 md:p-2 rounded w-full focus:ring-2 focus:ring-blue-400 text-xs md:text-sm"
                       />
                     </td>
-                    <td className="border px-2 md:px-4 py-1.5 md:py-2">
+                    <td className="border px-2 md:px-4 py-1 md:py-2">
                       <input
                         type="text"
                         list={`${key}Options`}
@@ -153,7 +153,7 @@ const GlassesPrescription: React.FC<GlassesPrescriptionProps> = ({
                           )
                         }
                         placeholder="L"
-                        className="border p-1.5 md:p-2 rounded w-full focus:ring-2 focus:ring-blue-400 text-xs md:text-sm"
+                        className="border p-1 md:p-2 rounded w-full focus:ring-2 focus:ring-blue-400 text-xs md:text-sm"
                       />
                     </td>
                   </tr>
