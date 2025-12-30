@@ -177,7 +177,7 @@ const removePaymentField = (index: number) => {
           <button
             type="button"
             onClick={addPayment}
-            className="bg-blue-500 text-white rounded-sm px-2 md:px-3 py-2 w-fit hover:bg-blue-600 transition text-sm md:text-base"
+            className="bg-blue-500 text-white rounded-sm px-2 md:px-3 py-1 md:py-3 w-fit hover:bg-blue-600 transition text-sm md:text-base"
           >
             + Add Payment
           </button>

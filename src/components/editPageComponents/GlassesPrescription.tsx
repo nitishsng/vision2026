@@ -15,9 +15,12 @@ const GlassesPrescription: React.FC<GlassesPrescriptionProps> = ({
 }) => {
   return (
     <div className="space-y-3 md:space-y-4 w-full">
+      <div className="flex justify-between items-center bg-gray-50 p-2 rounded-lg">
       <h3 className="text-lg md:text-xl font-semibold text-gray-700">
-        Glasses Prescription
+        Prescription
       </h3>
+
+
       <button
         onClick={() =>
           setFormData((prev) => {
@@ -37,10 +40,11 @@ const GlassesPrescription: React.FC<GlassesPrescriptionProps> = ({
             } as PatientFullTypeWithObjectId;
           })
         }
-        className="px-3 py-1 bg-blue-600 text-white rounded text-xs md:text-sm"
+        className="px-3 py-2 md:py-3 bg-blue-600 text-white rounded text-xs md:text-sm"
       >
-        + Add Prescription Entry
+        + Add Prescription
       </button>
+      </div>
 
       {formData.glassesPrescription?.map((entry, index) => (
         <div key={index} className="space-y-3 border p-2 rounded-lg bg-gray-50">

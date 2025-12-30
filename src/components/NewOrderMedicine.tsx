@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { initialPatient, PatientFullTypeWithObjectId } from "../contexts/type";
+import { initialPatient, PatientFullTypeWithObjectId, todayDate } from "../contexts/type";
+
 import toast from "react-hot-toast";
 import Medicine from "./editPageComponents/Medicine";
 import OpticalPayment from "./editPageComponents/OpticalPayment";
+import GlassesPrescription from "./editPageComponents/GlassesPrescription";
+
 
 interface PatientFormProps {
   setNewOrderForm: React.Dispatch<React.SetStateAction<boolean>>;
@@ -31,6 +34,114 @@ const NewOrder: React.FC<PatientFormProps> = ({
       [name]: parsedValue,
     }));
   };
+
+  type VisionEntry = PatientFullTypeWithObjectId["vision"][number];
+  type VisionKey = keyof VisionEntry["rightEye"];
+
+  const handleNestedChange = (path: string, value: any) => {
+    setFormData((prev) => {
+      if (!prev) return prev;
+      const parts = path.split(".");
+      const section = parts[0];
+      const index = Number(parts[1]);
+      if (parts.length === 1) {
+        return { ...prev, [section]: value } as PatientFullTypeWithObjectId;
+      }
+      if (Number.isNaN(index)) return prev;
+
+      const next: any = { ...prev };
+      const arr: any[] = Array.isArray((prev as any)[section])
+        ? [...(prev as any)[section]]
+        : [];
+
+      const defaults: Record<string, any> = {
+        vision: {
+          updateDate: todayDate,
+          rightEye: { unaidedDistance: "" },
+          leftEye: { unaidedDistance: "" },
+        },
+        examDetails: {
+          updateDate: todayDate,
+          adnexa: { right: "", left: "" },
+          conjunctiva: { right: "", left: "" },
+          cornea: { right: "", left: "" },
+          anteriorChamber: { right: "", left: "" },
+          iris: { right: "", left: "" },
+          lens: { right: "", left: "" },
+          fundus: { right: "", left: "" },
+          orbit: { right: "", left: "" },
+          syringing: { right: "", left: "" },
+          vitreous: { right: "", left: "" },
+        },
+        iopPachyCCT: {
+          updateDate: todayDate,
+          rightEye: { methodTime: "", iop: 0 },
+          leftEye: { methodTime: "", iop: 0 },
+        },
+        glassesPrescription: {
+          updateDate: todayDate,
+          use: "",
+          rightEye: { sph: "", add: "" },
+          leftEye: { sph: "", add: "" },
+        },
+        visitDetails: { visitDate: todayDate, visitPrice: 0 },
+      };
+
+      const current = arr[index] ?? defaults[section];
+
+      if (parts[2] === "updateDate") {
+        arr[index] = { ...current, updateDate: value };
+      } else if (section === "vision") {
+        const eye = parts[2] as "rightEye" | "leftEye";
+        const key = parts[3] as VisionKey;
+        arr[index] = { ...current, [eye]: { ...current[eye], [key]: value } };
+      } else if (section === "glassesPrescription") {
+        if (parts[2] === "use") {
+          arr[index] = { ...current, use: value };
+        } else {
+          const eye = parts[2];
+          const key = parts[3];
+          const isNumeric = key === "axis";
+          arr[index] = {
+            ...current,
+            [eye]: {
+              ...current[eye],
+              [key]: isNumeric ? Number(value) : value,
+            },
+          };
+        }
+      } else if (section === "iopPachyCCT") {
+        const eye = parts[2];
+        const key = parts[3];
+        const isNumeric =
+          key === "iop" || key === "correctedIop" || key === "cct";
+        arr[index] = {
+          ...current,
+          [eye]: { ...current[eye], [key]: isNumeric ? Number(value) : value },
+        };
+      } else if (section === "examDetails") {
+        const param = parts[2];
+        const side = parts[3];
+        arr[index] = {
+          ...current,
+          [param]: { ...current[param], [side]: value },
+        };
+      } else if (section === "visitDetails") {
+        const key = parts[2];
+        const isNumeric = key === "visitPrice";
+        arr[index] = {
+          ...current,
+          [key]: isNumeric ? Number(value) : value,
+        };
+      } else {
+        return prev;
+      }
+
+      next[section] = arr;
+      return next as PatientFullTypeWithObjectId;
+    });
+  };
+
 
   // Derived totals are computed inline for display
 
@@ -175,7 +286,7 @@ const NewOrder: React.FC<PatientFormProps> = ({
                 Order Information
               </h3>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
                 <div>
                   <label className="font-medium block text-sm md:text-base">
                     Order Date
@@ -276,7 +387,17 @@ const NewOrder: React.FC<PatientFormProps> = ({
                   />
                 </div>
               </div>
-
+              {formData && (
+                <GlassesPrescription
+                  formData={formData}
+                  handleNestedChange={handleNestedChange}
+                  setFormData={
+                    setFormData as React.Dispatch<
+                      React.SetStateAction<PatientFullTypeWithObjectId>
+                    >
+                  }
+                />
+              )}
               {formData && (
                 <OpticalPayment
                   formData={formData}
@@ -287,6 +408,8 @@ const NewOrder: React.FC<PatientFormProps> = ({
                   }
                 />
               )}
+
+
             </section>
           )}
 
