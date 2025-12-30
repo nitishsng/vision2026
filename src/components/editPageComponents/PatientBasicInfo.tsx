@@ -13,7 +13,7 @@ const PatientBasicInfo: React.FC<BasicInfo> = ({ formData, handleChange }) => {
   return (
     <div className="space-y-4">
       {/* Patient Info */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 md:gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4">
         <div className="flex flex-col">
           <label className="font-medium text-sm md:text-base">
             Patient Name
@@ -185,7 +185,7 @@ const PatientBasicInfo: React.FC<BasicInfo> = ({ formData, handleChange }) => {
             className="border p-2 md:p-3 rounded text-sm md:text-base w-full focus:ring-2 focus:ring-blue-400"
           />
         </div>
-        <div className="col-span-2">
+        <div className="col-span-2 lg:col-span-4">
           <label className="font-semibold text-sm md:text-base">
             Present Complaints
           </label>

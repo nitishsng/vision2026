@@ -99,7 +99,7 @@ const removePaymentField = (index: number) => {
   return (
     <div className="w-full grid md:flex rounded-md gap-1 md:gap-3">
       <div className="flex mt-3 rounded-md flex-col w-full">
-        <h3 className="font-semibold text-base md:text-lg">Advance Payments</h3>
+        <h3 className="font-semibold text-base">Advance Payments</h3>
 
         {formData.opticalPayDetails.length > 0 && (
           <div className="grid grid-cols-3 w-full text-xs md:text-sm font-medium text-gray-700 px-1 md:px-3">
