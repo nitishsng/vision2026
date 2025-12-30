@@ -11,9 +11,14 @@ import {
   TrendingUp,
   BarChart3,
   Receipt,
+  Calendar as CalendarIcon,
 } from "lucide-react";
+import { DateInput } from "@/src/components/ui/DateInput";
+
+
 
 import { useDashboardData } from "@/src/contexts/dataCollection";
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const {
   normalizeYYYYMMDD,
@@ -23,6 +28,10 @@ const {
   sumOpticalPayments,
   computeTotals,
 } = require("@/src/utils/dateFilters.js");
+
+// Helper: get YYYY-MM-DD string (IST)
+const getDateOnlyIST = (date: string) => normalizeYYYYMMDD(date) || "";
+
 export function DashboardOverview() {
   const { staffs, patients, isLoading } = useDashboardData();
 
@@ -30,9 +39,8 @@ export function DashboardOverview() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-// Helper: get YYYY-MM-DD string (IST)
-const getDateOnlyIST = (date: string) => normalizeYYYYMMDD(date) || "";
-const getDateOnly = (date: Date) => normalizeYYYYMMDD(date) || "";
+
+
 
   // --- Filter patients by createdAt date range ---
 const filteredPatients = patients.filter((p) => {
@@ -147,23 +155,17 @@ const recentAppointments = cleanedPatients.slice(0, 5);
 
         {/* Right side: Date filters */}
         <div className="flex justify-end w-full md:w-fit gap-2 mt-4 md:mt-0">
-          <div>
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-green-300"
-            />
-          </div>
-          <div>
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="border rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-green-300"
-            />
-          </div>
+          <DateInput
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+          />
+          <DateInput
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+          />
         </div>
+
+
       </div>
 
     

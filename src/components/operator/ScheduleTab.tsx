@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Calendar, Clock, Users, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useDashboardData } from '@/src/contexts/dataCollection';
+import { DateInput } from "../ui/DateInput";
 
 export function ScheduleTab() {
   const { patients } = useDashboardData();
@@ -85,8 +86,7 @@ export function ScheduleTab() {
         </div>
 
         <div className="flex justify-center">
-          <input
-            type="date"
+          <DateInput
             value={formatDate(selectedDate)}
             onChange={(e) => {
               const val = e.target.value;

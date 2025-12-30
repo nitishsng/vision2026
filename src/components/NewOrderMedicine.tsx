@@ -5,6 +5,8 @@ import toast from "react-hot-toast";
 import Medicine from "./editPageComponents/Medicine";
 import OpticalPayment from "./editPageComponents/OpticalPayment";
 import GlassesPrescription from "./editPageComponents/GlassesPrescription";
+import { DateInput } from "./ui/DateInput";
+
 
 
 interface PatientFormProps {
@@ -291,26 +293,26 @@ const NewOrder: React.FC<PatientFormProps> = ({
                   <label className="font-medium block text-sm md:text-base">
                     Order Date
                   </label>
-                  <input
-                    type="date"
+                  <DateInput
                     name="orderDate"
                     value={formData.orderDate?.split("T")[0] || ""}
                     onChange={handleInputChange}
                     className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
                   />
+
                 </div>
 
                 <div>
                   <label className="font-medium block text-sm md:text-base">
                     Delivery Date
                   </label>
-                  <input
-                    type="date"
+                  <DateInput
                     name="deliveryDate"
                     value={formData.deliveryDate?.split("T")[0] || ""}
                     onChange={handleInputChange}
                     className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
                   />
+
                 </div>
 
                 <div>

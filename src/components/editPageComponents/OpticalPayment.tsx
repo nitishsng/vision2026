@@ -1,7 +1,8 @@
+
 import React from "react";
-import { PatientFullTypeWithObjectId } from "@/src/contexts/type";
+import { PatientFullTypeWithObjectId, todayDate } from "@/src/contexts/type";
 import { Delete } from "lucide-react";
-import { todayDate } from "@/src/contexts/type";
+import { DateInput } from "../ui/DateInput";
 import useEligibility from "../elegibleForfeatures";
 
 interface OpticalPaymentProps {
@@ -118,8 +119,7 @@ const removePaymentField = (index: number) => {
               className="grid grid-cols-3 gap-1 items-end py-1 md:p-2 rounded"
             >
               <div className="flex flex-col">
-                <input
-                  type="date"
+                <DateInput
                   name="date"
                   value={med.date}
                   onChange={(e) => handleAdvanceChange(e, index)}
@@ -164,7 +164,7 @@ const removePaymentField = (index: number) => {
                       onClick={() => removePaymentField(index)}
                       className="bg-red-500 text-white rounded-sm px-2 md:px-4 py-2 ml-1 hover:bg-red-600 transition"
                     >
-                      <Delete className="w-4 h-5 md:w-5 md:h-6" />
+                      <Delete className="w-4 h-4 md:w-5 md:h-6" />
                     </button>
                   )}
                 </div>

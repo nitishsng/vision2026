@@ -1,6 +1,8 @@
 import React from "react";
 import { PatientFullTypeWithObjectId, todayDate } from "@/src/contexts/type";
 import { Delete } from "lucide-react";
+import { DateInput } from "../ui/DateInput";
+
 type ExamDetailsProps = {
   formData: PatientFullTypeWithObjectId;
   handleNestedChange: (path: string, value: any) => void;
@@ -58,8 +60,7 @@ const ExamDetails: React.FC<ExamDetailsProps> = ({
               Exam Entry #{(formData.examDetails?.length || 0) - index}
             </h4>
             <div className="flex gap-3 items-center">
-              <input
-                type="date"
+              <DateInput
                 value={entry.updateDate || ""}
                 onChange={(e) =>
                   handleNestedChange(
@@ -69,6 +70,7 @@ const ExamDetails: React.FC<ExamDetailsProps> = ({
                 }
                 className="border p-1.5 md:p-2 rounded text-xs md:text-sm"
               />
+
               <button
                 onClick={() => {
                   const confirmDelete = window.confirm(

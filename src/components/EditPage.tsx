@@ -17,6 +17,8 @@ import ExamDetails from "./editPageComponents/ExamDetails";
 import GlassesPrescription from "./editPageComponents/GlassesPrescription";
 import IpoPachyCCT from "./editPageComponents/IpoPachyCCT";
 import Diagnosis from "./editPageComponents/Diagnosis";
+import { DateInput } from "./ui/DateInput";
+
 
 const EditPage = () => {
   const navigate = useRouter();
@@ -465,8 +467,7 @@ const EditPage = () => {
             {/* Order Date */}
             <div className="flex flex-col">
               <label className="font-medium mb-[3mb]">Order Date</label>
-              <input
-                type="date"
+              <DateInput
                 name="orderDate"
                 value={formData.orderDate || ""}
                 onChange={handleChange}
@@ -477,8 +478,7 @@ const EditPage = () => {
             {/* Delivery Date */}
             <div className="flex flex-col">
               <label className="font-medium mb-[3mb]">Delivery Date</label>
-              <input
-                type="date"
+              <DateInput
                 name="deliveryDate"
                 value={formData.deliveryDate || ""}
                 onChange={handleChange}

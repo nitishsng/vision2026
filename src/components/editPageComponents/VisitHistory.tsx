@@ -1,5 +1,7 @@
 import React from "react";
 import { PatientFullTypeWithObjectId, todayDate } from "@/src/contexts/type";
+import { DateInput } from "../ui/DateInput";
+
 import { Delete } from "lucide-react";
 import useEligibility from "../elegibleForfeatures";
 
@@ -67,9 +69,10 @@ const removeVisitObject = (index: number) => {
             className="grid grid-cols-2 gap-2 items-center w-full p-2 rounded"
           >
             {/* Visit Date */}
-            <div>
-              <input
-                type="date"
+            <div className="flex flex-col">
+              <label className="font-medium mb-1">Visit Date</label>
+              <DateInput
+                name="visitDate"
                 value={v.visitDate || ""}
                 onChange={(e) =>
                   handleNestedChange(

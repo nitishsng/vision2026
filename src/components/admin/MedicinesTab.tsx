@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Eye, Edit, Search, Plus, Delete } from "lucide-react";
 import { PatientFullTypeWithObjectId } from "@/src/contexts/type";
 import { useDashboardData } from "@/src/contexts/dataCollection";
+import { DateInput } from "../ui/DateInput";
+
 import toast from "react-hot-toast";
 import NewOrder from "../NewOrderMedicine";
 import Medicine from "../editPageComponents/Medicine";
@@ -175,14 +177,15 @@ export function MedicinesTab() {
                   className="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
               </div>
-              {/* Date Input */}
+              {/* Date Filter */}
               <div className="grid grid-cols-2 gap-1">
-                <div>
-                  <input
+                <div className="flex bg-white rounded-lg shadow-sm border p-1 items-center gap-2 w-full md:w-auto">
+                  <DateInput
                     type="date"
                     value={dateFilter}
                     onChange={(e) => setDateFilter(e.target.value)}
-                    className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 w-full"
+                    className="w-full md:w-40 border-none focus:ring-0 text-sm md:text-base"
+                    placeholder="Select Date"
                   />
                 </div>
                 <div>

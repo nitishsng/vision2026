@@ -1,6 +1,8 @@
 import React from "react";
 import { PatientFullTypeWithObjectId, todayDate } from "@/src/contexts/type";
 import { Delete } from "lucide-react";
+import { DateInput } from "../ui/DateInput";
+
 import useEligibility from "../elegibleForfeatures";
 type IpoPachyCCTProps = {
   formData: PatientFullTypeWithObjectId;
@@ -56,8 +58,7 @@ const IpoPachyCCT: React.FC<IpoPachyCCTProps> = ({
               IOP Entry #{(formData.iopPachyCCT?.length || 0) - index}
             </h4>
             <div className="flex gap-3 items-center">
-              <input
-                type="date"
+              <DateInput
                 value={entry.updateDate || ""}
                 onChange={(e) =>
                   handleNestedChange(
@@ -67,6 +68,7 @@ const IpoPachyCCT: React.FC<IpoPachyCCTProps> = ({
                 }
                 className="border p-1.5 md:p-2 rounded text-xs md:text-sm"
               />
+
               <button
                 onClick={() => {
                   const confirmed = window.confirm(

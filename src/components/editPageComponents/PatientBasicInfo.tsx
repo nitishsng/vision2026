@@ -1,5 +1,7 @@
 import React from "react";
 import { PatientFullTypeWithObjectId } from "@/src/contexts/type";
+import { DateInput } from "../ui/DateInput";
+
 type BasicInfo = {
   formData: PatientFullTypeWithObjectId;
   handleChange: (
@@ -40,6 +42,22 @@ const PatientBasicInfo: React.FC<BasicInfo> = ({ formData, handleChange }) => {
             className="border border-gray-300 p-1 md:p-2 rounded-sm w-full focus:ring-2 focus:ring-blue-400 focus:outline-none"
           />
         </div>
+
+        {/* Visit Date */}
+        <div className="flex flex-col">
+          <label className="font-medium text-gray-700 mb-1">Visit Date</label>
+          <DateInput
+            name="visitDate"
+            value={
+              formData.visitDate
+                ? new Date(formData.visitDate).toISOString().split("T")[0]
+                : ""
+            }
+            onChange={handleChange}
+            className="border p-2 rounded focus:ring-2 focus:ring-blue-400 focus:outline-none"
+          />
+        </div>
+
 
         {/* Gender */}
         <div className="flex flex-col">

@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { Calendar, Clock, Phone, Eye, Plus, Search } from "lucide-react";
 import { useDashboardData } from "@/src/contexts/dataCollection";
+import { DateInput } from "../ui/DateInput";
+
 import AppointmentForm from "@/src/components/AppointmentForm";
 import { PatientFullTypeWithObjectId } from "@/src/contexts/type";
 import toast from "react-hot-toast";
@@ -168,16 +170,18 @@ const saveAppointment = async (id: string) => {
                   </select>
                 </div>
 
-                <div>
+                <div className="">
                   <label className="hidden md:block text-sm font-medium text-gray-700 mb-1">
                     Date
                   </label>
-                  <input
-                    type="date"
-                    value={dateFilter}
-                    onChange={(e) => setDateFilter(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                  />
+                  <div className="flex gap-4">
+                    <DateInput
+                      value={dateFilter}
+                      onChange={(e) => setDateFilter(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      placeholder="Filter by Date"
+                    />
+                  </div>
                 </div>
                 <div className="hidden md:flex items-end ">
                   <button

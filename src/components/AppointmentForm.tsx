@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { initialPatient, PatientFullTypeWithObjectId } from "../contexts/type";
+import { DateInput } from "./ui/DateInput";
+
 import toast from "react-hot-toast";
 interface PatientFormProps {
   setShowBookingForm: React.Dispatch<React.SetStateAction<boolean>>;
@@ -141,19 +143,19 @@ export const appointmentForm: React.FC<PatientFormProps> = ({
                 className="w-full px-3 py-1 md:py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+            <div className="flex flex-col">
+              <label className="font-medium text-gray-700">
                 Preferred Date
               </label>
-              <input
-                type="date"
+              <DateInput
                 name="preferredDate"
-                required
-                min={new Date().toISOString().split("T")[0]}
+                value={formValues.preferredDate}
                 onChange={handleChange}
-                className="w-full px-3 py-1 md:py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+                required
+                className="border p-3 rounded-lg w-full focus:ring-2 focus:ring-teal-400 focus:outline-none bg-gray-50 hover:bg-white transition-colors"
               />
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Preferred Time

@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from "react";
 import { Users, Search, Edit, Eye, Delete, Plus } from "lucide-react";
 import { useDashboardData } from "@/src/contexts/dataCollection";
+import { DateInput } from "../ui/DateInput";
+
 import Link from "next/link";
 import ExportPatientsDetails from "../ExportPatientsDetails";
 import { todayDate } from "@/src/contexts/type";
@@ -169,12 +171,13 @@ export function PatientsTab() {
                   <label className="hidden md:block text-sm font-medium text-gray-700 mb-1">
                     Date
                   </label>
-                  <input
-                    type="date"
-                    value={dateFilter}
-                    onChange={(e) => setDateFilter(e.target.value)}
-                    className="w-full md:px-2 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                  />
+                {/* Date Filter */}
+        <DateInput
+          value={dateFilter}
+          onChange={(e) => setDateFilter(e.target.value)}
+          className="border p-2 rounded-lg w-full md:w-auto focus:ring-2 focus:ring-teal-500"
+          placeholder="Filter by Date"
+        />
                 </div>
                 <div className="flex items-end ">
                   <button

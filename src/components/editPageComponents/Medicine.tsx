@@ -1,6 +1,9 @@
+
 import React from "react";
 import { PatientFullTypeWithObjectId, todayDate } from "@/src/contexts/type";
-import { Trash } from "lucide-react";
+import { Delete } from "lucide-react";
+import { DateInput } from "../ui/DateInput";
+
 import useEligibility from "../elegibleForfeatures";
 
 type MedicineProps = {
@@ -117,15 +120,14 @@ const removeMedicineField = (index: number) => {
         return (
           <div key={index} className="grid grid-cols-3 gap-1 items-end">
             {/* Date */}
-            <input
-              type="date"
-              value={med.date}
-              readOnly={!isEditable}
-              onChange={(e) => updateField(index, "date", e.target.value)}
-              className={`border py-1 px-1 md:py-2 rounded-sm w-full focus:ring-2 focus:ring-blue-400 focus:border-blue-400 ${
-                !isEditable ? "bg-gray-200 cursor-not-allowed" : ""
-              }`}
-            />
+            <DateInput
+                value={med.date}
+                onChange={(e) => updateField(index, "date", e.target.value)}
+                className={`border py-1 px-1 md:py-2 rounded-sm w-full focus:ring-2 focus:ring-blue-400 focus:border-blue-400 ${
+                  !isEditable ? "bg-gray-200 cursor-not-allowed" : ""
+                }`}
+                readOnly={!isEditable}
+              />
             {/* Medicine Name */}
             <input
               type="text"
@@ -161,7 +163,7 @@ const removeMedicineField = (index: number) => {
                   onClick={() => removeMedicineField(index)}
                   className="bg-red-500 text-white rounded-lg px-2 ml-2"
                 >
-                  <Trash className="w-4 h-4" />
+                  <Delete className="w-4 h-4" />
                 </button>
               )}
             </div>

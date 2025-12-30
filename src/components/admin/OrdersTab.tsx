@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Eye, Edit, Search, Plus, Delete } from "lucide-react";
 import { PatientFullTypeWithObjectId } from "@/src/contexts/type";
 import { useDashboardData } from "@/src/contexts/dataCollection";
+import { DateInput } from "../ui/DateInput";
+
 import toast from "react-hot-toast";
 import NewOrder from "../NewOrderMedicine";
 import OpticalPayment from "../editPageComponents/OpticalPayment";
@@ -371,12 +373,13 @@ export function OrdersTab() {
                   <label className="hidden md:block text-sm font-medium text-gray-700 mb-1">
                     Date
                   </label>
-                  <input
-                    type="date"
-                    value={dateFilter}
-                    onChange={(e) => setDateFilter(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-                  />
+                  <div className="flex bg-white rounded-lg shadow-sm border items-center gap-2 w-full md:w-auto">
+                    <DateInput
+                      value={dateFilter}
+                      onChange={(e) => setDateFilter(e.target.value)}
+                      className="w-full md:w-40 border-none focus:ring-0 text-sm md:text-base"
+                    />
+                  </div>
                 </div>
                 <div className="hidden md:flex items-end ">
                   <button
@@ -978,8 +981,8 @@ export function OrdersTab() {
                   </section>
                 )}            
                 <div className="space-y-2">
-                  {/* 🛒 Order Information */}
-                  <section className="space-y-2">
+                  {/* Order Information */} 
+                             <section className="space-y-2">
                     <h3 className="flex justify-between border-b pb-2 items-center">
                       <span className="text-lg md:text-xl font-semibold text-gray-700">
                         Order Information
@@ -1110,7 +1113,15 @@ export function OrdersTab() {
                           <option value="readyToDeliver">
                             Ready to Deliver
                           </option>
-                          <option value="delivered">Delivered</option>
+                          {/* Show Delivered only if due is 0 */}
+                          {((formData.framePrice || 0) +
+                            (formData.lensePrice || 0) -
+                            (formData.opticalPayDetails || []).reduce(
+                              (sum, d) => sum + (Number(d.amount) || 0),
+                              0
+                            )) <= 0 && (
+                            <option value="delivered">Delivered</option>
+                          )}
                         </select>
                       </div>
                     </div>
@@ -1129,7 +1140,7 @@ export function OrdersTab() {
                     )}
                   </section>
 
-                  {/* 💰 Grand Totals Section */}
+                  {/* Grand Totals Section */}
                   <div className="bg-white shadow-md rounded-2xl p-3 md:p-4 border border-gray-100">
                     <div className="grid grid-cols-3 gap-1 md:gap-6">
                       <div className="flex flex-col">

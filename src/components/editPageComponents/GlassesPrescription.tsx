@@ -1,6 +1,8 @@
 import React from "react";
 import { PatientFullTypeWithObjectId, todayDate } from "@/src/contexts/type";
 import { Delete } from "lucide-react";
+import { DateInput } from "../ui/DateInput";
+
 type GlassesPrescriptionProps = {
   formData: PatientFullTypeWithObjectId;
   handleNestedChange: (path: string, value: any) => void;
@@ -22,6 +24,7 @@ const GlassesPrescription: React.FC<GlassesPrescriptionProps> = ({
 
 
       <button
+        type="button"
         onClick={() =>
           setFormData((prev) => {
             if (!prev) return prev;
@@ -50,12 +53,11 @@ const GlassesPrescription: React.FC<GlassesPrescriptionProps> = ({
         <div key={index} className="space-y-3 border p-2 rounded-lg bg-gray-50">
           <div className="flex justify-between items-center">
             <h4 className="text-sm md:text-base font-semibold text-gray-700">
-              Prescription Entry #
+              Prescription #
               {(formData.glassesPrescription?.length || 0) - index}
             </h4>
             <div className="flex gap-3 items-center">
-              <input
-                type="date"
+              <DateInput
                 value={entry.updateDate || ""}
                 onChange={(e) =>
                   handleNestedChange(
@@ -65,7 +67,9 @@ const GlassesPrescription: React.FC<GlassesPrescriptionProps> = ({
                 }
                 className="border p-1.5 md:p-2 rounded text-xs md:text-sm"
               />
+
               <button
+                type="button"
                 onClick={() => {
                   const confirmed = window.confirm(
                     "Are you sure you want to delete this glasses prescription?"

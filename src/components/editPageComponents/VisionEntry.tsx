@@ -1,6 +1,8 @@
 import React from "react";
 import { PatientFullTypeWithObjectId, todayDate } from "@/src/contexts/type";
 import { Delete } from "lucide-react";
+import { DateInput } from "../ui/DateInput";
+
 type VisionProps = {
   formData: PatientFullTypeWithObjectId;
   handleNestedChange: (path: string, value: any) => void;
@@ -55,8 +57,7 @@ const VisionEntry: React.FC<VisionProps> = ({
             </h4>
             {/* Date */}
             <div className="flex gap-3 items-center">
-              <input
-                type="date"
+              <DateInput
                 value={entry.updateDate || ""}
                 onChange={(e) =>
                   handleNestedChange(

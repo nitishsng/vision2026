@@ -1,6 +1,8 @@
 "use client";
 import React, { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useDashboardData } from "@/src/contexts/dataCollection";
+import { DateInput } from "../ui/DateInput";
+
 import {
   ResponsiveContainer,
   LineChart,
@@ -462,8 +464,7 @@ export function AnalysisTab() {
                     <label className="text-sm text-gray-700 font-medium">
                       End
                     </label>
-                    <input
-                      type="date"
+                    <DateInput
                       value={endDate}
                       onChange={(e) => setEndDate(e.target.value)}
                       className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-teal-500"
