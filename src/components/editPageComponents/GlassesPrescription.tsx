@@ -40,7 +40,7 @@ const GlassesPrescription: React.FC<GlassesPrescriptionProps> = ({
             } as PatientFullTypeWithObjectId;
           })
         }
-        className="px-3 py-2 md:py-3 bg-blue-600 text-white rounded text-xs md:text-sm"
+        className="px-3 py-2 bg-blue-600 text-white rounded text-xs md:text-sm"
       >
         + Add Prescription
       </button>

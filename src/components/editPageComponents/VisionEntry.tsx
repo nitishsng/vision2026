@@ -17,6 +17,8 @@ const VisionEntry: React.FC<VisionProps> = ({
   type VisionKey = keyof VisionEntry["rightEye"];
   return (
     <div className="space-y-3 md:space-y-4 w-full">
+      <div className="flex justify-between items-center bg-gray-50 p-2 rounded-lg">
+
       <h3 className="text-base md:text-lg font-semibold text-gray-700">
         Vision Details
       </h3>
@@ -39,8 +41,9 @@ const VisionEntry: React.FC<VisionProps> = ({
         }
         className="px-3 py-1 bg-blue-600 text-white rounded text-xs md:text-sm"
       >
-        + Add Vision Entry
+        + Add Vision
       </button>
+      </div>
 
       {/* Loop through all vision entries */}
       {formData.vision?.map((entry, index) => (

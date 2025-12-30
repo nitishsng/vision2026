@@ -19,6 +19,8 @@ const IpoPachyCCT: React.FC<IpoPachyCCTProps> = ({
   type VisionKey = keyof VisionEntry["rightEye"];
   return (
     <div className="space-y-3 md:space-y-4 w-full">
+      <div className="flex justify-between items-center bg-gray-50 p-2 rounded-lg">
+
       <h3 className="text-lg md:text-xl font-semibold text-gray-700">
         IOP Pachy CCT
       </h3>
@@ -42,6 +44,7 @@ const IpoPachyCCT: React.FC<IpoPachyCCTProps> = ({
       >
         + Add IOP Entry
       </button>
+      </div>
 
       {formData.iopPachyCCT?.map((entry, index) => (
         <div

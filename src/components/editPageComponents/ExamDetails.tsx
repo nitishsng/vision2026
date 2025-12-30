@@ -16,6 +16,8 @@ const ExamDetails: React.FC<ExamDetailsProps> = ({
   type VisionEntry = PatientFullTypeWithObjectId["vision"][number];
   return (
     <div className="space-y-3 md:space-y-4 w-full">
+      <div className="flex justify-between items-center bg-gray-50 p-2 rounded-lg">
+
       <h3 className="text-base md:text-lg font-semibold text-gray-700">
         Exam Details
       </h3>
@@ -47,6 +49,7 @@ const ExamDetails: React.FC<ExamDetailsProps> = ({
       >
         + Add Exam Entry
       </button>
+      </div>
 
       {formData.examDetails?.map((entry, index) => (
         <div key={index} className="space-y-3 border p-2 rounded-lg bg-gray-50">

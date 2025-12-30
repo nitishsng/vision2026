@@ -63,7 +63,7 @@ const removeDiagnosis = (index: number) => {
           </div>
 
           {/* Add Button */}
-          <div>
+          <div className="flex justify-end">
             <button
               type="button"
               onClick={() =>
