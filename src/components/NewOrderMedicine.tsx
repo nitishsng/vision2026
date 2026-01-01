@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import Medicine from "./editPageComponents/Medicine";
 import OpticalPayment from "./editPageComponents/OpticalPayment";
 import GlassesPrescription from "./editPageComponents/GlassesPrescription";
+import Diagnosis from "./editPageComponents/Diagnosis";
 import { DateInput } from "./ui/DateInput";
 
 
@@ -401,6 +402,17 @@ const NewOrder: React.FC<PatientFormProps> = ({
                 />
               )}
               {formData && (
+                <Diagnosis
+                  formData={formData}
+                  handleNestedChange={handleNestedChange}
+                  setFormData={
+                    setFormData as React.Dispatch<
+                      React.SetStateAction<PatientFullTypeWithObjectId>
+                    >
+                  }
+                />
+              )}
+              {formData && (
                 <OpticalPayment
                   formData={formData}
                   setFormData={
@@ -416,6 +428,18 @@ const NewOrder: React.FC<PatientFormProps> = ({
           )}
 
           {/* Medicine Section */}
+          {catagory === "medicine" && formData && (
+             <Diagnosis
+                  formData={formData}
+                  handleNestedChange={handleNestedChange}
+                  setFormData={
+                    setFormData as React.Dispatch<
+                      React.SetStateAction<PatientFullTypeWithObjectId>
+                    >
+                  }
+                />
+          )}
+
           {catagory === "medicine" && formData && (
             <Medicine
               formData={formData}

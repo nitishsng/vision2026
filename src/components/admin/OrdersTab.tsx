@@ -1,15 +1,122 @@
 import React, { useState, useEffect } from "react";
 import { Eye, Edit, Search, Plus, Delete } from "lucide-react";
-import { PatientFullTypeWithObjectId } from "@/src/contexts/type";
+import { PatientFullTypeWithObjectId ,todayDate } from "@/src/contexts/type";
 import { useDashboardData } from "@/src/contexts/dataCollection";
 import { DateInput } from "../ui/DateInput";
-
 import toast from "react-hot-toast";
 import NewOrder from "../NewOrderMedicine";
 import OpticalPayment from "../editPageComponents/OpticalPayment";
 import useEligibility from "../elegibleForfeatures";
+import GlassesPrescription from "../editPageComponents/GlassesPrescription";
 export function OrdersTab() {
   const eligibleForFeatures = useEligibility();
+
+    type VisionEntry = PatientFullTypeWithObjectId["vision"][number];
+    type VisionKey = keyof VisionEntry["rightEye"];
+  
+  const handleNestedChange = (path: string, value: any) => {
+    setFormData((prev) => {
+      if (!prev) return prev;
+      const parts = path.split(".");
+      const section = parts[0];
+      const index = Number(parts[1]);
+      if (parts.length === 1) {
+        return { ...prev, [section]: value } as PatientFullTypeWithObjectId;
+      }
+      if (Number.isNaN(index)) return prev;
+
+      const next: any = { ...prev };
+      const arr: any[] = Array.isArray((prev as any)[section])
+        ? [...(prev as any)[section]]
+        : [];
+
+      const defaults: Record<string, any> = {
+        vision: {
+          updateDate: todayDate,
+          rightEye: { unaidedDistance: "" },
+          leftEye: { unaidedDistance: "" },
+        },
+        examDetails: {
+          updateDate: todayDate,
+          adnexa: { right: "", left: "" },
+          conjunctiva: { right: "", left: "" },
+          cornea: { right: "", left: "" },
+          anteriorChamber: { right: "", left: "" },
+          iris: { right: "", left: "" },
+          lens: { right: "", left: "" },
+          fundus: { right: "", left: "" },
+          orbit: { right: "", left: "" },
+          syringing: { right: "", left: "" },
+          vitreous: { right: "", left: "" },
+        },
+        iopPachyCCT: {
+          updateDate: todayDate,
+          rightEye: { methodTime: "", iop: 0 },
+          leftEye: { methodTime: "", iop: 0 },
+        },
+        glassesPrescription: {
+          updateDate: todayDate,
+          use: "",
+          rightEye: { sph: "", add: "" },
+          leftEye: { sph: "", add: "" },
+        },
+        visitDetails: { visitDate: todayDate, visitPrice: 0 },
+      };
+
+      const current = arr[index] ?? defaults[section];
+
+      if (parts[2] === "updateDate") {
+        arr[index] = { ...current, updateDate: value };
+      } else if (section === "vision") {
+        const eye = parts[2] as "rightEye" | "leftEye";
+        const key = parts[3] as VisionKey;
+        arr[index] = { ...current, [eye]: { ...current[eye], [key]: value } };
+      } else if (section === "glassesPrescription") {
+        if (parts[2] === "use") {
+          arr[index] = { ...current, use: value };
+        } else {
+          const eye = parts[2];
+          const key = parts[3];
+          const isNumeric = key === "axis";
+          arr[index] = {
+            ...current,
+            [eye]: {
+              ...current[eye],
+              [key]: isNumeric ? Number(value) : value,
+            },
+          };
+        }
+      } else if (section === "iopPachyCCT") {
+        const eye = parts[2];
+        const key = parts[3];
+        const isNumeric =
+          key === "iop" || key === "correctedIop" || key === "cct";
+        arr[index] = {
+          ...current,
+          [eye]: { ...current[eye], [key]: isNumeric ? Number(value) : value },
+        };
+      } else if (section === "examDetails") {
+        const param = parts[2];
+        const side = parts[3];
+        arr[index] = {
+          ...current,
+          [param]: { ...current[param], [side]: value },
+        };
+      } else if (section === "visitDetails") {
+        const key = parts[2];
+        const isNumeric = key === "visitPrice";
+        arr[index] = {
+          ...current,
+          [key]: isNumeric ? Number(value) : value,
+        };
+      } else {
+        return prev;
+      }
+
+      next[section] = arr;
+      return next as PatientFullTypeWithObjectId;
+    });
+  };
 
   const { patients, fetchData, isLoading } = useDashboardData();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -648,6 +755,29 @@ export function OrdersTab() {
                     </p>
                   </div>
 
+                  <div>
+                    <h4 className="font-semibold mt-2 text-gray-800 border-b pb-1">
+                      Diagnosis
+                    </h4>
+                    <div className="mt-2 text-sm text-gray-700">
+                      {formData.diagnosis && formData.diagnosis.length > 0 ? (
+                        <ul className="list-disc pl-5 space-y-1">
+                          {formData.diagnosis.map((diag, index) => {
+                             const date = typeof diag === 'string' ? 'N/A' : diag.date;
+                             const value = typeof diag === 'string' ? diag : diag.value;
+                             return (
+                              <li key={index}>
+                                <span className="font-medium text-gray-900">{date}:</span> {value}
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      ) : (
+                        <p className="text-gray-500 italic">No diagnosis recorded.</p>
+                      )}
+                    </div>
+                  </div>
+
                   {/* Glasses Prescription */}
                   <div>
                     <h4 className="font-semibold mt-2">
@@ -1126,6 +1256,18 @@ export function OrdersTab() {
                       </div>
                     </div>
 
+
+                                  {formData && (
+                <GlassesPrescription
+                  formData={formData}
+                  handleNestedChange={handleNestedChange}
+                  setFormData={
+                    setFormData as React.Dispatch<
+                      React.SetStateAction<PatientFullTypeWithObjectId>
+                    >
+                  }
+                />
+              )}
                     {/* Payment Details */}
 
                     {formData && (

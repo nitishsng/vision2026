@@ -317,7 +317,11 @@ export function PatientsTab() {
                       {/* Diagnosis */}
                       <td className="px-2 md:px-4 py-2 border-b border-gray-200 text-sm font-semibold whitespace-nowrap">
                         <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium truncate">
-                          {patient.diagnosis?.[0] || "N/A"}
+                          {(() => {
+                            const diag = patient.diagnosis?.[0];
+                            if (!diag) return "N/A";
+                            return typeof diag === "string" ? diag : diag.value;
+                          })()}
                         </span>
                       </td>
 

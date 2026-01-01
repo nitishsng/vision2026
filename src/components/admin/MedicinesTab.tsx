@@ -7,6 +7,7 @@ import { DateInput } from "../ui/DateInput";
 import toast from "react-hot-toast";
 import NewOrder from "../NewOrderMedicine";
 import Medicine from "../editPageComponents/Medicine";
+import Diagnosis from "../editPageComponents/Diagnosis";
 import useEligibility from "../elegibleForfeatures";
 export function MedicinesTab() {
   const eligibleForFeatures = useEligibility();
@@ -389,6 +390,25 @@ export function MedicinesTab() {
                     <p>
                       <strong>Gender:</strong> {formData.gender || "N/A"}
                     </p>
+                    
+                    {/* Diagnosis View */}
+                    <div className="mt-3">
+                         <strong>Diagnosis:</strong>
+                         {formData.diagnosis && formData.diagnosis.length > 0 ? (
+                            <ul className="list-disc pl-5 mt-1">
+                              {formData.diagnosis.map((d, i) => {
+                                 const date = typeof d === 'string' ? 'N/A' : d.date;
+                                 const value = typeof d === 'string' ? d : d.value;
+                                return (
+                                <li key={i}>
+                                   <span className="font-medium text-gray-900">{date}:</span> {value}
+                                </li>
+                              )})}
+                            </ul>
+                         ) : (
+                           <span className="text-gray-500 italic ml-2">None</span>
+                         )}
+                    </div>
                   </div>
                   <div>
                     <h4 className="font-semibold mt-2">Medicines:</h4>
@@ -515,6 +535,17 @@ export function MedicinesTab() {
                   <h3 className="text-xl font-semibold text-gray-700 border-b pb-2">
                     Medicine Section
                   </h3>
+                   {formData && (
+                    <Diagnosis
+                      formData={formData}
+                      handleNestedChange={() => {}} 
+                      setFormData={
+                        setFormData as React.Dispatch<
+                          React.SetStateAction<PatientFullTypeWithObjectId>
+                        >
+                      }
+                    />
+                  )}
                   {formData && (
                     <Medicine
                       formData={formData}

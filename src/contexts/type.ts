@@ -160,7 +160,7 @@ export type PatientFullType = {
     syringing: EyeDetail;
     vitreous: EyeDetail;
   }[];
-  diagnosis?: string[];
+  diagnosis?: { date: string; value: string }[];
   prescription?: string;
   nextReview?: string;
   doctorRemarks?: string;
