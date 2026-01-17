@@ -177,8 +177,8 @@ export function OrdersTab() {
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev!, [name]: value }));
+    const { name, type,value } = e.target;
+    setFormData((prev) => ({ ...prev!, [name]:type === "number" ? (value === "" ? "" : Number(value)) : value}));
   };
 
   const [saving, setSaving] = useState(false);
@@ -646,7 +646,7 @@ export function OrdersTab() {
                         <td
                           className={`px-2 md:px-4 py-2 border-b border-gray-200 text-sm font-semibold whitespace-nowrap ${
                             (order.framePrice || 0) +
-                              (order.lensePrice || 0) -
+                              (order.lensePrice || 0) - (formData?.discount || 0) -
                               (order.opticalPayDetails || []).reduce(
                                 (sum, d) => sum + (Number(d.amount) || 0),
                                 0
@@ -656,13 +656,16 @@ export function OrdersTab() {
                               : "text-green-600"
                           }`}
                         >
+
                           ₹
                           {(order.framePrice || 0) +
-                            (order.lensePrice || 0) -
+                            (order.lensePrice || 0)  - (order?.discount || 0) -
                             (order.opticalPayDetails || []).reduce(
                               (sum, d) => sum + (Number(d.amount) || 0),
                               0
                             )}
+
+                            
                         </td>
 
                         {/* Actions */}
@@ -1165,6 +1168,7 @@ export function OrdersTab() {
                         </label>
                         <input
                           type="number"
+                          min={0}
                           name="framePrice"
                           disabled={!eligibleForFeatures(4)}
                           value={formData.framePrice || 0}
@@ -1201,6 +1205,7 @@ export function OrdersTab() {
                         </label>
                         <input
                           type="number"
+                          min={0}
                           name="lensePrice"
                           disabled={!eligibleForFeatures(4)}
                           value={formData.lensePrice || 0}
@@ -1211,7 +1216,7 @@ export function OrdersTab() {
 
                       <div>
                         <label className="font-medium block text-sm md:text-base">
-                          Optical Price
+                         T-Optical Price
                         </label>
                         <input
                           type="number"
@@ -1223,6 +1228,38 @@ export function OrdersTab() {
                           className="border p-2 md:p-3 rounded w-full bg-gray-100 cursor-not-allowed text-sm md:text-base"
                         />
                       </div>
+                      <div>
+                        <label className="font-medium block text-sm md:text-base">
+                           Discount
+                        </label>
+                        <input
+                          type="number"
+                          name="discount"
+                          min={0}
+                          max={formData.lensePrice + formData.framePrice}
+                          disabled={!eligibleForFeatures(4)}
+                          value={formData?.discount}
+                          onChange={handleInputChange}
+                          className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+                        />
+                      </div>
+ 
+
+                      <div>
+                        <label className="font-medium block text-sm md:text-base">
+                        Net Amount
+                        </label>
+                        <input
+                          type="number"
+                          value={
+                            (formData?.framePrice || 0) +
+                              (formData?.lensePrice || 0) - (formData?.discount || 0) || 0
+                          }
+                          readOnly
+                          className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+                        />
+                      </div>
+
                       <div>
                         <label className="font-medium block text-sm md:text-base">
                           Status
@@ -1298,7 +1335,7 @@ export function OrdersTab() {
                               0
                             ) +
                             (formData.framePrice || 0) +
-                            (formData.lensePrice || 0) +
+                            (formData.lensePrice || 0) - (formData?.discount || 0) +
                             (formData.medicines || []).reduce(
                               (sum, m) => sum + (Number(m.price) || 0),
                               0
@@ -1342,7 +1379,7 @@ export function OrdersTab() {
                           readOnly
                           value={
                             (formData.framePrice || 0) +
-                            (formData.lensePrice || 0) -
+                            (formData.lensePrice || 0) - (formData?.discount || 0) -
                             (formData.opticalPayDetails || []).reduce(
                               (sum, d) => sum + (Number(d.amount) || 0),
                               0

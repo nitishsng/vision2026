@@ -30,7 +30,7 @@ const NewOrder: React.FC<PatientFormProps> = ({
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value, type } = e.target;
-    const parsedValue = type === "number" ? parseFloat(value) || 0 : value;
+    const parsedValue = type === "number" ? (value === "" ? "" : Number(value)) : value;
 
     setFormData((prev) => ({
       ...prev,
@@ -335,6 +335,7 @@ const NewOrder: React.FC<PatientFormProps> = ({
                   </label>
                   <input
                     type="number"
+                    min={0}
                     name="framePrice"
                     value={formData.framePrice}
                     onChange={handleInputChange}
@@ -369,6 +370,7 @@ const NewOrder: React.FC<PatientFormProps> = ({
                   </label>
                   <input
                     type="number"
+                    min={0}
                     name="lensePrice"
                     value={formData.lensePrice}
                     onChange={handleInputChange}
@@ -376,6 +378,20 @@ const NewOrder: React.FC<PatientFormProps> = ({
                   />
                 </div>
 
+                <div>
+                  <label className="font-medium block text-sm md:text-base">
+                    Discount 
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    name="discount"
+                    max={formData.lensePrice + formData.framePrice}
+                    value={formData.discount}
+                    onChange={handleInputChange}
+                    className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+                  />
+                </div>
                 <div>
                   <label className="font-medium block text-sm md:text-base">
                     Optical Price
@@ -422,8 +438,6 @@ const NewOrder: React.FC<PatientFormProps> = ({
                   }
                 />
               )}
-
-
             </section>
           )}
 
@@ -465,7 +479,7 @@ const NewOrder: React.FC<PatientFormProps> = ({
                 <input
                   type="number"
                   value={
-                    (formData.framePrice || 0) + (formData.lensePrice || 0)
+                    (formData.framePrice || 0) + (formData.lensePrice || 0)-(formData?.discount || 0)
                   }
                   readOnly
                   className="border p-1 md:p-3 rounded w-full bg-gray-100 cursor-not-allowed text-sm md:text-base"
@@ -505,7 +519,7 @@ const NewOrder: React.FC<PatientFormProps> = ({
                   type="number"
                   value={
                     (formData.framePrice || 0) +
-                    (formData.lensePrice || 0) -
+                    (formData.lensePrice || 0) - (formData?.discount || 0) -
                     (formData.opticalPayDetails || []).reduce(
                       (sum, d) => sum + (Number(d.amount) || 0),
                       0

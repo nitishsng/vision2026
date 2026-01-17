@@ -35,6 +35,7 @@ const PatientBasicInfo: React.FC<BasicInfo> = ({ formData, handleChange }) => {
           <label className="font-medium text-sm md:text-base">Age</label>
           <input
             type="number"
+            min={0}
             name="age"
             value={formData.age}
             onChange={handleChange}

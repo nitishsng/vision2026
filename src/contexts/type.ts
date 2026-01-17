@@ -109,7 +109,7 @@ export type PatientFullType = {
   framePrice: number;
   deliveryStatus?: string;
   deliveryDate?: string;
-
+  discount?:number;
   // Medicine
   medicines: { date: string; medicinename: string; price: number }[];
 
@@ -204,6 +204,7 @@ export const initialPatient: PatientFullTypeWithObjectId = {
   lensePrice:0,
   frameId: "",
   framePrice:0,
+  discount:0,
   opticalPayDetails: [],
   medicines: [],
   purpose: "consultation",

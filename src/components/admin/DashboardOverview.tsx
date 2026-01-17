@@ -78,10 +78,10 @@ const totalAdvance = totals.totalAdvance;
 const opticalAdvance = totals.opticalTotal;
 
 // Derived aggregates over filtered range
-const opticalaPrice = filteredPatients.reduce((sum, p) => sum + ((Number(p.framePrice) || 0) + (Number(p.lensePrice) || 0)), 0);
+const opticalaPrice = filteredPatients.reduce((sum, p) => sum + ((Number(p.framePrice) || 0) + (Number(p.lensePrice) || 0) - (Number(p.discount) || 0) ), 0);
 const opticalDue = filteredPatients.reduce((sum, p) => {
   const paid = Array.isArray(p.opticalPayDetails) ? p.opticalPayDetails.reduce((s, d) => s + (Number(d.amount) || 0), 0) : 0;
-  const due = (Number(p.framePrice) || 0) + (Number(p.lensePrice) || 0) - paid;
+  const due = (Number(p.framePrice) || 0) + (Number(p.lensePrice) || 0)-(Number(p.discount) || 0) - paid;
   return sum + due;
 }, 0);
 

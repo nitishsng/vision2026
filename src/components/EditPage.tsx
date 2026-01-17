@@ -19,7 +19,6 @@ import IpoPachyCCT from "./editPageComponents/IpoPachyCCT";
 import Diagnosis from "./editPageComponents/Diagnosis";
 import { DateInput } from "./ui/DateInput";
 
-
 const EditPage = () => {
   const navigate = useRouter();
   const { patients, fetchData } = useDashboardData();
@@ -505,6 +504,7 @@ const EditPage = () => {
               <label className="font-medium mb-[3mb]">Frame Price</label>
               <input
                 type="number"
+                min={0}
                 name="framePrice"
                 value={formData.framePrice}
                 onChange={handleChange}
@@ -536,6 +536,7 @@ const EditPage = () => {
               <label className="font-medium mb-[3mb]">Lens Price</label>
               <input
                 type="number"
+                min={0}
                 name="lensePrice"
                 value={formData.lensePrice}
                 onChange={handleChange}
@@ -547,9 +548,9 @@ const EditPage = () => {
           {/* 💳 Optical Payment */}
           <div className="flex flex-col lg:flex-row gap-2">
             {/* Totals */}
-            <div className="flex flex-col-2 sm:flex-col gap-1 w-full lg:max-w-[250px]">
+            <div className="grid grid-cols-3  gap-2 w-full lg:max-w-[250px]">
               <div>
-                <label className="font-medium mb-[3mb]">Optical Total </label>
+                <label className="font-medium mb-1 block">Optical Total</label>
                 <input
                   type="number"
                   readOnly
@@ -559,20 +560,35 @@ const EditPage = () => {
                   className="border p-1 md:p-2 rounded-sm w-full cursor-not-allowed"
                 />
               </div>
+
               <div>
-                <label className="font-medium mb-[3mb]">Optical Due</label>
+                <label className="font-medium mb-1 block">Discount</label>
+                <input
+                  type="number"
+                  name="discount"
+                  min={0}
+                  max={(formData.framePrice || 0) + (formData.lensePrice || 0)}
+                  value={formData.discount || 0}
+                  onChange={handleChange}
+                  className="border p-1 md:p-2 rounded-sm w-full"
+                />
+              </div>
+
+              <div>
+                <label className="font-medium mb-1 block">Optical Due</label>
                 <input
                   type="number"
                   readOnly
                   value={
                     (formData.framePrice || 0) +
                     (formData.lensePrice || 0) -
+                    (formData.discount || 0) -
                     (formData.opticalPayDetails || []).reduce(
                       (sum, d) => sum + (Number(d.amount) || 0),
                       0
                     )
                   }
-                  className="border p-1 md:p-2 rounded-sm w-full  cursor-not-allowed"
+                  className="border p-1 md:p-2 rounded-sm w-full cursor-not-allowed"
                 />
               </div>
             </div>

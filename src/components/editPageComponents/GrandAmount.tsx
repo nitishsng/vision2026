@@ -23,7 +23,7 @@ const GrandAmount  : React.FC<Grand> = ({ formData}) => {
                         0
                       ) +
                       (formData.framePrice || 0) +
-                      (formData.lensePrice || 0) +
+                      (formData.lensePrice || 0) - (formData.discount || 0) +
                       (formData.medicines || []).reduce(
                         (sum, m) => sum + (Number(m.price) || 0),
                         0
@@ -67,7 +67,7 @@ const GrandAmount  : React.FC<Grand> = ({ formData}) => {
                     readOnly
                     value={
                       (formData.framePrice || 0) +
-                      (formData.lensePrice || 0) -
+                      (formData.lensePrice || 0) - (formData.discount || 0) -
                       (formData.opticalPayDetails || []).reduce(
                         (sum, d) => sum + (Number(d.amount) || 0),
                         0
