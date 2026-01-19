@@ -1282,7 +1282,7 @@ export function OrdersTab() {
                           </option>
                           {/* Show Delivered only if due is 0 */}
                           {((formData.framePrice || 0) +
-                            (formData.lensePrice || 0) -
+                            (formData.lensePrice || 0) - (formData?.discount || 0)-
                             (formData.opticalPayDetails || []).reduce(
                               (sum, d) => sum + (Number(d.amount) || 0),
                               0
