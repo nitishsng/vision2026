@@ -231,7 +231,7 @@ export function PatientsTab() {
                       key={index}
                       className={`transition-colors ${
                         (patient.framePrice || 0) +
-                          (patient.lensePrice || 0) -
+                          (patient.lensePrice || 0) - Number(patient.discount || 0) -
                           (patient.opticalPayDetails || []).reduce(
                             (sum, d) => sum + (Number(d.amount) || 0),
                             0

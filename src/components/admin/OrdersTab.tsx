@@ -263,7 +263,7 @@ export function OrdersTab() {
     const lines: string[] = [];
 
     // Greeting
-    lines.push(`Hello ${formData.ptName || "Patient"},`);
+    lines.push(`*Hello ${formData.ptName || "Patient"},*`);
     lines.push(
       `Here are the details of your order (Bill No: ${formData.billNo}):\n`
     );
@@ -290,7 +290,7 @@ export function OrdersTab() {
         statusText =
           "❔ Unknown – Please contact us for more details about your order.";
     }
-    lines.push(`Status: ${statusText}\n`);
+    lines.push(`*Status:* ${statusText}\n`);
 
     // Patient Info
     lines.push("Patient Info:");
@@ -380,7 +380,7 @@ export function OrdersTab() {
         : 0);
     const due =
       (Number(formData.framePrice) || 0) +
-      (Number(formData.lensePrice) || 0) -
+      (Number(formData.lensePrice) || 0)-(Number(formData.discount) || 0) -
       (Array.isArray(formData.opticalPayDetails)
         ? formData.opticalPayDetails.reduce(
             (sum, d) => sum + (Number(d.amount) || 0),
@@ -390,6 +390,7 @@ export function OrdersTab() {
     lines.push("Payment Details:");
     lines.push(`Total Amount: ₹${totalAmount}`);
     lines.push(`Total Advance Paid: ₹${advance}`);
+    lines.push(`Discount: ₹${formData.discount || 0}`);
     if (due > 0)
       lines.push(`Amount Due: ₹${due} Please pay the remaining amount.`);
     else lines.push("Payment Complete. Thank you!");
@@ -575,7 +576,7 @@ export function OrdersTab() {
                         key={index}
                         className={`transition-colors ${
                           (order.framePrice || 0) +
-                            (order.lensePrice || 0) -
+                            (order.lensePrice || 0) - Number(order.discount || 0) -
                             (order.opticalPayDetails || []).reduce(
                               (sum, d) => sum + (Number(d.amount) || 0),
                               0
@@ -593,7 +594,7 @@ export function OrdersTab() {
                                 <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-green-600" />
                               )}
                               {(order?.framePrice || 0) +
-                                (order?.lensePrice || 0) >
+                                (order?.lensePrice || 0)>
                                 0 && (
                                 <span className="w-1.5 h-1.5 mb-[2px] rounded-full bg-orange-500" />
                               )}
@@ -646,7 +647,7 @@ export function OrdersTab() {
                         <td
                           className={`px-2 md:px-4 py-2 border-b border-gray-200 text-sm font-semibold whitespace-nowrap ${
                             (order.framePrice || 0) +
-                              (order.lensePrice || 0) - (formData?.discount || 0) -
+                              (order.lensePrice || 0) - Number(order.discount || 0) -
                               (order.opticalPayDetails || []).reduce(
                                 (sum, d) => sum + (Number(d.amount) || 0),
                                 0
@@ -659,7 +660,7 @@ export function OrdersTab() {
 
                           ₹
                           {(order.framePrice || 0) +
-                            (order.lensePrice || 0)  - (order?.discount || 0) -
+                            (order.lensePrice || 0) - Number(order.discount || 0) -
                             (order.opticalPayDetails || []).reduce(
                               (sum, d) => sum + (Number(d.amount) || 0),
                               0

@@ -243,7 +243,7 @@ export function MedicinesTab() {
                         key={index}
                         className={`transition-colors ${
                           (p.framePrice || 0) +
-                            (p.lensePrice || 0) -
+                            (p.lensePrice || 0) - Number(p.discount || 0) -
                             (p.opticalPayDetails || []).reduce(
                               (sum, d) => sum + (Number(d.amount) || 0),
                               0
