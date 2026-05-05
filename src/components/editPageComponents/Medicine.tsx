@@ -47,7 +47,7 @@ const Medicine: React.FC<MedicineProps> = ({ formData, setFormData }) => {
 
   // Add new row (only newly added row editable)
   const addMedicineField = () => {
-    const newEntry = { date: todayDate, medicinename: "", price: 0 };
+    const newEntry = { date: todayDate, medicinename: "", price: 0, mode: "offline" as "online" | "offline" };
 
     setFormData((prev) => {
       const updated = [...prev.medicines, newEntry];
@@ -83,7 +83,7 @@ const removeMedicineField = (index: number) => {
   // Update fields only in editable row (or all if premium)
   const updateField = (
     index: number,
-    field: "date" | "medicinename" | "price",
+    field: "date" | "medicinename" | "price" | "mode",
     value: any
   ) => {
     if (!eligibleForFeatures(4) && editableIndex !== index) return;
@@ -106,9 +106,10 @@ const removeMedicineField = (index: number) => {
     <div className="flex flex-col gap-2 w-full">
       {/* Header */}
       {formData.medicines.length > 0 && (
-        <div className="grid grid-cols-3 w-full">
+        <div className="grid grid-cols-4 w-full">
           <label className="font-medium px-3 text-gray-700">Date</label>
           <label className="font-medium px-3 text-gray-700">M-Name</label>
+          <label className="font-medium px-3 text-gray-700">Mode</label>
           <label className="font-medium px-3 text-gray-700">Price</label>
         </div>
       )}
@@ -118,7 +119,7 @@ const removeMedicineField = (index: number) => {
         const isEditable = eligibleForFeatures(4) || index === editableIndex;
 
         return (
-          <div key={index} className="grid grid-cols-3 gap-1 items-end">
+          <div key={index} className="grid grid-cols-4 gap-1 items-end">
             {/* Date */}
             <DateInput
                 value={med.date}
@@ -142,6 +143,19 @@ const removeMedicineField = (index: number) => {
                 !isEditable ? "bg-gray-200 cursor-not-allowed" : ""
               }`}
             />
+
+            {/* Mode */}
+            <select
+              value={med.mode || "offline"}
+              disabled={!isEditable}
+              onChange={(e) => updateField(index, "mode", e.target.value)}
+              className={`border py-[3px] px-1 md:py-2 rounded-sm w-full focus:ring-2 focus:ring-blue-400 focus:border-blue-400 ${
+                !isEditable ? "bg-gray-200 cursor-not-allowed" : ""
+              }`}
+            >
+              <option value="offline">Offline</option>
+              <option value="online">Online</option>
+            </select>
 
             {/* Price + Delete */}
             <div className="flex">

@@ -24,12 +24,12 @@ export function OperatorDashboard() {
     if (savedTab) {
       setActiveTab(savedTab);
     }
-  }, [activeTab]);
+  }, []); // Run once on mount
 
   const renderContent = () => {
     switch (activeTab) {
       case "dashboard":
-        return <DashboardOverview />;
+        return eligibleForFeatures(4) ? <DashboardOverview /> : <VisibleMessage />;
       case "appointments":
         return <AppointmentsTab />;
       case "patients":

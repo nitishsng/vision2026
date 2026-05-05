@@ -13,9 +13,11 @@ import { ScheduleTab } from '../operator/ScheduleTab';
 import { OrdersTab } from './OrdersTab';
 import { MedicinesTab } from './MedicinesTab';
 import { AnalysisTab } from './AnalysisTab';
-
+import useEligibility from '../elegibleForfeatures';
+import VisibleMessage from '../VisibleMessage';
 
 export function AdminDashboard() {
+  const eligibleForFeatures = useEligibility();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -25,12 +27,12 @@ export function AdminDashboard() {
     if (savedTab) {
       setActiveTab(savedTab);
     }
-  }, [activeTab]);
+  }, []); // Run once on mount
 
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <DashboardOverview />;
+        return eligibleForFeatures(4) ? <DashboardOverview /> : <VisibleMessage />;
       case 'schedule':
         return <ScheduleTab/>;
       case 'appointments':
@@ -52,7 +54,7 @@ export function AdminDashboard() {
       case 'settings':
         return <><div>Comming soon...</div></>;
       default:
-        return <DashboardOverview />;
+        return <AppointmentsTab />;
     }
   };
 

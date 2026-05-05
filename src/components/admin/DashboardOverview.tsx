@@ -175,21 +175,31 @@ const recentAppointments = cleanedPatients.slice(0, 5);
         {/* 💸 Total Amount */}
 
         {/* 💳 Total Collection */}
-<div className="bg-white rounded-xl p-2 md:p-4 border border-gray-100 shadow-sm hover:shadow-md transition">
-  <div className="items-center justify-between">
+<div className="bg-white rounded-xl p-2 md:p-4 border border-gray-100 shadow-sm hover:shadow-md transition lg:col-span-1">
+  <div className="flex items-center justify-between">
     <div>
       <p className="text-sm font-medium text-gray-600">
         Total Collection
       </p>
-    </div>
-
-    <div className="flex rounded-lg items-center justify-between gap-2">
       <p className="text-2xl font-bold text-green-700">
         {totalAdvance}
       </p>
-
-      {/* Responsive Icon Size */}
-      <CreditCard className="h-6 w-6 md:h-8 md:w-8 text-green-600" />
+    </div>
+    <CreditCard className="h-6 w-6 md:h-8 md:w-8 text-green-600" />
+  </div>
+  
+  <div className="mt-2 pt-2 border-t border-gray-100 grid grid-cols-2 gap-4">
+    <div className="flex flex-col">
+      {/* <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">Online</span> */}
+      <span className="text-[10px] md:text-sm font-bold text-blue-600 flex items-center">
+        ₹{totals.onlineTotal}
+      </span>
+    </div>
+    <div className="flex flex-col border-l border-gray-100 pl-4">
+      {/* <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">Offline</span> */}
+      <span className="text-[10px] md:text-sm font-bold text-orange-600 flex items-center">
+        ₹{totals.offlineTotal}
+      </span>
     </div>
   </div>
 </div>

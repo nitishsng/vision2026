@@ -72,7 +72,7 @@ const OpticalPayment: React.FC<OpticalPaymentProps> = ({
       ...prev,
       opticalPayDetails: [
         ...prev.opticalPayDetails,
-        { date: todayDate, amount: 0, transectionId: "" },
+        { date: todayDate, amount: 0, transectionId: "", mode: "offline" as "online" | "offline" },
       ],
     }));
   };
@@ -105,8 +105,8 @@ const removePaymentField = (index: number) => {
         {formData.opticalPayDetails.length > 0 && (
           <div className="grid grid-cols-3 w-full text-xs md:text-sm font-medium text-gray-700 px-1 md:px-3">
             <label>Date</label>
-            <label>T-Id</label>
-            <label>Amount</label>
+            <label>Mode</label>
+            <label>T-Id/Amt</label>
           </div>
         )}
 
@@ -131,42 +131,56 @@ const removePaymentField = (index: number) => {
               </div>
 
               <div className="flex flex-col">
-                <input
-                  type="text"
-                  name="transectionId"
-                  value={med.transectionId}
+                <select
+                  name="mode"
+                  value={med.mode}
                   onChange={(e) => handleAdvanceChange(e, index)}
-                  placeholder="Enter Transection ID"
                   disabled={
                     !(index === lastAddedIndex || eligibleForFeatures(4))
                   }
                   className="border p-1 md:p-2 rounded-sm w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
-                />
+                >
+                  <option value="offline">Offline (Cash)</option>
+                  <option value="online">Online</option>
+                </select>
               </div>
 
               <div className="flex flex-col">
-                <div className="flex items-center">
+                <div className="flex flex-col gap-1">
                   <input
-                    type="number"
-                    name="amount"
-                    value={med.amount}
+                    type="text"
+                    name="transectionId"
+                    value={med.transectionId}
                     onChange={(e) => handleAdvanceChange(e, index)}
-                    placeholder="Enter Amount"
+                    placeholder="T-ID"
                     disabled={
                       !(index === lastAddedIndex || eligibleForFeatures(4))
                     }
-                    max={maxValue}
-                    className="border p-1 md:p-2 rounded-sm w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+                    className="border p-1 rounded-sm w-full text-xs md:text-sm"
                   />
-                  {eligibleForFeatures(4) && (
-                    <button
-                      type="button"
-                      onClick={() => removePaymentField(index)}
-                      className="bg-red-500 text-white rounded-sm px-2 md:px-4 py-2 ml-1 hover:bg-red-600 transition"
-                    >
-                      <Delete className="w-4 h-4 md:w-5 md:h-6" />
-                    </button>
-                  )}
+                  <div className="flex items-center">
+                    <input
+                      type="number"
+                      name="amount"
+                      value={med.amount}
+                      onChange={(e) => handleAdvanceChange(e, index)}
+                      placeholder="Amount"
+                      disabled={
+                        !(index === lastAddedIndex || eligibleForFeatures(4))
+                      }
+                      max={maxValue}
+                      className="border p-1 rounded-sm w-full text-sm md:text-base"
+                    />
+                    {eligibleForFeatures(4) && (
+                      <button
+                        type="button"
+                        onClick={() => removePaymentField(index)}
+                        className="bg-red-500 text-white rounded-sm px-2 py-1 ml-1 hover:bg-red-600 transition"
+                      >
+                        <Delete className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

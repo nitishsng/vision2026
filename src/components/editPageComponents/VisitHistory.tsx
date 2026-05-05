@@ -87,31 +87,49 @@ const removeVisitObject = (index: number) => {
               />
             </div>
 
-            {/* Visit Price */}
-            <div className="flex gap-2 items-center">
-              <input
-                type="number"
-                value={Number(v.visitPrice) || 0}
+            {/* Visit Price & Mode */}
+            <div className="flex flex-col gap-1">
+              <select
+                value={v.mode || "offline"}
                 onChange={(e) =>
                   handleNestedChange(
-                    `visitDetails.${index}.visitPrice`,
+                    `visitDetails.${index}.mode`,
                     e.target.value
                   )
                 }
                 disabled={!editable}
-                className={`border px-2 py-1 md:py-2 rounded text-sm w-full ${
+                className={`border px-2 py-1 rounded text-xs w-full ${
                   !editable && "bg-gray-100 cursor-not-allowed"
                 }`}
-              />
+              >
+                <option value="offline">Offline</option>
+                <option value="online">Online</option>
+              </select>
+              <div className="flex gap-2 items-center">
+                <input
+                  type="number"
+                  value={Number(v.visitPrice) || 0}
+                  onChange={(e) =>
+                    handleNestedChange(
+                      `visitDetails.${index}.visitPrice`,
+                      e.target.value
+                    )
+                  }
+                  disabled={!editable}
+                  className={`border px-2 py-1 md:py-2 rounded text-sm w-full ${
+                    !editable && "bg-gray-100 cursor-not-allowed"
+                  }`}
+                />
 
-              {eligibleForFeatures(4) && (
-                <button
-                  onClick={() => removeVisitObject(index)}
-                  className="text-red-500"
-                >
-                  <Delete className="w-8 h-8" />
-                </button>
-              )}
+                {eligibleForFeatures(4) && (
+                  <button
+                    onClick={() => removeVisitObject(index)}
+                    className="text-red-500"
+                  >
+                    <Delete className="w-8 h-8" />
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         );
@@ -127,6 +145,7 @@ const removeVisitObject = (index: number) => {
               const newEntry = {
                 visitDate: todayDate,
                 visitPrice: 0,
+                mode: "offline" as "online" | "offline",
               };
 
               const newList = [...list, newEntry];

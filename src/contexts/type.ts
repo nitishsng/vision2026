@@ -95,11 +95,11 @@ export type PatientFullType = {
   // Billing / Order Info
   billNo: string;
   visitDate?: string;
-  visitDetails?: { visitDate: string; visitPrice: number }[];
+  visitDetails?: { visitDate: string; visitPrice: number; mode: "online" | "offline" }[];
   // Optical
 
   // Order
-  opticalPayDetails: { date: string; amount: number; transectionId: string }[];
+  opticalPayDetails: { date: string; amount: number; transectionId: string; mode: "online" | "offline" }[];
 
   orderDate: string;
 
@@ -111,7 +111,7 @@ export type PatientFullType = {
   deliveryDate?: string;
   discount?:number;
   // Medicine
-  medicines: { date: string; medicinename: string; price: number }[];
+  medicines: { date: string; medicinename: string; price: number; mode: "online" | "offline" }[];
 
   // Medical Info
   primaryWorkupBy?: string;

@@ -86,10 +86,48 @@ function computeTotals(patients, startStr, endStr) {
   const visitTotal = sumVisit(patients, startStr, endStr)
   const medicineTotal = sumMedicines(patients, startStr, endStr)
   const opticalTotal = sumOpticalPayments(patients, startStr, endStr)
+  
+  let onlineTotal = 0;
+  let offlineTotal = 0;
+
+  if (Array.isArray(patients)) {
+    patients.forEach(p => {
+      // Visit details
+      if (Array.isArray(p.visitDetails)) {
+        p.visitDetails.forEach(v => {
+          if (isInRange(v.visitDate, startStr, endStr)) {
+            if (v.mode === 'online') onlineTotal += Number(v.visitPrice || 0);
+            else offlineTotal += Number(v.visitPrice || 0); // default to offline for legacy data
+          }
+        });
+      }
+      // Medicines
+      if (Array.isArray(p.medicines)) {
+        p.medicines.forEach(m => {
+          if (isInRange(m.date, startStr, endStr)) {
+            if (m.mode === 'online') onlineTotal += Number(m.price || 0);
+            else offlineTotal += Number(m.price || 0);
+          }
+        });
+      }
+      // Optical
+      if (Array.isArray(p.opticalPayDetails)) {
+        p.opticalPayDetails.forEach(d => {
+          if (isInRange(d.date, startStr, endStr)) {
+            if (d.mode === 'online') onlineTotal += Number(d.amount || 0);
+            else offlineTotal += Number(d.amount || 0);
+          }
+        });
+      }
+    });
+  }
+
   return {
     visitTotal,
     medicineTotal,
     opticalTotal,
+    onlineTotal,
+    offlineTotal,
     totalAdvance: visitTotal + medicineTotal + opticalTotal,
   }
 }
