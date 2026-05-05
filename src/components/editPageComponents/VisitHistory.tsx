@@ -54,84 +54,83 @@ const removeVisitObject = (index: number) => {
   return (
     <div className="flex flex-col md:w-[350px] w-full">
       
-      {
-        formData.visitDetails?.length &&(
-          <label className="font-medium text-gray-700 mb-1">Visit History</label>
-        )
-      }
+      <h3 className="font-semibold text-base">Visit History</h3>
+      {formData.visitDetails && formData.visitDetails.length > 0 && (
+        <div className="grid mb-2 grid-cols-[110px_70px_1fr_40px] gap-1 w-full text-[15px] md:text-xs font-bold mt-3 px-1">
+          <div>Date</div>
+          <div>Mode</div>
+          <div>Price</div>
+        </div>
+      )}
 
       {(formData.visitDetails || []).map((v, index) => {
         const editable = isEditable(index);
 
         return (
-          <div
-            key={index}
-            className="grid grid-cols-2 gap-2 items-center w-full p-2 rounded"
-          >
-            {/* Visit Date */}
-            <div className="flex flex-col">
-              <label className="font-medium mb-1">Visit Date</label>
-              <DateInput
-                name="visitDate"
-                value={v.visitDate || ""}
-                onChange={(e) =>
-                  handleNestedChange(
-                    `visitDetails.${index}.visitDate`,
-                    e.target.value
-                  )
-                }
-                disabled={!editable}
-                className={`border px-2 py-1 md:py-2 rounded text-sm w-full ${
-                  !editable && "bg-gray-100 cursor-not-allowed"
-                }`}
-              />
-            </div>
+    <div
+  key={index}
+  className="grid grid-cols-[110px_70px_1fr_40px] gap-1 items-center w-full p-1"
+>
+  {/* Visit Date */}
+  <DateInput
+    name="visitDate"
+    value={v.visitDate || ""}
+    onChange={(e) =>
+      handleNestedChange(
+        `visitDetails.${index}.visitDate`,
+        e.target.value
+      )
+    }
+    disabled={!editable}
+    className={`border px-1 py-2 text-[15px] w-full min-w-0 rounded-sm ${
+      !editable && "bg-gray-100 cursor-not-allowed"
+    }`}
+  />
 
-            {/* Visit Price & Mode */}
-            <div className="flex flex-col gap-1">
-              <select
-                value={v.mode || "offline"}
-                onChange={(e) =>
-                  handleNestedChange(
-                    `visitDetails.${index}.mode`,
-                    e.target.value
-                  )
-                }
-                disabled={!editable}
-                className={`border px-2 py-1 rounded text-xs w-full ${
-                  !editable && "bg-gray-100 cursor-not-allowed"
-                }`}
-              >
-                <option value="offline">Offline</option>
-                <option value="online">Online</option>
-              </select>
-              <div className="flex gap-2 items-center">
-                <input
-                  type="number"
-                  value={Number(v.visitPrice) || 0}
-                  onChange={(e) =>
-                    handleNestedChange(
-                      `visitDetails.${index}.visitPrice`,
-                      e.target.value
-                    )
-                  }
-                  disabled={!editable}
-                  className={`border px-2 py-1 md:py-2 rounded text-sm w-full ${
-                    !editable && "bg-gray-100 cursor-not-allowed"
-                  }`}
-                />
+  {/* Mode */}
+  <select
+    value={v.mode || "offline"}
+    onChange={(e) =>
+      handleNestedChange(
+        `visitDetails.${index}.mode`,
+        e.target.value
+      )
+    }
+    disabled={!editable}
+    className={`border px-1 py-2 text-[15px] w-full min-w-0 rounded-sm ${
+      !editable && "bg-gray-100 cursor-not-allowed"
+    }`}
+  >
+    <option value="offline">Off</option>
+    <option value="online">On</option>
+  </select>
 
-                {eligibleForFeatures(4) && (
-                  <button
-                    onClick={() => removeVisitObject(index)}
-                    className="text-red-500"
-                  >
-                    <Delete className="w-8 h-8" />
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
+  {/* Price */}
+  <input
+    type="number"
+    value={Number(v.visitPrice) || 0}
+    onChange={(e) =>
+      handleNestedChange(
+        `visitDetails.${index}.visitPrice`,
+        e.target.value
+      )
+    }
+    disabled={!editable}
+    className={`border px-1 py-2 text-[15px] w-full min-w-0 rounded-sm ${
+      !editable && "bg-gray-100 cursor-not-allowed"
+    }`}
+  />
+
+  {/* Delete */}
+  {eligibleForFeatures(4) && (
+    <button
+      onClick={() => removeVisitObject(index)}
+        className="bg-red-500 text-white px-1 py-2 flex justify-center items-center rounded-sm"
+            >
+              <Delete className="w-4 h-4" />
+            </button>
+  )}
+</div>
         );
       })}
 
@@ -157,7 +156,7 @@ const removeVisitObject = (index: number) => {
                 prev ? { ...prev, visitDetails: newList } : prev
               );
             }}
-            className="px-10 py-2 bg-blue-600 text-white rounded text-sm md:text-base"
+            className="px-2 py-2 bg-blue-600 text-white rounded text-sm md:text-base"
           >
             + Add Visit
           </button>
@@ -172,7 +171,7 @@ const removeVisitObject = (index: number) => {
               (total, v) => total + Number(v.visitPrice || 0),
               0
             )}
-            className="border py-1 px-2 md:py-2 rounded-lg bg-gray-100 cursor-not-allowed max-w-[150px]"
+            className="border py-2 px-2 rounded-sm bg-gray-100 cursor-not-allowed w-full text-center"
           />
         </div>
       </div>

@@ -103,10 +103,13 @@ const removePaymentField = (index: number) => {
         <h3 className="font-semibold text-base">Advance Payments</h3>
 
         {formData.opticalPayDetails.length > 0 && (
-          <div className="grid grid-cols-3 w-full text-xs md:text-sm font-medium text-gray-700 px-1 md:px-3">
-            <label>Date</label>
-            <label>Mode</label>
-            <label>T-Id/Amt</label>
+          <div className="grid grid-cols-[80px_55px_1fr] gap-1 w-full text-[10px] md:text-xs font-bold mt-2">
+            <div className="px-1 py-1 rounded-t-sm">Date</div>
+            <div className="px-1 py-1 rounded-t-sm">Mode</div>
+            <div className="px-1 py-1 rounded-t-sm flex overflow-hidden">
+              <div className="w-[40%] border-r border-red-500/30">T-Id</div>
+              <div className="w-[60%]">Amount</div>
+            </div>
           </div>
         )}
 
@@ -114,76 +117,65 @@ const removePaymentField = (index: number) => {
           const maxValue = getMaxForIndex(index);
 
           return (
-            <div
-              key={index}
-              className="grid grid-cols-3 gap-1 items-end py-1 md:p-2 rounded"
-            >
-              <div className="flex flex-col">
-                <DateInput
-                  name="date"
-                  value={med.date}
-                  onChange={(e) => handleAdvanceChange(e, index)}
-                  disabled={
-                    !(index === lastAddedIndex || eligibleForFeatures(4))
-                  }
-                  className="border py-1 md:p-2 rounded-sm w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
-                />
-              </div>
+<div
+  key={index}
+  className="grid grid-cols-[80px_55px_1fr] gap-1 items-center py-1 w-full"
+>
+  {/* Date */}
+  <DateInput
+    name="date"
+    value={med.date}
+    onChange={(e) => handleAdvanceChange(e, index)}
+    disabled={!(index === lastAddedIndex || eligibleForFeatures(4))}
+    className="border px-1 py-2 text-[15px] w-full"
+  />
 
-              <div className="flex flex-col">
-                <select
-                  name="mode"
-                  value={med.mode}
-                  onChange={(e) => handleAdvanceChange(e, index)}
-                  disabled={
-                    !(index === lastAddedIndex || eligibleForFeatures(4))
-                  }
-                  className="border p-1 md:p-2 rounded-sm w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
-                >
-                  <option value="offline">Offline (Cash)</option>
-                  <option value="online">Online</option>
-                </select>
-              </div>
+  {/* Mode */}
+  <select
+    name="mode"
+    value={med.mode}
+    onChange={(e) => handleAdvanceChange(e, index)}
+    disabled={!(index === lastAddedIndex || eligibleForFeatures(4))}
+    className="border px-1 py-2 text-[15px] w-full"
+  >
+    <option value="offline">Off</option>
+    <option value="online">On</option>
+  </select>
 
-              <div className="flex flex-col">
-                <div className="flex flex-col gap-1">
-                  <input
-                    type="text"
-                    name="transectionId"
-                    value={med.transectionId}
-                    onChange={(e) => handleAdvanceChange(e, index)}
-                    placeholder="T-ID"
-                    disabled={
-                      !(index === lastAddedIndex || eligibleForFeatures(4))
-                    }
-                    className="border p-1 rounded-sm w-full text-xs md:text-sm"
-                  />
-                  <div className="flex items-center">
-                    <input
-                      type="number"
-                      name="amount"
-                      value={med.amount}
-                      onChange={(e) => handleAdvanceChange(e, index)}
-                      placeholder="Amount"
-                      disabled={
-                        !(index === lastAddedIndex || eligibleForFeatures(4))
-                      }
-                      max={maxValue}
-                      className="border p-1 rounded-sm w-full text-sm md:text-base"
-                    />
-                    {eligibleForFeatures(4) && (
-                      <button
-                        type="button"
-                        onClick={() => removePaymentField(index)}
-                        className="bg-red-500 text-white rounded-sm px-2 py-1 ml-1 hover:bg-red-600 transition"
-                      >
-                        <Delete className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
+  {/* Right side (compact inline) */}
+  <div className="flex items-center gap-1 min-w-0">
+    <input
+      type="text"
+      name="transectionId"
+      value={med.transectionId}
+      onChange={(e) => handleAdvanceChange(e, index)}
+      placeholder="T"
+      disabled={!(index === lastAddedIndex || eligibleForFeatures(4))}
+      className="border px-1 py-2 text-[15px] w-[40%]"
+    />
+
+    <input
+      type="number"
+      name="amount"
+      value={med.amount}
+      onChange={(e) => handleAdvanceChange(e, index)}
+      placeholder="₹"
+      disabled={!(index === lastAddedIndex || eligibleForFeatures(4))}
+      max={maxValue}
+      className="border px-1 py-2 text-[15px] w-[60%]"
+    />
+
+    {eligibleForFeatures(4) && (
+      <button
+        type="button"
+        onClick={() => removePaymentField(index)}
+        className="bg-red-500 text-white px-1 py-1"
+      >
+        <Delete className="w-5 h-5" />
+      </button>
+    )}
+  </div>
+</div>
           );
         })}
 
@@ -191,7 +183,7 @@ const removePaymentField = (index: number) => {
           <button
             type="button"
             onClick={addPayment}
-            className="bg-blue-500 text-white rounded-sm px-2 md:px-3 py-1 md:py-2 w-fit hover:bg-blue-600 transition text-sm md:text-base"
+            className="bg-blue-500 text-white rounded-sm px-2 md:px-3 py-2 w-fit hover:bg-blue-600 transition text-sm md:text-base h-full"
           >
             + Add Payment
           </button>
@@ -204,7 +196,7 @@ const removePaymentField = (index: number) => {
                 0
               )}
               readOnly
-              className="border py-2 min-w-[90px] md:min-w-[100px] rounded-sm bg-gray-100 text-gray-700 text-center text-sm md:text-base"
+              className="border py-2 min-w-[90px] md:min-w-[100px] rounded-sm bg-gray-100 text-gray-700 text-center text-sm md:text-base w-full"
             />
           </div>
         </div>

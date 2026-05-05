@@ -554,7 +554,7 @@ const EditPage = () => {
           {/* 💳 Optical Payment */}
           <div className="flex flex-col lg:flex-row gap-2">
             {/* Totals */}
-            <div className="grid grid-cols-3  gap-2 w-full lg:max-w-[250px]">
+            <div className="grid grid-cols-3  gap-2 w-full lg:max-w-[300px]">
               <div>
                 <label className="font-medium mb-1 block">Optical Total</label>
                 <input

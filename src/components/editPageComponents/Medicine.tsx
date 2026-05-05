@@ -103,117 +103,122 @@ const removeMedicineField = (index: number) => {
   };
 
   return (
-    <div className="flex flex-col gap-2 w-full">
-      {/* Header */}
-      {formData.medicines.length > 0 && (
-        <div className="grid grid-cols-4 w-full">
-          <label className="font-medium px-3 text-gray-700">Date</label>
-          <label className="font-medium px-3 text-gray-700">M-Name</label>
-          <label className="font-medium px-3 text-gray-700">Mode</label>
-          <label className="font-medium px-3 text-gray-700">Price</label>
-        </div>
-      )}
-
-      {/* Medicine Rows */}
-      {formData.medicines.map((med, index) => {
-        const isEditable = eligibleForFeatures(4) || index === editableIndex;
-
-        return (
-          <div key={index} className="grid grid-cols-4 gap-1 items-end">
-            {/* Date */}
-            <DateInput
-                value={med.date}
-                onChange={(e) => updateField(index, "date", e.target.value)}
-                className={`border py-1 px-1 md:py-2 rounded-sm w-full focus:ring-2 focus:ring-blue-400 focus:border-blue-400 ${
-                  !isEditable ? "bg-gray-200 cursor-not-allowed" : ""
-                }`}
-                readOnly={!isEditable}
-              />
-            {/* Medicine Name */}
-            <input
-              type="text"
-              list="medicine-options"
-              value={med.medicinename}
-              readOnly={!isEditable}
-              onChange={(e) =>
-                updateField(index, "medicinename", e.target.value)
-              }
-              placeholder="Medicine Name"
-              className={`border py-[3px] px-1 md:py-2 rounded-sm w-full focus:ring-2 focus:ring-blue-400 focus:border-blue-400 ${
-                !isEditable ? "bg-gray-200 cursor-not-allowed" : ""
-              }`}
-            />
-
-            {/* Mode */}
-            <select
-              value={med.mode || "offline"}
-              disabled={!isEditable}
-              onChange={(e) => updateField(index, "mode", e.target.value)}
-              className={`border py-[3px] px-1 md:py-2 rounded-sm w-full focus:ring-2 focus:ring-blue-400 focus:border-blue-400 ${
-                !isEditable ? "bg-gray-200 cursor-not-allowed" : ""
-              }`}
-            >
-              <option value="offline">Offline</option>
-              <option value="online">Online</option>
-            </select>
-
-            {/* Price + Delete */}
-            <div className="flex">
-              <input
-                type="number"
-                value={med.price}
-                readOnly={!isEditable}
-                onChange={(e) =>
-                  updateField(index, "price", Number(e.target.value))
-                }
-                className={`border py-[3px] px-1 md:py-2 rounded-sm w-full focus:ring-2 focus:ring-blue-400 focus:border-blue-400 ${
-                  !isEditable ? "bg-gray-200 cursor-not-allowed" : ""
-                }`}
-              />
-
-              {eligibleForFeatures(4) && (
-                <button
-                  type="button"
-                  onClick={() => removeMedicineField(index)}
-                  className="bg-red-500 text-white rounded-lg px-2 ml-2"
-                >
-                  <Delete className="w-4 h-4" />
-                </button>
-              )}
-            </div>
-          </div>
-        );
-      })}
-
-      {/* Datalist */}
-      <datalist id="medicine-options">
-        {Object.keys(medicineList).map((name) => (
-          <option key={name} value={name} />
-        ))}
-      </datalist>
-
-      {/* Add + Total */}
-      {/* Add + Total */}
-      <div className="flex flex-col-2 sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3 mt-3 px-2 sm:px-0">
-        <button
-          type="button"
-          onClick={addMedicineField}
-          className="w-full sm:w-auto px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition text-sm sm:text-base"
-        >
-          + Medicine
-        </button>
-
-        <input
-          type="number"
-          readOnly
-          value={formData.medicines.reduce(
-            (sum, m) => sum + (Number(m.price) || 0),
-            0
-          )}
-          className="border py-2 px-2 rounded-lg bg-gray-100 text-center w-full sm:w-[120px] text-sm sm:text-base"
-        />
-      </div>
+<div className="flex flex-col gap-2 w-full">
+  {/* Header */}
+  <h3 className="font-semibold">Medicine</h3>
+  {formData.medicines.length > 0 && (
+    <div className="grid grid-cols-[70px_1fr_60px_85px] lg:grid-cols-[70px_1fr_140px_130px] w-full text-[15px] font-medium text-gray-700 px-1">
+      <label>Date</label>
+      <label>M-Name</label>
+      <label>Mode</label>
+      <label>Price</label>
     </div>
+  )}
+
+  {/* Medicine Rows */}
+  {formData.medicines.map((med, index) => {
+    const isEditable = eligibleForFeatures(4) || index === editableIndex;
+
+    return (
+      <div
+        key={index}
+        className="grid grid-cols-[70px_1fr_60px_85px] lg:grid-cols-[70px_1fr_140px_140px] gap-1 items-center w-full"
+      >
+        {/* Date */}
+        <DateInput
+          value={med.date}
+          onChange={(e) => updateField(index, "date", e.target.value)}
+          readOnly={!isEditable}
+          className={`border px-[2px] py-2 text-[15px] w-full min-w-0 rounded-sm ${
+            !isEditable ? "bg-gray-200 cursor-not-allowed" : ""
+          }`}
+        />
+
+        {/* Medicine Name */}
+        <input
+          type="text"
+          list="medicine-options"
+          value={med.medicinename}
+          readOnly={!isEditable}
+          onChange={(e) =>
+            updateField(index, "medicinename", e.target.value)
+          }
+          placeholder="Med"
+          className={`border px-[2px] py-2 text-[15px] w-full min-w-0 rounded-sm ${
+            !isEditable ? "bg-gray-200 cursor-not-allowed" : ""
+          }`}
+        />
+
+        {/* Mode */}
+        <select
+          value={med.mode || "offline"}
+          disabled={!isEditable}
+          onChange={(e) => updateField(index, "mode", e.target.value)}
+          className={`border px-[2px] py-2 text-[15px] w-full min-w-0 rounded-sm ${
+            !isEditable ? "bg-gray-200 cursor-not-allowed" : ""
+          }`}
+        >
+          <option value="offline">Off</option>
+          <option value="online">On</option>
+        </select>
+
+        {/* Price + Delete */}
+        <div className="flex items-center gap-1 min-w-0">
+          <input
+            type="number"
+            value={med.price}
+            readOnly={!isEditable}
+            onChange={(e) =>
+              updateField(index, "price", Number(e.target.value))
+            }
+            placeholder="₹"
+            className={`border px-[2px] py-2 text-[15px] w-full min-w-0 rounded-sm ${
+              !isEditable ? "bg-gray-200 cursor-not-allowed" : ""
+            }`}
+          />
+
+          {eligibleForFeatures(4) && (
+            <button
+              type="button"
+              onClick={() => removeMedicineField(index)}
+              className="bg-red-500 text-white px-1 py-1 rounded-sm"
+            >
+              <Delete className="w-5 h-6" />
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  })}
+
+  {/* Datalist */}
+  <datalist id="medicine-options">
+    {Object.keys(medicineList).map((name) => (
+      <option key={name} value={name} />
+    ))}
+  </datalist>
+
+  {/* Add + Total */}
+  <div className="grid grid-cols-2 gap-2 mt-2 px-1">
+    <button
+      type="button"
+      onClick={addMedicineField}
+      className="bg-blue-500 text-white rounded-sm px-2 py-2 text-sm hover:bg-blue-600 transition h-full"
+    >
+      + Medicine
+    </button>
+
+    <input
+      type="number"
+      readOnly
+      value={formData.medicines.reduce(
+        (sum, m) => sum + (Number(m.price) || 0),
+        0
+      )}
+      className="border py-2 px-1 rounded-sm bg-gray-100 text-center text-sm w-full"
+    />
+  </div>
+</div>
   );
 };
 
