@@ -17,16 +17,16 @@ export function useDashboardData() {
   const router = useRouter();
 
   const fetchData = async () => {
-    setIsLoading(true);
     try {
       // 1️⃣ Get user from localStorage
       const user = JSON.parse(localStorage.getItem("user") || "null");
 
-      // 2️⃣ Redirect if no user or invalid role
+      // 2️⃣ STOP if no user or invalid role (prevents 403 on homepage)
       if (!user || (user.role !== "admin" && user.role !== "operator")) {
-        router.push("/");
         return;
       }
+
+      setIsLoading(true);
 
       // 3️⃣ Fetch dashboard data with user info header
       const res = await fetch("/api/dashboard", {
@@ -40,7 +40,6 @@ export function useDashboardData() {
 
       // 4️⃣ Handle forbidden/unauthorized responses
       if (res.status === 401 || res.status === 403) {
-        router.push("/");
         return;
       }
 

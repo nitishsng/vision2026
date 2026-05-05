@@ -29,11 +29,11 @@ export function AdminDashboard() {
       setActiveTab(savedTab);
     }
   }, []); // Run once on mount
-
+    
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return eligibleForFeatures(4) ? <DashboardOverview /> : <VisibleMessage />;
+        return eligibleForFeatures(3) ? <DashboardOverview /> : <VisibleMessage />;
       case 'schedule':
         return <ScheduleTab/>;
       case 'appointments':
