@@ -147,16 +147,16 @@ export function ExpensesTab() {
   const totalExpenses = filteredExpenses.reduce((sum, exp) => sum + exp.amount, 0);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+          <h1 className="text-2xl font-bold text-gray-900 flex flex-col md:flex-row md:items-center md:gap-[30px]">
             <div className="flex items-center gap-2">
               <TrendingDown className="h-6 w-6 text-red-500" />
               Expenses
             </div>
-            <span className="text-lg md:text-xl font-bold text-red-600 bg-red-50 px-4 py-1 rounded-lg border border-red-100">
+            <span className="text-lg md:text-xl ml-[40px] md:ml-0 font-bold text-red-600 bg-red-50 px-4 rounded-lg border border-red-100 w-fit">
               ₹{totalExpenses.toLocaleString()}
             </span>
           </h1>
@@ -173,57 +173,79 @@ export function ExpensesTab() {
 
       {/* Add Form */}
       {showAddForm && (
-        <div className="bg-white rounded-xl p-6 border border-red-100 shadow-sm animate-in fade-in slide-in-from-top-4 duration-300">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">New Expense</h3>
-          <form onSubmit={handleAddExpense} className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
-              <input
-                type="text"
-                value={todayDate}
-                readOnly
-                className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-500 cursor-not-allowed"
-              />
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-2 md:p-4 z-50">
+          <div className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 w-full max-w-sm md:max-w-md border border-red-100 shadow-2xl animate-in zoom-in duration-200">
+            <div className="flex justify-between items-center mb-4 md:mb-6">
+              <h3 className="text-lg md:text-xl font-bold text-gray-900">Add New Expense</h3>
+              <button 
+                onClick={() => setShowAddForm(false)}
+                className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors"
+              >
+                <X className="h-5 w-5 md:h-6 md:w-6" />
+              </button>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-              <input
-                type="text"
-                placeholder="What was it for?"
-                value={newExpense.text}
-                onChange={(e) => setNewExpense({ ...newExpense, text: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Amount (₹)</label>
-              <div className="flex gap-2">
+            
+            <form onSubmit={handleAddExpense} className="space-y-4 md:space-y-5">
+              <div>
+                <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-1">Date</label>
+                <input
+                  type="text"
+                  value={todayDate}
+                  readOnly
+                  className="w-full px-3 md:px-4 py-2 md:py-2.5 bg-gray-50 border border-gray-200 rounded-lg md:rounded-xl text-gray-500 cursor-not-allowed font-medium text-sm"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-1">Description</label>
+                <input
+                  type="text"
+                  placeholder="What was it for?"
+                  value={newExpense.text}
+                  onChange={(e) => setNewExpense({ ...newExpense, text: e.target.value })}
+                  className="w-full px-3 md:px-4 py-2 md:py-2.5 border border-gray-300 rounded-lg md:rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all text-sm"
+                  autoFocus
+                />
+              </div>
+              
+              <div>
+                <label className="block text-xs md:text-sm font-semibold text-gray-700 mb-1">Amount (₹)</label>
                 <input
                   type="number"
                   placeholder="0.00"
                   value={newExpense.amount}
                   onChange={(e) => setNewExpense({ ...newExpense, amount: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                  className="w-full px-3 md:px-4 py-2 md:py-2.5 border border-gray-300 rounded-lg md:rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all text-base md:text-lg font-bold text-red-600"
                 />
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowAddForm(false)}
+                  className="flex-1 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg md:rounded-xl font-semibold hover:bg-gray-200 transition-colors text-sm"
+                >
+                  Cancel
+                </button>
                 <button
                   type="submit"
                   disabled={isSaving}
-                  className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2 rounded-lg font-medium transition-colors disabled:opacity-50 shadow-sm"
+                  className="flex-1 bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg md:rounded-xl font-semibold transition-all disabled:opacity-50 shadow-lg shadow-red-500/20 flex items-center justify-center gap-2 text-sm"
                 >
                   {isSaving ? "Saving..." : "Save"}
                 </button>
               </div>
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
       )}
 
       {/* Filters Bar - Styled like the image */}
       <div className="bg-white rounded-lg p-3 md:p-5 border border-gray-200 shadow-sm">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-2 items-end">
           {/* Search */}
-          <div className="md:col-span-5">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Search</label>
+          <div className="lg:col-span-5 w-full">
+            {/* <label className="block text-sm font-medium text-gray-700 mb-1">Search</label> */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <input
@@ -236,41 +258,35 @@ export function ExpensesTab() {
             </div>
           </div>
 
-          {/* Start Date */}
-          <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
-            <div className="relative">
+          {/* Date Range and Clear */}
+          <div className="lg:col-span-7 grid grid-cols-3 gap-2 items-end w-full">
+            <div>
+              {/* <label className="block hide text-xs md:text-sm font-medium text-gray-700 mb-1">Start Date</label> */}
               <DateInput
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm"
+                className="w-full px-2 md:px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-[10px] md:text-sm"
               />
             </div>
-          </div>
 
-          {/* End Date */}
-          <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
-            <div className="relative">
+            <div>
+              {/* <label className="block text-xs md:text-sm font-medium text-gray-700 mb-1">End Date</label> */}
               <DateInput
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-sm"
+                className="w-full px-2 md:px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-[10px] md:text-sm"
               />
             </div>
-          </div>
 
-          {/* Clear Filters */}
-          <div className="md:col-span-3">
             <button
               onClick={() => {
                 setSearchTerm("");
                 setStartDate("");
                 setEndDate("");
               }}
-              className="w-full px-4 py-2 bg-gray-50 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors text-sm font-medium border border-gray-200"
+              className="px-2 md:px-4 py-2 bg-gray-50 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors text-[10px] md:text-sm font-medium border border-gray-200 h-[34px] md:h-[38px] flex items-center justify-center"
             >
-              Clear Filters
+              Clear
             </button>
           </div>
         </div>
@@ -295,7 +311,7 @@ export function ExpensesTab() {
                   
                   return (
                     <tr key={expense._id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 text-sm text-gray-600">
+                      <td className="px-6 py-4 text-sm text-gray-600 whitespace-nowrap">
                         {isEditing ? (
                           <DateInput
                             value={editForm.date}
@@ -303,7 +319,10 @@ export function ExpensesTab() {
                             className="w-full text-xs"
                           />
                         ) : (
-                          expense.date
+                          (() => {
+                            const [y, m, d] = expense.date.split("-");
+                            return `${d}/${m}/${y.slice(-2)}`;
+                          })()
                         )}
                       </td>
                       <td className="px-6 py-4 text-sm font-medium text-gray-900">
