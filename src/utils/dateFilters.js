@@ -82,13 +82,14 @@ function sumOpticalPayments(patients, startStr, endStr) {
 }
 
 
-function computeTotals(patients, startStr, endStr) {
+function computeTotals(patients, startStr, endStr, expenses = []) {
   const visitTotal = sumVisit(patients, startStr, endStr)
   const medicineTotal = sumMedicines(patients, startStr, endStr)
   const opticalTotal = sumOpticalPayments(patients, startStr, endStr)
   
   let onlineTotal = 0;
   let offlineTotal = 0;
+  let totalExpenses = 0;
 
   if (Array.isArray(patients)) {
     patients.forEach(p => {
@@ -122,12 +123,21 @@ function computeTotals(patients, startStr, endStr) {
     });
   }
 
+  if (Array.isArray(expenses)) {
+    expenses.forEach(e => {
+      if (isInRange(e.date, startStr, endStr)) {
+        totalExpenses += Number(e.amount || 0);
+      }
+    });
+  }
+
   return {
     visitTotal,
     medicineTotal,
     opticalTotal,
     onlineTotal,
     offlineTotal,
+    totalExpenses,
     totalAdvance: visitTotal + medicineTotal + opticalTotal,
   }
 }

@@ -5,12 +5,14 @@ import {
   staffWithId,
   serviceWithId,
   PatientFullTypeWithObjectId,
+  ExpenseWithId,
 } from "./type";
 
 export function useDashboardData() {
   const [staffs, setStaffs] = useState<staffWithId[]>([]);
   const [services, setServices] = useState<serviceWithId[]>([]);
   const [patients, setPatients] = useState<PatientFullTypeWithObjectId[]>([]);
+  const [expenses, setExpenses] = useState<ExpenseWithId[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
@@ -46,6 +48,7 @@ export function useDashboardData() {
       setStaffs(data.staff || []);
       setServices(data.services || []);
       setPatients(data.patients || []);
+      setExpenses(data.expenses || []);
     } catch (err) {
       console.error("Error fetching dashboard data:", err);
     } finally {
@@ -57,5 +60,5 @@ export function useDashboardData() {
     fetchData();
   }, []);
 
-  return { staffs, services, patients, fetchData, isLoading };
+  return { staffs, services, patients, expenses, fetchData, isLoading };
 }

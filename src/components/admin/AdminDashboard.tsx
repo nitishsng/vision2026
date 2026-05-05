@@ -13,6 +13,7 @@ import { ScheduleTab } from '../operator/ScheduleTab';
 import { OrdersTab } from './OrdersTab';
 import { MedicinesTab } from './MedicinesTab';
 import { AnalysisTab } from './AnalysisTab';
+import { ExpensesTab } from './ExpensesTab';
 import useEligibility from '../elegibleForfeatures';
 import VisibleMessage from '../VisibleMessage';
 
@@ -51,6 +52,8 @@ export function AdminDashboard() {
         return <OrdersTab />;
       case 'medicines':
         return <MedicinesTab />;
+      case 'expenses':
+        return eligibleForFeatures(3) ? <ExpensesTab /> : <VisibleMessage />;
       case 'settings':
         return <><div>Comming soon...</div></>;
       default:

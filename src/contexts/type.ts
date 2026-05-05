@@ -217,3 +217,12 @@ export const initialPatient: PatientFullTypeWithObjectId = {
   deliveryStatus: "pending",
   vision: [],
 };
+export type Expense = {
+  date: string;
+  amount: number;
+  text: string;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+export type ExpenseWithId = Expense & { _id?: string };

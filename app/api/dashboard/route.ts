@@ -22,13 +22,14 @@ export async function GET(req: Request) {
     const client = await clientPromise;
     const db = client.db(DB_Name);
 
-    const [services, patients, staff] = await Promise.all([
+    const [services, patients, staff, expenses] = await Promise.all([
       db.collection("services").find({}).sort({ createdAt: -1 }).toArray(),
       db.collection("patients").find({}).sort({ createdAt: -1 }).toArray(),
       db.collection("staff").find({}).sort({ createdAt: -1 }).toArray(),
+      db.collection("expenses").find({}).sort({ date: -1 }).toArray(),
     ]);
 
-    return NextResponse.json({ staff, services, patients });
+    return NextResponse.json({ staff, services, patients, expenses });
   } catch (err) {
     console.error("Error fetching dashboard data:", err);
     return NextResponse.json(

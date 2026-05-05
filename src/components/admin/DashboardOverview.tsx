@@ -9,6 +9,7 @@ import {
   IndianRupee,
   CreditCard,
   TrendingUp,
+  TrendingDown,
   BarChart3,
   Receipt,
   Calendar as CalendarIcon,
@@ -33,7 +34,7 @@ const {
 const getDateOnlyIST = (date: string) => normalizeYYYYMMDD(date) || "";
 
 export function DashboardOverview() {
-  const { staffs, patients, isLoading } = useDashboardData();
+  const { staffs, patients, expenses, isLoading } = useDashboardData();
 
   // --- Date range filter states ---
   const [startDate, setStartDate] = useState("");
@@ -73,7 +74,7 @@ console.log(startDate)
 
 
 
-const totals = computeTotals(patients, startDate, endDate);
+const totals = computeTotals(patients, startDate, endDate, expenses);
 const totalAdvance = totals.totalAdvance;
 const opticalAdvance = totals.opticalTotal;
 
@@ -145,7 +146,7 @@ const recentAppointments = cleanedPatients.slice(0, 5);
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-4">
             <span>Dashboard Overview</span>
             <span className="text-[16px] md:text-xl font-bold text-green-600 bg-green-100 px-4 py-1 rounded-lg">
-              ₹{totalAdvance + opticalDue}
+              ₹{totalAdvance + opticalDue - totals.totalExpenses}
             </span>
           </h1>
           <p className="text-gray-600 mt-1 hidden md:block">
@@ -200,6 +201,18 @@ const recentAppointments = cleanedPatients.slice(0, 5);
       <span className="text-[10px] md:text-sm font-bold text-orange-600 flex items-center">
         ₹{totals.offlineTotal}
       </span>
+    </div>
+  </div>
+</div>
+
+{/* 📉 Total Expenses */}
+<div className="bg-white rounded-xl p-2 md:p-4 border border-gray-100 shadow-sm hover:shadow-md transition">
+  <div>
+    <p className="text-sm font-medium text-gray-600">Total Expenses</p>
+
+    <div className="flex items-center justify-between gap-2 mt-1">
+      <p className="text-2xl font-bold text-red-600">{totals.totalExpenses}</p>
+      <TrendingDown className="h-6 w-6 md:h-8 md:w-8 text-red-500" />
     </div>
   </div>
 </div>

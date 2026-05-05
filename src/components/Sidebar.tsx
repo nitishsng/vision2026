@@ -3,7 +3,7 @@
 import React from 'react';
 import { 
   Calendar, Users, UserPlus, Settings, BarChart3, 
-  Eye, FileText, Clock, Shield, ShoppingCart, Pill, TrendingUp 
+  Eye, FileText, Clock, Shield, ShoppingCart, Pill, TrendingUp, TrendingDown 
 } from 'lucide-react';
 import { useAuth } from '@/src/contexts/AuthContext';
 
@@ -46,6 +46,7 @@ export function Sidebar({ onTabChange, isOpen, onClose }: SidebarProps) {
     { id: 'patients', label: 'Patients', icon: Users },
     { id: 'orders', label: 'Orders', icon: ShoppingCart },
     { id: 'medicines', label: 'Medicines', icon: Pill },
+    { id: 'expenses', label: 'Expenses', icon: TrendingDown },
     { id: 'analysis', label: 'Analysis', icon: TrendingUp },
     // { id: 'reports', label: 'Reports', icon: FileText },
     { id: 'operators', label: 'Operators', icon: UserPlus },
@@ -60,6 +61,7 @@ export function Sidebar({ onTabChange, isOpen, onClose }: SidebarProps) {
     { id: 'patients', label: 'Patients', icon: Users },
     { id: 'orders', label: 'Orders', icon: ShoppingCart },
     { id: 'medicines', label: 'Medicines', icon: Pill },
+    { id: 'expenses', label: 'Expenses', icon: TrendingDown },
     { id: 'analysis', label: 'Analysis', icon: TrendingUp },
     // { id: 'reports', label: 'Reports', icon: FileText },
   ];

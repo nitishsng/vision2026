@@ -11,6 +11,7 @@ import { ReportsTab } from "../admin/ReportsTab";
 import { OrdersTab } from "../admin/OrdersTab";
 import { MedicinesTab } from "../admin/MedicinesTab";
 import { AnalysisTab } from "../admin/AnalysisTab";
+import { ExpensesTab } from "../admin/ExpensesTab";
 import useEligibility from "../elegibleForfeatures";
 import VisibleMessage from "../VisibleMessage";
 export function OperatorDashboard() {
@@ -42,6 +43,8 @@ export function OperatorDashboard() {
         return <OrdersTab />;
       case "medicines":
         return <MedicinesTab />;
+      case "expenses":
+        return eligibleForFeatures(3) ? <ExpensesTab /> : <VisibleMessage />;
       case 'analysis':
          return eligibleForFeatures(4) ? <AnalysisTab /> :<VisibleMessage/>;
       default:
