@@ -9,9 +9,11 @@ import NewOrder from "../NewOrderMedicine";
 import Medicine from "../editPageComponents/Medicine";
 import Diagnosis from "../editPageComponents/Diagnosis";
 import useEligibility from "../elegibleForfeatures";
+import { useAuth } from "@/src/contexts/AuthContext";
 export function MedicinesTab() {
   const eligibleForFeatures = useEligibility();
   const { patients, fetchData, isLoading } = useDashboardData();
+  const { user } = useAuth();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
   const [formData, setFormData] = useState<PatientFullTypeWithObjectId | null>(
@@ -21,11 +23,11 @@ export function MedicinesTab() {
   const [searchTerm, setSearchTerm] = useState("");
   const [dateFilter, setDateFilter] = useState("");
 
-  useEffect(() => {
-    fetchData();
-  }, []);
   const [newOrderForm, setNewOrderForm] = useState(false);
   const [orderSuccess, setorderSuccess] = useState(false);
+  useEffect(() => {
+    fetchData();
+  }, [newOrderForm]);
 
   const formatDateDisplay = (date: Date | string) => {
     const d = new Date(date);
@@ -116,7 +118,11 @@ export function MedicinesTab() {
       const res = await fetch(`/api/patient?id=${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ _id: id, ...updatedFormData }),
+        body: JSON.stringify({ 
+          _id: id, 
+          ...updatedFormData,
+          updatedBy: { name: user?.name, id: user?.id }
+        }),
       });
 
       if (!res.ok) throw new Error("Failed to save");

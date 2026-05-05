@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { initialPatient, PatientFullTypeWithObjectId } from "../contexts/type";
+import { useDashboardData } from "../contexts/dataCollection";
 import { DateInput } from "./ui/DateInput";
+import { useAuth } from "../contexts/AuthContext";
 
 import toast from "react-hot-toast";
 interface PatientFormProps {
@@ -14,6 +16,8 @@ export const appointmentForm: React.FC<PatientFormProps> = ({
   setBookingSuccess,
   setFrom,
 }) => {
+  const { user } = useAuth();
+  const { fetchData } = useDashboardData();
   const [formValues, setFormValues] =
     useState<PatientFullTypeWithObjectId>(initialPatient);
   const [loading, setLoading] = useState(false);
@@ -53,7 +57,11 @@ export const appointmentForm: React.FC<PatientFormProps> = ({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formValues),
+        body: JSON.stringify({
+          ...formValues,
+          createdBy: { name: user?.name || "System", id: user?.id || "system" },
+          updatedBy: { name: user?.name || "System", id: user?.id || "system" },
+        }),
       });
 
       if (!res.ok) {
@@ -61,6 +69,7 @@ export const appointmentForm: React.FC<PatientFormProps> = ({
       }
       const result = await res.json();
       toast.success("Appointment Booked Successfully");
+      fetchData();
       setLoading(false);
       setBookingSuccess(true);
       setShowBookingForm(false);

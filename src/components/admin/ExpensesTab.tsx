@@ -51,6 +51,8 @@ export function ExpensesTab() {
           date: todayDate,
           amount: Number(newExpense.amount),
           text: newExpense.text,
+          createdBy: { name: user?.name, id: user?.id },
+          updatedBy: { name: user?.name, id: user?.id },
         }),
       });
 
@@ -84,6 +86,7 @@ export function ExpensesTab() {
           amount: Number(editForm.amount),
           text: editForm.text,
           date: editForm.date,
+          updatedBy: { name: user?.name, id: user?.id },
         }),
       });
 
@@ -312,7 +315,9 @@ export function ExpensesTab() {
                             className="w-full px-2 py-1 border rounded text-sm"
                           />
                         ) : (
-                          expense.text
+                          <div>
+                            <div>{expense.text}</div>
+                          </div>
                         )}
                       </td>
                       <td className="px-6 py-4 text-sm font-bold text-red-600">

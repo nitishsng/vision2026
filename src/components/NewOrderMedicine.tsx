@@ -6,7 +6,9 @@ import Medicine from "./editPageComponents/Medicine";
 import OpticalPayment from "./editPageComponents/OpticalPayment";
 import GlassesPrescription from "./editPageComponents/GlassesPrescription";
 import Diagnosis from "./editPageComponents/Diagnosis";
+import { useDashboardData } from "@/src/contexts/dataCollection";
 import { DateInput } from "./ui/DateInput";
+import { useAuth } from "../contexts/AuthContext";
 
 
 
@@ -24,6 +26,8 @@ const NewOrder: React.FC<PatientFormProps> = ({
   const [formData, setFormData] =
     useState<PatientFullTypeWithObjectId>(initialPatient);
   const [loading, setLoading] = useState(false);
+  const { fetchData } = useDashboardData();
+  const { user } = useAuth();
 
   // handle all inputs
   const handleInputChange = (
@@ -181,12 +185,17 @@ const NewOrder: React.FC<PatientFormProps> = ({
       const res = await fetch("/api/appointment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          createdBy: { name: user?.name, id: user?.id },
+          updatedBy: { name: user?.name, id: user?.id },
+        }),
       });
 
       if (!res.ok) throw new Error("Failed to save order");
 
       toast.success("Order saved successfully");
+      fetchData();
       setorderSuccess(true);
       setTimeout(() => setorderSuccess(false), 4000);
       setNewOrderForm(false);

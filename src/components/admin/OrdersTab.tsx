@@ -8,6 +8,7 @@ import NewOrder from "../NewOrderMedicine";
 import OpticalPayment from "../editPageComponents/OpticalPayment";
 import useEligibility from "../elegibleForfeatures";
 import GlassesPrescription from "../editPageComponents/GlassesPrescription";
+import { useAuth } from "@/src/contexts/AuthContext";
 export function OrdersTab() {
   const eligibleForFeatures = useEligibility();
 
@@ -119,6 +120,7 @@ export function OrdersTab() {
   };
 
   const { patients, fetchData, isLoading } = useDashboardData();
+  const { user } = useAuth();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [formData, setFormData] = useState<PatientFullTypeWithObjectId | null>(
     null
@@ -196,7 +198,11 @@ export function OrdersTab() {
       const res = await fetch(`/api/patient?id=${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ _id: id, ...updatedFormData }),
+        body: JSON.stringify({ 
+          _id: id, 
+          ...updatedFormData,
+          updatedBy: { name: user?.name, id: user?.id }
+        }),
       });
 
       if (!res.ok) throw new Error("Failed to save");

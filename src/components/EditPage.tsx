@@ -6,6 +6,7 @@ import { useDashboardData } from "@/src/contexts/dataCollection";
 import { PatientFullTypeWithObjectId, todayDate } from "@/src/contexts/type";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/src/contexts/AuthContext";
 
 import Medicine from "./editPageComponents/Medicine";
 import OpticalPayment from "./editPageComponents/OpticalPayment";
@@ -22,6 +23,7 @@ import { DateInput } from "./ui/DateInput";
 const EditPage = () => {
   const navigate = useRouter();
   const { patients, fetchData } = useDashboardData();
+  const { user } = useAuth();
   const params = useParams();
   const id = params?.id as string;
 
@@ -205,7 +207,11 @@ const EditPage = () => {
       const res = await fetch(`/api/patient?id=${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ _id: id, ...updatedFormData }),
+        body: JSON.stringify({ 
+          _id: id, 
+          ...updatedFormData,
+          updatedBy: { name: user?.name, id: user?.id }
+        }),
       });
 
       if (!res.ok) throw new Error("Failed to save");

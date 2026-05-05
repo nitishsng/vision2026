@@ -88,7 +88,7 @@ export type PatientFullType = {
   purpose: "eye-test" | "frame-selection" | "consultation" | "follow-up";
   status: "pending" | "confirmed" | "completed" | "cancelled";
   notes?: string;
-  createdAt: Date;
+  createdAt: string;
   updatedAt?: string;
   repeated: boolean;
   gender?: "";
@@ -186,6 +186,14 @@ export type PatientFullType = {
     };
     use: string;
   }[];
+  createdBy?: {
+    name: string;
+    id: string;
+  };
+  updatedBy?: {
+    name: string;
+    id: string;
+  };
 };
 
 export type PatientFullTypeWithObjectId = PatientFullType & { _id?: string };
@@ -209,7 +217,7 @@ export const initialPatient: PatientFullTypeWithObjectId = {
   medicines: [],
   purpose: "consultation",
   status: "confirmed",
-  createdAt: new Date(),
+  createdAt: "",
   repeated: false,
   visitDate: todayDate,
   // frame
@@ -223,6 +231,14 @@ export type Expense = {
   text: string;
   createdAt?: string;
   updatedAt?: string;
+  createdBy?: {
+    name: string;
+    id: string;
+  };
+  updatedBy?: {
+    name: string;
+    id: string;
+  };
 };
 
 export type ExpenseWithId = Expense & { _id?: string };

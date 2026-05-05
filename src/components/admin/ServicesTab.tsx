@@ -5,10 +5,12 @@ import { Eye, Plus, Search, Clock, IndianRupee } from "lucide-react";
 import { serviceWithId } from "@/src/contexts/type"; // your Service type
 import { initialService } from "@/src/contexts/type"; // initialService object
 import { useDashboardData } from "@/src/contexts/dataCollection";
+import { useAuth } from "@/src/contexts/AuthContext";
 import toast from "react-hot-toast";
 export function ServicesTab() {
   const [showServiceForm, setShowServiceFrom] = useState(false);
   const { services, fetchData, isLoading } = useDashboardData();
+  const { user } = useAuth();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
@@ -49,7 +51,11 @@ export function ServicesTab() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(serviceForm),
+        body: JSON.stringify({
+          ...serviceForm,
+          createdBy: { name: user?.name, id: user?.id },
+          updatedBy: { name: user?.name, id: user?.id },
+        }),
       });
 
       if (!res.ok) {
@@ -76,7 +82,11 @@ export function ServicesTab() {
       const res = await fetch("/api/service", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, isActive: !currentStatus }),
+        body: JSON.stringify({ 
+          id, 
+          isActive: !currentStatus,
+          updatedBy: { name: user?.name, id: user?.id }
+        }),
       });
 
       if (!res.ok) throw new Error("Failed to toggle status");

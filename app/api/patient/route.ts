@@ -19,6 +19,8 @@ export async function POST(req: Request) {
 
     const result = await collection.insertOne({
       ...body,
+      createdAt: new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
+      updatedAt: new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
     });
 
     return NextResponse.json({ success: true, id: result.insertedId });
@@ -55,7 +57,12 @@ export async function PUT(req: Request) {
 
     const result = await collection.updateOne(
       { _id: objectId },
-      { $set: { ...updateData, updatedAt: new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }) } }
+      { 
+        $set: { 
+          ...updateData, 
+          updatedAt: new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }) 
+        } 
+      }
     );
 
     if (result.matchedCount === 0) {

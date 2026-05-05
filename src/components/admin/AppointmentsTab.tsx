@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { Calendar, Clock, Phone, Eye, Plus, Search } from "lucide-react";
 import { useDashboardData } from "@/src/contexts/dataCollection";
+import { useAuth } from "@/src/contexts/AuthContext";
 import { DateInput } from "../ui/DateInput";
 
 import AppointmentForm from "@/src/components/AppointmentForm";
@@ -13,6 +14,7 @@ export function AppointmentsTab() {
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const { fetchData, patients, isLoading } = useDashboardData();
+  const { user } = useAuth();
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
   const today = new Date().toLocaleString("en-CA", {
@@ -78,7 +80,10 @@ const saveAppointment = async (id: string) => {
     const res = await fetch("/api/appointment", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(updatedAppointment),
+      body: JSON.stringify({
+        ...updatedAppointment,
+        updatedBy: { name: user?.name, id: user?.id }
+      }),
     });
 
     if (!res.ok) {

@@ -14,10 +14,12 @@ import {
 import { staffWithId } from "../../contexts/type";
 import { initialStaff } from "../../contexts/type";
 import { useDashboardData } from "@/src/contexts/dataCollection";
+import { useAuth } from "@/src/contexts/AuthContext";
 import toast from "react-hot-toast";
 import bcrypt from "bcryptjs";
 export function OperatorsTab() {
   const { staffs, fetchData, isLoading } = useDashboardData();
+  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
   const [saveSuccessfully, setSaveSuccessfully] = useState(false);
@@ -63,7 +65,11 @@ export function OperatorsTab() {
       const res = await fetch("/api/staff", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(staffData),
+        body: JSON.stringify({
+          ...staffData,
+          createdBy: { name: user?.name, id: user?.id },
+          updatedBy: { name: user?.name, id: user?.id },
+        }),
       });
 
       if (!res.ok) throw new Error("Failed to add staff");

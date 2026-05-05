@@ -19,6 +19,7 @@ export async function POST(req: Request) {
     const result = await collection.insertOne({
       ...body,
       createdAt: new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
+      updatedAt: new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
     });
 
     return NextResponse.json({ success: true, id: result.insertedId });
@@ -49,7 +50,8 @@ export async function GET() {
 
 export async function PUT(req: Request) {
   try {
-    const { id, amount, text, date } = await req.json();
+    const reqBody = await req.json();
+    const { id, amount, text, date } = reqBody;
     
     if (!id || !amount || !text) {
       return NextResponse.json(
@@ -61,7 +63,15 @@ export async function PUT(req: Request) {
     const collection = await getCollection<Expense>("expenses");
     const result = await collection.updateOne(
       { _id: new ObjectId(id) },
-      { $set: { amount: Number(amount), text, date } }
+      { 
+        $set: { 
+          amount: Number(amount), 
+          text, 
+          date,
+          updatedAt: new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
+          updatedBy: { name: reqBody.updatedBy.name, id: reqBody.updatedBy.id }
+        } 
+      }
     );
 
     if (result.matchedCount === 0) {

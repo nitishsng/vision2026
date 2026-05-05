@@ -6,7 +6,7 @@ import { PatientFullTypeWithObjectId } from "@/src/contexts/type";
 export async function PUT(req: Request) {
   try {
     const body = await req.json();
-    const { id, status } = body;
+    const { id, status, updatedBy } = body;
     if (!id)
       return NextResponse.json(
         { success: false, error: "Missing ID" },
@@ -23,7 +23,13 @@ export async function PUT(req: Request) {
 
     const result = await patientsColl.updateOne(
       { id },
-      { $set: { status, updatedAt: new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }) } }
+      { 
+        $set: { 
+          status, 
+          updatedAt: new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }),
+          updatedBy: updatedBy ? { name: updatedBy.name, id: updatedBy.id } : undefined
+        } 
+      }
     );
 
     if (result.matchedCount === 0) {
@@ -102,6 +108,7 @@ export async function POST(req: Request) {
       ...body,
       repeated: Boolean(isExistingAndHasAmount), // true if same patient with due > 0
       updatedAt: now,
+      createdAt: now,
     };
 
     const result = await patientsColl.insertOne(appointmentData);
