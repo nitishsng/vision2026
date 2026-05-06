@@ -1274,12 +1274,14 @@ export function OrdersTab() {
                         <select
                           name="deliveryStatus"
                           value={formData.deliveryStatus}
-                          onChange={(e) =>
+                          onChange={(e) => {
+                            const newStatus = e.target.value;
                             setFormData({
                               ...formData,
-                              deliveryStatus: e.target.value,
-                            })
-                          }
+                              deliveryStatus: newStatus,
+                              deliveryDate: newStatus === "delivered" ? todayDate : formData.deliveryDate
+                            });
+                          }}
                           className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
                         >
                           <option value="pending">Pending</option>
