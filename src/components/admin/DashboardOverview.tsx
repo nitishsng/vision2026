@@ -146,7 +146,7 @@ const recentAppointments = cleanedPatients.slice(0, 5);
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-4">
             <span>Dashboard Overview</span>
             <span className="text-[16px] md:text-xl font-bold text-green-600 bg-green-100 px-4 py-1 rounded-lg">
-              ₹{totalAdvance + opticalDue - totals.totalExpenses}
+              ₹{totalAdvance + opticalDue}
             </span>
           </h1>
           <p className="text-gray-600 mt-1 hidden md:block">
