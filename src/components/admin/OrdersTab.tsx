@@ -248,7 +248,13 @@ export function OrdersTab() {
         : deliveryStatusFilter === patient.deliveryStatus;
 
     const matchesDate =
-      !dateFilter || formatDateDisplay(patient.orderDate) === dateFilter;
+      !dateFilter ||
+      (deliveryStatusFilter === ""
+        ? formatDateDisplay(patient.orderDate) === dateFilter ||
+          formatDateDisplay(patient.deliveryDate || "") === dateFilter
+        : deliveryStatusFilter === "delivered"
+        ? formatDateDisplay(patient.deliveryDate || "") === dateFilter
+        : formatDateDisplay(patient.orderDate) === dateFilter);
     return (
       matchStatus &&
       filterByDeliveryStatus &&
@@ -485,7 +491,11 @@ export function OrdersTab() {
 
                 <div>
                   <label className="hidden md:block text-sm font-medium text-gray-700 mb-1">
-                    Date
+                    {deliveryStatusFilter === ""
+                      ? "Order/Delivery Date"
+                      : deliveryStatusFilter === "delivered"
+                      ? "Delivery Date"
+                      : "Order Date"}
                   </label>
                   <div className="flex bg-white rounded-lg shadow-sm border items-center gap-2 w-full md:w-auto">
                     <DateInput
