@@ -24,7 +24,7 @@ export const DateInput = React.forwardRef<HTMLInputElement, DateInputProps>(
     return (
       <div className={`relative ${containerClassName || ""}`}>
         <div
-          className={`flex items-center border rounded-lg p-2 bg-white focus-within:ring-2 focus-within:ring-green-300 ${className || ""}`}
+          className={`flex items-center border rounded-lg p-2 ${props.disabled ? "bg-gray-100" : "bg-white"} focus-within:ring-2 focus-within:ring-green-300 ${className || ""}`}
         >
           <span className={`text-gray-700 text-sm min-w-[80px] ${!value ? "text-gray-400" : ""}`}>
             {formatDateDisplay(value) || "dd/mm/yy"}
@@ -36,7 +36,7 @@ export const DateInput = React.forwardRef<HTMLInputElement, DateInputProps>(
           ref={ref}
           value={value}
           {...props}
-          className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
+          className={`absolute inset-0 opacity-0 w-full h-full ${props.disabled ? "cursor-not-allowed" : "cursor-pointer"}`}
         />
       </div>
     );

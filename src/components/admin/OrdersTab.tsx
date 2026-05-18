@@ -263,7 +263,7 @@ export function OrdersTab() {
       ((patient.opticalPayDetails?.length || 0) > 0 ||
         (patient.framePrice || 0) + (patient.lensePrice || 0) > 0)
     );
-  });
+  }).sort((a, b) => new Date(b.orderDate || 0).getTime() - new Date(a.orderDate || 0).getTime());
 
   const sendToWhatsApp = (formData: PatientFullTypeWithObjectId) => {
     if (!formData.phoneNo) {

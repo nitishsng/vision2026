@@ -308,6 +308,7 @@ const NewOrder: React.FC<PatientFormProps> = ({
                     value={formData.orderDate?.split("T")[0] || ""}
                     onChange={handleInputChange}
                     className="border p-2 md:p-3 rounded w-full focus:ring-2 focus:ring-blue-400 text-sm md:text-base"
+                    disabled={user ? user.staffGrade <= 3 : false}
                   />
 
                 </div>
